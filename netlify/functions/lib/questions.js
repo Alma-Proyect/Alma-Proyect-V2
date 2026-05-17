@@ -28,7 +28,7 @@ const QUESTIONS = {
   },
   curiosity: {
     1: "¿Qué parte de ti existe en silencio simplemente porque nunca ha tenido espacio para aparecer?",
-    2: "¿Qué hay en ti que has llamado "normal" solo porque siempre has sido así?",
+    2: "¿Qué hay en ti que has llamado \"normal\" solo porque siempre has sido así?",
     3: "¿Qué parte de ti está esperando vivir con más verdad?",
   },
 };
