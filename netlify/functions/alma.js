@@ -37,10 +37,12 @@ exports.handler = async function (event) {
   const currentTurn = turn || 1;
   const isLastTurn  = currentTurn >= MAX_TURNS_PER_DAY;
 
-  // Construir historial de mensajes
+  // Construir historial de mensajes — solo lo esencial para no superar el timeout
   const messages = [];
   if (conversationHistory && conversationHistory.length > 0) {
-    for (const t of conversationHistory) {
+    // Solo el último turno del historial para mantener contexto sin alargar
+    const recent = conversationHistory.slice(-2);
+    for (const t of recent) {
       messages.push({
         role: t.role === "alma" ? "assistant" : "user",
         content: t.text,
@@ -58,7 +60,7 @@ exports.handler = async function (event) {
     const response = await callAnthropic({
       system: getAlmaSystemPrompt(day, currentTurn, previousEntries, arrivalMode),
       messages,
-      maxTokens: 400,
+      maxTokens: 300,
       temperature: 0.85,
       plan: plan || "free",
     });
