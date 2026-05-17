@@ -58,7 +58,7 @@ exports.handler = async function (event) {
     const response = await callAnthropic({
       system: getAlmaSystemPrompt(day, currentTurn, previousEntries, arrivalMode),
       messages,
-      maxTokens: 250,
+      maxTokens: 400,
       temperature: 0.85,
       plan: plan || "free",
     });
