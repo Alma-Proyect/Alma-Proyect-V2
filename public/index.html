@@ -429,7 +429,7 @@ body {
 ════════════════════════════════ */
 .welcome-screen {
   position: fixed; inset: 0; z-index: 100;
-  background: var(--bg);
+  background: linear-gradient(160deg, #e8d5a8 0%, #d4b87a 40%, #c4a055 100%);
   display: flex; align-items: center; justify-content: center;
   padding: 2rem 1.5rem;
   animation: fadeIn 0.8s ease both;
@@ -439,13 +439,15 @@ body {
   pointer-events: none;
 }
 .welcome-card {
-  background: var(--cream); border-radius: 1.5rem;
-  border: 1px solid var(--border); box-shadow: var(--shadow);
-  padding: 2.8rem 2.4rem; max-width: 480px; width: 100%;
+  background: rgba(253,246,232,0.92); border-radius: 1.5rem;
+  border: 1px solid rgba(180,130,50,0.2);
+  box-shadow: 0 20px 60px rgba(100,60,10,0.2), 0 4px 16px rgba(100,60,10,0.1);
+  padding: 2.4rem 2rem; max-width: 420px; width: 100%;
   display: flex; flex-direction: column; align-items: center;
-  text-align: center; gap: 1.2rem;
+  text-align: center; gap: 1rem;
+  backdrop-filter: blur(8px);
 }
-.welcome-logo { height: 42px; width: auto; margin-bottom: 0.4rem; opacity: 0.9; }
+.welcome-logo { height: 88px; width: auto; margin-bottom: 0.2rem; }
 .welcome-title {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.75rem; font-style: italic; font-weight: 400;
