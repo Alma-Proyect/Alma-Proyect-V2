@@ -451,25 +451,25 @@ body {
 .welcome-title {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.75rem; font-style: italic; font-weight: 400;
-  color: var(--ink); line-height: 1.2;
+  color: #2e1a08; line-height: 1.2;
 }
-.welcome-title em { color: var(--clay); font-style: italic; }
+.welcome-title em { color: #7a4418; font-style: italic; }
 .welcome-divider {
-  width: 36px; height: 1px; background: var(--clay);
-  opacity: 0.4; border-radius: 99px;
+  width: 36px; height: 1px; background: #7a4418;
+  opacity: 0.5; border-radius: 99px;
 }
 .welcome-text {
-  font-size: 0.88rem; line-height: 1.85; color: var(--muted);
+  font-size: 0.88rem; line-height: 1.85; color: #5a3e20;
   max-width: 360px;
 }
-.welcome-text strong { color: var(--ink); font-weight: 500; }
+.welcome-text strong { color: #2e1a08; font-weight: 500; }
 
 /* Pregunta cero — cómo llega */
 .arrival-question {
   width: 100%;
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.05rem; font-style: italic;
-  color: var(--ink); line-height: 1.5;
+  color: #2e1a08; line-height: 1.5;
   margin-top: 0.3rem; margin-bottom: 0.2rem;
 }
 .arrival-options {
@@ -478,20 +478,20 @@ body {
 }
 .arrival-btn {
   width: 100%; padding: 0.85rem 1.2rem;
-  background: var(--warm);
-  border: 1.5px solid var(--border); border-radius: 0.9rem;
-  font-family: 'Jost', sans-serif; font-size: 0.88rem; font-weight: 300;
-  color: var(--ink); cursor: pointer; text-align: left;
+  background: rgba(255,248,235,0.7);
+  border: 1.5px solid rgba(140,90,30,0.25); border-radius: 0.9rem;
+  font-family: 'Jost', sans-serif; font-size: 0.88rem; font-weight: 400;
+  color: #2e1a08; cursor: pointer; text-align: left;
   transition: all 0.2s; letter-spacing: 0.01em;
   -webkit-tap-highlight-color: transparent;
   display: flex; align-items: center; gap: 0.7rem;
 }
-.arrival-btn::before { content: '—'; color: var(--clay); opacity: 0.6; font-size: 0.8rem; flex-shrink: 0; }
+.arrival-btn::before { content: '—'; color: #7a4418; opacity: 0.7; font-size: 0.8rem; flex-shrink: 0; }
 .arrival-btn:hover, .arrival-btn.selected {
-  border-color: var(--clay); background: var(--gold-soft);
-  color: var(--ink);
+  border-color: #7a4418; background: rgba(255,248,235,0.95);
+  color: #2e1a08;
 }
-.arrival-btn.selected { border-color: var(--clay); font-weight: 400; }
+.arrival-btn.selected { border-color: #7a4418; font-weight: 500; }
 
 .welcome-btn {
   margin-top: 0.3rem;
@@ -510,7 +510,7 @@ body {
 .welcome-btn.ready:hover  { background: var(--clay2); transform: translateY(-1px); }
 .welcome-btn.ready:active { transform: scale(0.98); }
 .welcome-note {
-  font-size: 0.68rem; color: var(--muted); line-height: 1.5;
+  font-size: 0.68rem; color: #7a5830; line-height: 1.5;
 }
 
 @keyframes fadeOut { from{opacity:1} to{opacity:0;transform:scale(0.98)} }
