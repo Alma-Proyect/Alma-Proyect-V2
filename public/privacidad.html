@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Política de Privacidad — Alma Proyect · Entiende lo que sientes, no lo hagas sola.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #f7f3ee; --warm: #ede8e1; --ink: #2a2520;
+      --ink-soft: #5a524a; --ink-faint: #9a9088;
+      --accent: #8b6f5e; --accent-light: #c4a898; --border: #ddd6cd;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--cream); color: var(--ink);
+      font-family: 'DM Sans', sans-serif; font-weight: 300;
+      min-height: 100vh; padding: 3rem 1.5rem 5rem;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: 0.4;
+    }
+    .container { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; animation: fadeUp 0.7s ease both; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    .doc-header { margin-bottom: 3rem; }
+    .badge { display: inline-block; font-size: 0.62rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent-light); padding: 0.28rem 0.85rem; border-radius: 100px; margin-bottom: 1.2rem; }
+    .doc-header h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 300; line-height: 1.2; color: var(--ink); margin-bottom: 0.5rem; }
+    .doc-header h1 em { font-style: italic; color: var(--accent); }
+    .doc-meta { font-size: 0.78rem; color: var(--ink-faint); line-height: 1.6; margin-top: 0.8rem; }
+    .doc-intro { background: var(--warm); border-radius: 10px; padding: 1rem 1.2rem; margin-top: 1.2rem; font-size: 0.83rem; color: var(--ink-soft); line-height: 1.7; border-left: 2px solid var(--accent-light); }
+    .section { margin-bottom: 2.4rem; padding-bottom: 2.4rem; border-bottom: 1px solid var(--warm); }
+    .section:last-of-type { border-bottom: none; }
+    .section-num { font-family: 'Cormorant Garamond', serif; font-size: 0.75rem; font-weight: 400; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 0.4rem; display: block; }
+    .section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 400; color: var(--ink); margin-bottom: 0.9rem; line-height: 1.3; }
+    .section p { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.8; margin-bottom: 0.7rem; }
+    .section p:last-child { margin-bottom: 0; }
+    .section a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-light); transition: opacity 0.2s; }
+    .section a:hover { opacity: 0.7; }
+    .rights-list { list-style: none; margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.55rem; }
+    .rights-list li { font-size: 0.87rem; color: var(--ink-soft); line-height: 1.6; display: flex; gap: 0.7rem; align-items: flex-start; }
+    .rights-list li::before { content: '✦'; font-size: 0.5rem; color: var(--accent); flex-shrink: 0; margin-top: 0.4rem; }
+    .crisis-box { background: var(--warm); border-left: 2px solid var(--accent-light); border-radius: 8px; padding: 0.8rem 1rem; margin-top: 0.8rem; }
+    .crisis-box p { font-size: 0.82rem !important; }
+    .contact-box { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 1.8rem 2rem; margin-bottom: 2.5rem; box-shadow: 0 2px 16px rgba(42,37,32,0.05); }
+    .contact-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 400; color: var(--ink); margin-bottom: 0.5rem; }
+    .contact-box p { font-size: 0.87rem; color: var(--ink-soft); line-height: 1.7; }
+    .contact-box a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-light); }
+    .back-link { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--ink-soft); text-decoration: none; margin-bottom: 2rem; transition: color 0.2s; }
+    .back-link:hover { color: var(--accent); }
+    .back-link::before { content: '←'; }
+    .doc-footer { text-align: center; font-size: 0.72rem; color: var(--ink-faint); line-height: 1.7; padding-top: 1.5rem; border-top: 1px solid var(--warm); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="back-link" href="beta-aviso.html">Volver a la pantalla de bienvenida</a>
+    <div class="doc-header">
+      <span class="badge">Versión Beta — Documento Legal</span>
+      <h1>Política de <em>Privacidad</em></h1>
+      <p class="doc-meta">Alma Proyect · Fase beta cerrada<br>Última actualización: abril de 2026</p>
+      <div class="doc-intro">Documento simplificado para fase beta. Esta política aplica exclusivamente durante la fase de pruebas cerrada. Cuando el servicio se lance de forma definitiva, será reemplazada por una política completa.</div>
+    </div>
+    <div class="section">
+      <span class="section-num">01</span>
+      <h2>Quién es responsable del tratamiento</h2>
+      <p>El responsable del tratamiento de los datos es el equipo de Alma Proyect, en fase de constitución. Durante la beta, puedes contactar en <a href="mailto:almaproyect11@gmail.com">almaproyect11@gmail.com</a>.</p>
+    </div>
+    <div class="section">
+      <span class="section-num">02</span>
+      <h2>Qué datos se tratan y por qué</h2>
+      <p>Durante esta fase beta no se solicitan datos personales identificativos (nombre, email, teléfono). El acceso se facilita mediante enlace privado.</p>
+      <p>Los únicos datos que se generan son los textos que tú escribes libremente en el espacio de journaling. Estos textos son procesados en tiempo real por sistemas de inteligencia artificial para generar respuestas de acompañamiento, y no se almacenan de forma permanente en nuestros sistemas.</p>
+      <p>La base jurídica del tratamiento es el consentimiento explícito que prestas al aceptar las condiciones antes de entrar.</p>
+    </div>
+    <div class="section">
+      <span class="section-num">03</span>
+      <h2>Uso de inteligencia artificial (Anthropic / Claude)</h2>
+      <p>Los textos que introduces son enviados a la API de Anthropic para generar las respuestas del acompañante. Esto implica que Anthropic procesa ese contenido de acuerdo con su propia política de privacidad y sus condiciones de uso.</p>
+      <p>Anthropic actúa como encargado del tratamiento. Puedes consultar su política en <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">anthropic.com/privacy</a>.</p>
+      <p>Te recordamos que en esta beta no debes introducir tu nombre real, datos de terceras personas ni información sensible identificable.</p>
+    </div>
+    <div class="section">
+      <span class="section-num">04</span>
+      <h2>Cuánto tiempo se conservan los datos</h2>
+      <p>Los textos de la beta no se conservan de forma permanente. Al finalizar la fase beta, cualquier dato generado durante las pruebas será eliminado antes del lanzamiento del servicio definitivo.</p>
+    </div>
+    <div class="section">
+      <span class="section-num">05</span>
+      <h2>Tus derechos</h2>
+      <p>Aunque el tratamiento en esta fase es mínimo, tienes derecho a:</p>
+      <ul class="rights-list">
+        <li>Acceder a la información que se haya podido generar sobre ti</li>
+        <li>Solicitar su supresión en cualquier momento</li>
+        <li>Retirar tu consentimiento sin que ello te perjudique</li>
+        <li>Presentar una reclamación ante la Agencia Española de Protección de Datos (AEPD) en <a href="https://www.aepd.es" target="_blank" rel="noopener">aepd.es</a></li>
+      </ul>
+    </div>
+    <div class="section">
+      <span class="section-num">06</span>
+      <h2>Naturaleza del servicio</h2>
+      <p>Alma Proyect es un espacio de journaling y acompañamiento emocional. No es un servicio de psicología, terapia, coaching ni atención sanitaria, y no sustituye en ningún caso la atención de un profesional de salud mental.</p>
+      <div class="crisis-box">
+        <p>Si necesitas ayuda urgente, contacta con el <a href="tel:717003717"><strong>Teléfono de la Esperanza: 717 003 717</strong></a> (24h, gratuito).</p>
+      </div>
+    </div>
+    <div class="contact-box">
+      <h3>¿Tienes preguntas?</h3>
+      <p>Para cualquier consulta sobre privacidad o para ejercer tus derechos, escríbenos a <a href="mailto:almaproyect11@gmail.com">almaproyect11@gmail.com</a>.</p>
+    </div>
+    <div class="doc-footer">
+      Alma Proyect · Beta cerrada · Abril 2026<br>
+      Este documento no constituye asesoramiento jurídico definitivo
+    </div>
+  </div>
+</body>
+</html>
