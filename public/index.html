@@ -1234,10 +1234,13 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
     document.getElementById('turn-reply').style.display = 'none';
     setTimeout(() =>
       document.getElementById('alma-response').scrollIntoView({ behavior:'smooth', block:'start' }), 150);
+  } else {
+    document.getElementById('typing').classList.add('visible');
+    document.getElementById('alma-response-text').innerHTML = '';
   }
 
   const controller = new AbortController();
-  const timeoutId  = setTimeout(() => controller.abort(), 20000);
+  const timeoutId  = setTimeout(() => controller.abort(), 25000);
   const fallbackMsg = "No pude responderte ahora mismo. Lo que has escrito ya tiene valor, independientemente de mi respuesta.";
 
   try {
@@ -1257,141 +1260,33 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
     });
 
     clearTimeout(timeoutId);
+    const data = await res.json();
+    document.getElementById('typing').classList.remove('visible');
 
-    const contentType = res.headers.get('content-type') || '';
+    const almaReply  = data.response || fallbackMsg;
+    const isLastTurn = data.isLastTurn || currentTurn >= 3;
 
-    // ── STREAMING ──────────────────────────────────────────
-    if (contentType.includes('text/event-stream')) {
-      document.getElementById('typing').classList.remove('visible');
+    conversationHistory.push({ role: 'alma', text: almaReply });
+    const entryNow = loadFromLocal(currentDay);
+    saveToLocal(currentDay, entryNow?.text || text, entryNow?.emotions || [], almaReply, conversationHistory);
 
-      const responseEl = document.getElementById('alma-response-text');
-      responseEl.innerHTML = '';
-
-      // Cursor parpadeante mientras escribe
-      let cursor = document.createElement('span');
-      cursor.className = 'alma-cursor';
-      cursor.textContent = '▋';
-      responseEl.appendChild(cursor);
-
-      const reader  = res.body.getReader();
-      const decoder = new TextDecoder();
-      let   buffer  = '';
-      let   fullText = '';
-      let   currentParaEl = null; // párrafo activo
-
-      function getOrCreatePara() {
-        if (!currentParaEl) {
-          currentParaEl = document.createElement('p');
-          responseEl.insertBefore(currentParaEl, cursor);
-        }
-        return currentParaEl;
-      }
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop();
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const raw = line.slice(6).trim();
-          if (!raw) continue;
-
-          try {
-            const evt = JSON.parse(raw);
-
-            if (evt.type === 'token') {
-              fullText += evt.token;
-
-              // Dividir en párrafos por salto de línea doble
-              const parts = evt.token.split('\n');
-              for (let p = 0; p < parts.length; p++) {
-                if (p > 0) {
-                  // Salto de línea — cerrar párrafo actual y crear nuevo
-                  currentParaEl = null;
-                }
-                if (parts[p]) {
-                  getOrCreatePara().textContent += parts[p];
-                }
-              }
-
-              // Mantener cursor al final
-              responseEl.appendChild(cursor);
-
-              // Auto-scroll suave si está cerca del fondo
-              const resp = document.getElementById('alma-response');
-              const distFromBottom = resp.scrollHeight - resp.scrollTop - resp.clientHeight;
-              if (distFromBottom < 120) {
-                resp.scrollTop = resp.scrollHeight;
-              }
-            }
-
-            if (evt.type === 'done' || evt.type === 'fallback') {
-              const finalText = evt.type === 'fallback' ? evt.text : fullText;
-              const isLast    = evt.isLastTurn || currentTurn >= 3;
-
-              // Quitar cursor
-              if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
-
-              // Si fue fallback, renderizar el texto directamente
-              if (evt.type === 'fallback') {
-                responseEl.innerHTML = finalText
-                  .split('\n').filter(p => p.trim())
-                  .map(p => `<p>${p}</p>`).join('');
-              }
-
-              // Guardar historial
-              conversationHistory.push({ role: 'alma', text: finalText });
-              const entryNow = loadFromLocal(currentDay);
-              saveToLocal(currentDay, entryNow?.text || text, entryNow?.emotions || [], finalText, conversationHistory);
-
-              if (isFirstTurn) {
-                btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
-              }
-
-              renderNav();
-
-              // Pequeña pausa antes de mostrar siguiente acción
-              setTimeout(() => {
-                if (!isLast) {
-                  showTurnReply();
-                } else {
-                  hideTurnReply();
-                  document.getElementById('alma-pause').style.display = 'block';
-                  showNextIfNewDay();
-                }
-              }, 600);
-            }
-
-          } catch (_) { /* JSON parcial — ignorar */ }
-        }
-      }
-
-    // ── FALLBACK JSON (si no hay streaming) ────────────────
-    } else {
-      const data = await res.json();
-      document.getElementById('typing').classList.remove('visible');
-      const almaReply  = data.response || fallbackMsg;
-      const isLastTurn = data.isLastTurn || currentTurn >= 3;
-
-      conversationHistory.push({ role: 'alma', text: almaReply });
-      const entryNow = loadFromLocal(currentDay);
-      saveToLocal(currentDay, entryNow?.text || text, entryNow?.emotions || [], almaReply, conversationHistory);
-
-      if (isFirstTurn) {
-        btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
-      }
-
-      setTimeout(() => {
-        typeWriter(almaReply, () => {
-          if (!isLastTurn) { showTurnReply(); }
-          else { hideTurnReply(); document.getElementById('alma-pause').style.display = 'block'; showNextIfNewDay(); }
-        });
-      }, 1200);
+    if (isFirstTurn) {
+      btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
     }
+
+    // Typewriter — efecto de escritura palabra a palabra
+    typeWriter(almaReply, () => {
+      renderNav();
+      setTimeout(() => {
+        if (!isLastTurn) {
+          showTurnReply();
+        } else {
+          hideTurnReply();
+          document.getElementById('alma-pause').style.display = 'block';
+          showNextIfNewDay();
+        }
+      }, 400);
+    });
 
   } catch(e) {
     clearTimeout(timeoutId);
@@ -1403,12 +1298,10 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
     const entryErr = loadFromLocal(currentDay);
     saveToLocal(currentDay, entryErr?.text || text, entryErr?.emotions || [], msg, conversationHistory);
     if (isFirstTurn) btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
-    setTimeout(() => {
-      typeWriter(msg, () => {
-        hideTurnReply();
-        showNextIfNewDay();
-      });
-    }, 800);
+    typeWriter(msg, () => {
+      hideTurnReply();
+      showNextIfNewDay();
+    });
   }
 }
 
