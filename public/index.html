@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="robots" content="noindex, nofollow">
+<title>Alma Proyect — Entiende lo que sientes, no lo hagas sola.</title>
+<meta name="description" content="Alma Proyect. Entiende lo que sientes, no lo hagas sola. Sin prisas, sin juicios, a tu ritmo… Tres preguntas. Tres días.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── TEMA OSCURO (por defecto) ── */
+:root {
+  --bg:        #0f0c09;
+  --cream:     #1a1510;
+  --warm:      #241d15;
+  --clay:      #c9963a;
+  --clay2:     #a87828;
+  --rose:      #e8c4a0;
+  --sage:      #7a9e8c;
+  --ink:       #f0e8d8;
+  --muted:     #7a6e60;
+  --border:    rgba(201,150,58,0.18);
+  --shadow:    0 8px 40px rgba(0,0,0,0.4);
+  --surface:   #221c14;
+  --gold:      #c9963a;
+  --gold-soft: rgba(201,150,58,0.1);
+}
+
+/* ── TEMA CLARO ── */
+[data-theme="light"] {
+  --bg:        #F7F2EC;
+  --cream:     #FBF8F4;
+  --warm:      #EDE5D8;
+  --clay:      #C4896F;
+  --clay2:     #A86B50;
+  --rose:      #E8C4B4;
+  --sage:      #8A9E8C;
+  --ink:       #2C2420;
+  --muted:     #9A8880;
+  --border:    rgba(196,137,111,0.15);
+  --shadow:    0 8px 40px rgba(44,36,32,0.08);
+  --surface:   #FBF8F4;
+  --gold:      #C4896F;
+  --gold-soft: rgba(196,137,111,0.08);
+}
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--bg); color: var(--ink);
+  min-height: 100vh; min-height: -webkit-fill-available;
+  display: flex; flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ── BOTÓN DE TEMA ── */
+.theme-toggle {
+  background: none; border: 1px solid var(--border);
+  border-radius: 2rem; padding: 0.3rem 0.65rem;
+  color: var(--muted); cursor: pointer;
+  font-size: 0.75rem; line-height: 1;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.theme-toggle:hover { border-color: var(--clay); color: var(--clay); }
+
+/* ════════════════════════════════
+   TOPBAR — compartido
+════════════════════════════════ */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: var(--cream); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-logo img { height: 32px; width: auto; display: block; }
+.topbar-right    { display: flex; align-items: center; gap: 0.85rem; }
+.topbar-date     { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.05em; }
+.topbar-avatar   {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--warm); border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; color: var(--muted); flex-shrink: 0;
+}
+
+/* ════════════════════════════════
+   MÓVIL: nav horizontal + barra
+════════════════════════════════ */
+.day-nav {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 1.2rem;
+  background: var(--cream); border-bottom: 1px solid var(--border);
+  overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.day-nav::-webkit-scrollbar { display: none; }
+
+.day-nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+  flex-shrink: 0; cursor: pointer; padding: 0.4rem 0.55rem;
+  border-radius: 0.7rem; border: 1.5px solid transparent;
+  transition: all 0.2s; min-width: 60px;
+  -webkit-tap-highlight-color: transparent;
+}
+.day-nav-item.active { background: rgba(196,137,111,0.1); border-color: rgba(196,137,111,0.3); }
+.day-nav-dot {
+  width: 27px; height: 27px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.67rem; font-weight: 600;
+}
+.day-nav-label {
+  font-size: 0.56rem; color: var(--muted); font-weight: 500;
+  text-align: center; line-height: 1.2;
+}
+.day-nav-item.active .day-nav-label { color: var(--clay); font-weight: 600; }
+
+.progress-bar-wrap {
+  padding: 0.5rem 1.2rem 0;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.progress-bar-bg {
+  flex: 1; height: 3px; background: var(--warm); border-radius: 99px; overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%; background: var(--clay); border-radius: 99px;
+  transition: width 0.6s ease; width: 0%;
+}
+.progress-bar-pct { font-size: 0.63rem; color: var(--clay); font-weight: 600; min-width: 26px; text-align: right; }
+
+/* Streak banner móvil */
+.streak-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--ink); border-radius: 1rem; padding: 0.9rem 1.1rem;
+  margin-bottom: 1.2rem;
+}
+.streak-left  { display: flex; align-items: baseline; gap: 0.4rem; }
+.streak-num   { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-style: italic; color: var(--rose); line-height: 1; }
+.streak-lbl   { font-size: 0.57rem; color: rgba(251,248,244,0.4); letter-spacing: 0.1em; }
+.streak-msg   { font-size: 0.66rem; color: rgba(251,248,244,0.5); font-style: italic; line-height: 1.4; max-width: 56%; text-align: right; }
+
+/* Botones fijos móvil */
+.actions-wrap-mobile {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+  background: linear-gradient(transparent, var(--bg) 28%);
+  padding: 0.9rem 1.2rem 1.5rem;
+  display: flex; gap: 0.6rem;
+}
+
+/* ════════════════════════════════
+   DESKTOP: sidebar + ring
+════════════════════════════════ */
+.app-layout {
+  display: flex; flex: 1;
+}
+
+.sidebar {
+  width: 240px; flex-shrink: 0;
+  background: var(--cream); border-right: 1px solid var(--border);
+  padding: 1.8rem 1rem; display: flex; flex-direction: column; gap: 1.8rem;
+}
+.sidebar-title {
+  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted); font-weight: 600; margin-bottom: 0.7rem; padding-left: 0.5rem;
+}
+.day-list { display: flex; flex-direction: column; gap: 0.3rem; }
+.day-item {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.75rem 0.7rem; border-radius: 0.75rem;
+  cursor: pointer; transition: all 0.2s; border: 1.5px solid transparent;
+}
+.day-item:hover  { background: var(--warm); }
+.day-item.active { background: rgba(196,137,111,0.09); border-color: rgba(196,137,111,0.28); }
+.day-item-dot {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.68rem; font-weight: 600; flex-shrink: 0;
+}
+.day-item-info    { display: flex; flex-direction: column; gap: 0.1rem; }
+.day-item-name    { font-size: 0.8rem;  font-weight: 500; line-height: 1; color: var(--ink); }
+.day-item-sub     { font-size: 0.68rem; color: var(--muted); }
+.streak-box { background: var(--ink); border-radius: 0.9rem; padding: 1.1rem; text-align: center; }
+.streak-box-num   { font-family: 'Cormorant Garamond', serif; font-size: 2.1rem; font-style: italic; color: var(--rose); line-height: 1; }
+.streak-box-label { font-size: 0.6rem;  color: rgba(251,248,244,0.4); letter-spacing: 0.12em; margin-top: 0.25rem; }
+.streak-box-msg   { font-size: 0.7rem;  color: rgba(251,248,244,0.5); margin-top: 0.55rem; line-height: 1.55; font-style: italic; }
+
+/* Ring progress desktop */
+.progress-ring-bg   { fill: none; stroke: var(--warm); stroke-width: 3; }
+.progress-ring-fill { fill: none; stroke: var(--clay); stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+.ring-label { font-size: 9px; font-weight: 600; fill: var(--clay); dominant-baseline: middle; text-anchor: middle; }
+
+/* ════════════════════════════════
+   CONTENIDO PRINCIPAL — compartido
+════════════════════════════════ */
+.main-content {
+  flex: 1; display: flex; flex-direction: column;
+  padding: 2rem 2.5rem; max-width: 700px; width: 100%; margin: 0 auto;
+}
+
+.day-header    { margin-bottom: 1.6rem; }
+.day-header-row { display: flex; align-items: flex-start; justify-content: space-between; }
+
+.day-pill {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: rgba(196,137,111,0.1); border: 1px solid rgba(196,137,111,0.25);
+  color: var(--clay); border-radius: 2rem;
+  padding: 0.27rem 0.82rem; font-size: 0.64rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.55rem;
+}
+.day-pill::before { content: '✦'; font-size: 0.49rem; }
+.day-title-text {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.52rem;
+  font-weight: 400; line-height: 1.22; color: var(--ink);
+}
+.day-title-text em { font-style: italic; color: var(--clay); }
+
+.question-card {
+  background: var(--cream); border-radius: 1.3rem; border: 1px solid var(--border);
+  padding: 1.7rem 1.9rem; margin-bottom: 1.1rem; box-shadow: var(--shadow);
+}
+.question-label {
+  font-size: 0.59rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted); font-weight: 600; margin-bottom: 0.8rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.question-label::before { content: ''; display: block; width: 13px; height: 1px; background: var(--muted); }
+.question-text {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.3rem;
+  font-style: italic; line-height: 1.55; color: var(--ink); margin-bottom: 1.3rem;
+}
+.question-intro {
+  font-family: 'Jost', sans-serif; font-size: 0.78rem;
+  color: var(--muted); font-style: normal; font-weight: 300;
+  letter-spacing: 0.03em; margin-bottom: 0.6rem; line-height: 1.5;
+}
+.question-main {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.3rem;
+  font-style: italic; line-height: 1.55; color: var(--ink);
+  margin-bottom: 1.3rem;
+}
+.journal-textarea {
+  width: 100%; min-height: 155px;
+  border: 1.5px solid var(--border); outline: none; resize: none;
+  background: var(--warm); border-radius: 0.85rem; padding: 1rem 1.15rem;
+  font-family: 'Jost', sans-serif; font-size: 16px; line-height: 1.8;
+  color: var(--ink); caret-color: var(--clay); transition: all 0.2s;
+}
+.journal-textarea::placeholder { color: var(--muted); font-style: italic; opacity: 0.6; }
+.journal-textarea:focus {
+  border-color: rgba(201,150,58,0.4);
+  box-shadow: 0 0 0 4px rgba(201,150,58,0.06); background: var(--cream);
+}
+.char-row   { display: flex; justify-content: flex-end; align-items: center; margin-top: 0.5rem; gap: 0.5rem; }
+.char-count { font-size: 0.69rem; color: var(--muted); }
+.autosave   { font-size: 0.65rem; color: var(--sage); display: flex; align-items: center; gap: 0.3rem; }
+.autosave::before { content: '●'; font-size: 0.36rem; }
+
+.emotion-section { margin-bottom: 1.1rem; }
+.emotion-label   { font-size: 0.63rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 0.65rem; display: block; }
+.emotion-chips   { display: flex; gap: 0.42rem; flex-wrap: wrap; }
+.emotion-chip {
+  border: 1.5px solid var(--border); background: var(--cream);
+  border-radius: 2rem; padding: 0.4rem 0.88rem;
+  font-size: 0.77rem; cursor: pointer; color: var(--muted);
+  transition: all 0.15s; font-family: 'Jost', sans-serif; user-select: none;
+  min-height: 36px; display: flex; align-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.emotion-chip:active   { transform: scale(0.95); }
+.emotion-chip:hover    { border-color: var(--clay); color: var(--clay); background: rgba(196,137,111,0.05); }
+.emotion-chip.selected { background: rgba(196,137,111,0.12); border-color: var(--clay); color: var(--clay2); font-weight: 500; }
+
+/* Botones desktop */
+.actions-row { display: flex; gap: 0.75rem; margin-bottom: 1.8rem; }
+.btn-save {
+  flex: 1; padding: 0.9rem;
+  background: var(--clay); color: #fff;
+  border: none; border-radius: 0.9rem;
+  font-size: 0.89rem; font-weight: 600; letter-spacing: 0.02em;
+  cursor: pointer; transition: all 0.22s; font-family: 'Jost', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 50px;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-save:hover:not(:disabled) { background: var(--clay2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(168,107,80,0.28); }
+.btn-save:active:not(:disabled) { transform: scale(0.98); }
+.btn-save:disabled { background: #d4a98e; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-next {
+  padding: 0.9rem 1.25rem;
+  background: var(--warm); color: var(--ink);
+  border: 1.5px solid var(--border); border-radius: 0.9rem;
+  font-size: 0.89rem; font-weight: 500; cursor: pointer; transition: all 0.2s;
+  font-family: 'Jost', sans-serif; display: flex; align-items: center; gap: 0.4rem;
+  min-height: 50px; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-next:hover  { background: var(--clay); color: #fff; border-color: var(--clay); }
+.btn-next:active { background: var(--clay2); color: #fff; border-color: var(--clay2); }
+
+/* Alma response */
+.alma-response {
+  background: var(--surface); border-radius: 1.2rem;
+  border: 1px solid var(--border);
+  padding: 1.5rem 1.7rem; display: none; animation: slideUp 0.4s ease both;
+  margin-bottom: 1rem;
+}
+.alma-response.visible { display: block; }
+.alma-response-label {
+  font-size: 0.57rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--clay); font-weight: 600; margin-bottom: 0.8rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.alma-response-label::before { content: '◉'; font-size: 0.4rem; }
+.alma-response p { font-size: 0.93rem; line-height: 1.9; color: var(--ink); opacity: 0.85; margin-bottom: 0.6rem; }
+.alma-response p:last-child { margin-bottom: 0; opacity: 1; }
+.alma-pause { margin-top: 12px; font-size: 0.72rem; color: var(--muted); font-style: italic; }
+
+/* Dots */
+.typing { display: none; align-items: center; gap: 0.35rem; margin-bottom: 0.8rem; }
+.typing.visible { display: flex; }
+.typing-dot, .loading-dot {
+  width: 5px; height: 5px; border-radius: 50%; opacity: 0.4;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.typing-dot  { background: var(--rose); }
+.loading-dot { background: #fff; }
+.typing-dot:nth-child(2), .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3), .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Dot styles compartidos */
+.dot-done    { background: var(--sage); color: #fff; }
+.dot-active  { background: var(--clay); color: #fff; }
+.dot-pending { background: var(--warm); color: var(--muted); border: 1.5px dashed rgba(154,136,128,0.4); }
+
+/* Turn reply field — aparece después de cada respuesta de Alma */
+.turn-reply {
+  margin-top: 1.2rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1.1rem;
+  animation: slideUp 0.35s ease both;
+}
+.turn-textarea {
+  width: 100%; min-height: 90px;
+  background: var(--warm); border: 1.5px solid var(--border);
+  border-radius: 0.75rem; padding: 0.85rem 1rem;
+  font-family: 'Jost', sans-serif; font-size: 15px; line-height: 1.75;
+  color: var(--ink); caret-color: var(--clay);
+  resize: none; outline: none; transition: all 0.2s;
+}
+.turn-textarea::placeholder { color: var(--muted); font-style: italic; opacity: 0.6; }
+.turn-textarea:focus {
+  border-color: rgba(201,150,58,0.4);
+  background: var(--cream);
+  box-shadow: 0 0 0 3px rgba(201,150,58,0.06);
+}
+.turn-footer {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-top: 0.5rem;
+}
+.btn-turn-send {
+  background: none; border: 1.5px solid var(--clay);
+  border-radius: 2rem; padding: 0.45rem 1.1rem;
+  color: var(--clay); font-family: 'Jost', sans-serif;
+  font-size: 0.8rem; font-weight: 500; cursor: pointer;
+  transition: all 0.2s; letter-spacing: 0.03em;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-turn-send:hover { background: var(--gold-soft); }
+.btn-turn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Cursor parpadeante durante el streaming */
+.alma-cursor {
+  display: inline-block;
+  color: var(--clay);
+  font-size: 0.85rem;
+  line-height: 1;
+  animation: blink 0.9s step-end infinite;
+  margin-left: 1px;
+  vertical-align: middle;
+  opacity: 0.8;
+}
+@keyframes blink {
+  0%, 100% { opacity: 0.8; }
+  50%       { opacity: 0; }
+}
+
+/* Párrafos de Alma que aparecen durante el stream */
+.alma-response p {
+  animation: paraFade 0.3s ease both;
+}
+@keyframes paraFade {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse   { 0%,100%{opacity:0.3;transform:scale(1)} 50%{opacity:1;transform:scale(1.45)} }
+@keyframes slideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ════════════════════════════════
+   RESPONSIVE: qué se ve en cada pantalla
+════════════════════════════════ */
+
+/* MÓVIL por defecto */
+.sidebar             { display: none; }
+.actions-row         { display: none; }   /* botones desktop ocultos */
+.day-header-ring     { display: none; }   /* ring oculto */
+.actions-wrap-mobile { display: flex; }   /* botones fijos visibles */
+.day-nav             { display: flex; }
+.progress-bar-wrap   { display: flex; }
+.streak-banner       { display: flex; }
+
+.main-content { padding: 1.3rem 1.2rem 7rem; }
+
+/* DESKTOP (≥ 680px) */
+@media (min-width: 680px) {
+  .topbar { padding: 0.75rem 2rem; }
+
+  /* Ocultar elementos móvil */
+  .day-nav             { display: none; }
+  .progress-bar-wrap   { display: none; }
+  .streak-banner       { display: none; }
+  .actions-wrap-mobile { display: none; }
+
+  /* Mostrar elementos desktop */
+  .sidebar         { display: flex; }
+  .actions-row     { display: flex; }
+  .day-header-ring { display: block; }
+
+  .main-content { padding: 2rem 2.5rem; }
+
+  .app-layout { min-height: calc(100vh - 57px); }
+}
+
+/* ════════════════════════════════
+   PANTALLA DE BIENVENIDA
+════════════════════════════════ */
+.welcome-screen {
+  position: fixed; inset: 0; z-index: 100;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem 1.5rem;
+  animation: fadeIn 0.8s ease both;
+}
+.welcome-screen.hidden {
+  animation: fadeOut 0.5s ease both;
+  pointer-events: none;
+}
+.welcome-card {
+  background: var(--cream); border-radius: 1.5rem;
+  border: 1px solid var(--border); box-shadow: var(--shadow);
+  padding: 2.8rem 2.4rem; max-width: 480px; width: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; gap: 1.2rem;
+}
+.welcome-logo { height: 42px; width: auto; margin-bottom: 0.4rem; opacity: 0.9; }
+.welcome-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.75rem; font-style: italic; font-weight: 400;
+  color: var(--ink); line-height: 1.2;
+}
+.welcome-title em { color: var(--clay); font-style: italic; }
+.welcome-divider {
+  width: 36px; height: 1px; background: var(--clay);
+  opacity: 0.4; border-radius: 99px;
+}
+.welcome-text {
+  font-size: 0.88rem; line-height: 1.85; color: var(--muted);
+  max-width: 360px;
+}
+.welcome-text strong { color: var(--ink); font-weight: 500; }
+
+/* Pregunta cero — cómo llega */
+.arrival-question {
+  width: 100%;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem; font-style: italic;
+  color: var(--ink); line-height: 1.5;
+  margin-top: 0.3rem; margin-bottom: 0.2rem;
+}
+.arrival-options {
+  width: 100%;
+  display: flex; flex-direction: column; gap: 0.6rem;
+}
+.arrival-btn {
+  width: 100%; padding: 0.85rem 1.2rem;
+  background: var(--warm);
+  border: 1.5px solid var(--border); border-radius: 0.9rem;
+  font-family: 'Jost', sans-serif; font-size: 0.88rem; font-weight: 300;
+  color: var(--ink); cursor: pointer; text-align: left;
+  transition: all 0.2s; letter-spacing: 0.01em;
+  -webkit-tap-highlight-color: transparent;
+  display: flex; align-items: center; gap: 0.7rem;
+}
+.arrival-btn::before { content: '—'; color: var(--clay); opacity: 0.6; font-size: 0.8rem; flex-shrink: 0; }
+.arrival-btn:hover, .arrival-btn.selected {
+  border-color: var(--clay); background: var(--gold-soft);
+  color: var(--ink);
+}
+.arrival-btn.selected { border-color: var(--clay); font-weight: 400; }
+
+.welcome-btn {
+  margin-top: 0.3rem;
+  width: 100%; padding: 1rem;
+  background: var(--clay); color: #fff;
+  border: none; border-radius: 0.9rem;
+  font-size: 0.92rem; font-weight: 500; letter-spacing: 0.04em;
+  cursor: pointer; transition: all 0.22s;
+  font-family: 'Jost', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0.4; pointer-events: none;
+}
+.welcome-btn.ready { opacity: 1; pointer-events: all; }
+.welcome-btn.ready:hover  { background: var(--clay2); transform: translateY(-1px); }
+.welcome-btn.ready:active { transform: scale(0.98); }
+.welcome-note {
+  font-size: 0.68rem; color: var(--muted); line-height: 1.5;
+}
+
+@keyframes fadeOut { from{opacity:1} to{opacity:0;transform:scale(0.98)} }
+/* ════════════════════════════════
+   PANTALLA DE CIERRE
+════════════════════════════════ */
+.farewell-screen {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--ink);
+  display: none; align-items: center; justify-content: center;
+  padding: 2rem 1.5rem;
+}
+.farewell-screen.visible {
+  display: flex;
+  animation: fadeIn 0.8s ease both;
+}
+.farewell-card {
+  max-width: 480px; width: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; gap: 1.4rem;
+}
+.farewell-symbol {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem; color: var(--rose); opacity: 0.6;
+  letter-spacing: 0.3em;
+}
+.farewell-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.7rem, 4vw, 2.2rem);
+  font-weight: 400; font-style: italic;
+  color: var(--cream); line-height: 1.25;
+}
+.farewell-title em { color: var(--rose); font-style: italic; }
+.farewell-divider {
+  width: 40px; height: 1px;
+  background: var(--rose); opacity: 0.4; border-radius: 99px;
+}
+.farewell-body {
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.farewell-body p {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.9rem; font-weight: 300;
+  color: rgba(251,248,244,0.65); line-height: 1.85;
+}
+.farewell-body p strong {
+  color: rgba(251,248,244,0.9); font-weight: 400;
+}
+.farewell-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem; font-style: italic;
+  color: var(--rose); line-height: 1.6;
+  padding: 0 1rem;
+  border-left: 1.5px solid rgba(232,196,180,0.3);
+  text-align: left;
+}
+.farewell-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: rgba(232,196,180,0.1);
+  border: 1px solid rgba(232,196,180,0.2);
+  color: var(--rose); border-radius: 2rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.farewell-alma {
+  text-align: left;
+  border-left: 1.5px solid rgba(232,196,180,0.3);
+  padding-left: 1.2rem;
+}
+.farewell-alma p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem; font-style: italic;
+  color: rgba(251,248,244,0.8); line-height: 1.8;
+  margin-bottom: 0.6rem;
+}
+.farewell-alma p:last-child { margin-bottom: 0; }
+.farewell-note {
+  font-size: 0.7rem; color: rgba(251,248,244,0.3);
+  font-style: italic; line-height: 1.6;
+}
+.farewell-actions {
+  display: flex; gap: 0.75rem; width: 100%; justify-content: center;
+  flex-wrap: wrap;
+}
+.btn-farewell {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 1.4rem; border-radius: 0.85rem;
+  font-family: 'Jost', sans-serif; font-size: 0.82rem;
+  font-weight: 500; letter-spacing: 0.02em;
+  cursor: pointer; transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  border: 1.5px solid rgba(232,196,180,0.25);
+  background: rgba(232,196,180,0.07);
+  color: rgba(251,248,244,0.7); min-height: 46px;
+}
+.btn-farewell:hover  { background: rgba(232,196,180,0.14); color: var(--rose); border-color: rgba(232,196,180,0.45); }
+.btn-farewell:active { transform: scale(0.97); }
+.btn-farewell.copied { background: rgba(122,163,139,0.15); border-color: var(--sage); color: var(--sage); }
+.btn-farewell svg    { width: 15px; height: 15px; flex-shrink: 0; }</style>
+</head>
+<body>
+
+<!-- PANTALLA DE CIERRE -->
+<div class="farewell-screen" id="farewell-screen">
+  <div class="farewell-card">
+
+    <div class="farewell-symbol">✦ ✦ ✦</div>
+
+    <h2 class="farewell-title">
+      Gracias por haber<br><em>estado aquí.</em>
+    </h2>
+
+    <div class="farewell-divider"></div>
+
+    <!-- Texto generado por Alma -->
+    <div id="farewell-alma-loading" class="farewell-alma" style="text-align:center; padding: 1rem 0;">
+      <div class="typing" style="display:flex; justify-content:center;">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>
+    <div id="farewell-alma-text" class="farewell-alma" style="display:none"></div>
+
+    <div class="farewell-body">
+      <p>
+        Durante estos tres días te hiciste algo difícil y valioso a la vez:
+        te detuviste. Te preguntaste. Te escuchaste.
+        <strong>No todo el mundo se atreve a hacer eso.</strong>
+      </p>
+      <p>
+        Lo que has escrito aquí no es poco. Es el comienzo de una relación
+        más honesta contigo misma — con lo que sientes, con lo que necesitas,
+        con lo que mereces recibir de la vida y de ti.
+      </p>
+
+      <div class="farewell-quote">
+        Escucharse es el primer acto de respeto hacia una misma.
+        Y tú acabas de elegir hacerlo.
+      </div>
+
+      <p>
+        Estas semanas nos has ayudado a construir algo real.
+        Tu tiempo, tus palabras y tu confianza han dado forma a Alma —
+        no la versión que imaginamos, sino la que de verdad se necesita.
+        <strong>Eso tiene un valor que no se puede calcular.</strong>
+      </p>
+
+      <p>
+        Cuando Alma esté lista de verdad, queremos que seas de las primeras
+        en volver. No como usuaria, sino como parte de lo que esto es.
+        <strong>Aquí tendrás siempre un lugar.</strong>
+      </p>
+    </div>
+
+    <!-- Botones copiar / descargar -->
+    <div class="farewell-actions" id="farewell-actions" style="display:none">
+      <button class="btn-farewell" id="btn-copy-farewell" onclick="copyFarewell()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        Copiar reflejo
+      </button>
+      <button class="btn-farewell" onclick="downloadFarewell()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Descargar semana
+      </button>
+    </div>
+
+    <div class="farewell-badge">✦ Fundadora de Alma</div>
+
+    <p class="farewell-note">
+      Te avisaremos cuando el proyecto esté listo.<br>
+      Gracias por confiar en nosotras desde el principio.
+    </p>
+
+  </div>
+</div>
+
+<!-- PANTALLA DE BIENVENIDA -->
+<div class="welcome-screen" id="welcome-screen">
+  <div class="welcome-card">
+    <img class="welcome-logo" src="/images/logo-web.png" alt="Alma">
+    <div class="welcome-title">Bienvenida.<br><em>Este espacio es tuyo.</em></div>
+    <div class="welcome-divider"></div>
+    <p class="welcome-text">
+      <strong>Todo lo que compartas aquí se trata con respeto y sin juicio.</strong><br><br>
+      Tres preguntas. Tres días. Un acompañamiento que escucha de verdad.
+    </p>
+    <div class="welcome-divider"></div>
+    <p class="arrival-question">Antes de empezar — ¿cómo llegas?</p>
+    <div class="arrival-options">
+      <button class="arrival-btn" onclick="selectArrival(this,'pain')">Con algo que pesa</button>
+      <button class="arrival-btn" onclick="selectArrival(this,'curiosity')">Con ganas de conocerme</button>
+      <button class="arrival-btn" onclick="selectArrival(this,'open')">Sin saber muy bien</button>
+    </div>
+    <button class="welcome-btn" id="welcome-btn" onclick="startJourney()">Entrar →</button>
+    <p class="welcome-note">Sin prisa. Sin juicio. Solo tú.</p>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <img src="/images/logo-movil.png" alt="Alma Proyect">
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-date" id="today-date"></span>
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema">
+      <span id="theme-icon">☀</span>
+    </button>
+    <div class="topbar-avatar">M</div>
+  </div>
+</div>
+
+<!-- ── MÓVIL: nav horizontal ── -->
+<div class="day-nav" id="day-nav"></div>
+<div class="progress-bar-wrap">
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar-fill"></div></div>
+  <span class="progress-bar-pct" id="progress-bar-pct">0%</span>
+</div>
+
+<!-- ── LAYOUT (sidebar desktop + main) ── -->
+<div class="app-layout">
+
+  <!-- SIDEBAR desktop -->
+  <aside class="sidebar">
+    <div>
+      <div class="sidebar-title">Tu proceso</div>
+      <div class="day-list" id="day-list"></div>
+    </div>
+    <div class="streak-box">
+      <div class="streak-box-num"  id="streak-num-d">1</div>
+      <div class="streak-box-label">DÍA</div>
+      <div class="streak-box-msg"  id="streak-msg-d">"Cada vez que escribes, te escuchas un poco más."</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- Streak banner móvil -->
+    <div class="streak-banner">
+      <div class="streak-left">
+        <div class="streak-num" id="streak-num-m">1</div>
+        <div class="streak-lbl">DÍA</div>
+      </div>
+      <div class="streak-msg" id="streak-msg-m">"Cada vez que escribes, te escuchas un poco más."</div>
+    </div>
+
+    <!-- Header día -->
+    <div class="day-header">
+      <div class="day-header-row">
+        <div>
+          <div class="day-pill" id="day-pill">Día 1 de 3</div>
+          <div class="day-title-text" id="day-title">Para <em>llegar aquí</em></div>
+        </div>
+        <!-- Ring solo desktop -->
+        <div class="day-header-ring">
+          <svg width="54" height="54" viewBox="0 0 56 56" style="transform:rotate(-90deg)">
+            <circle class="progress-ring-bg"   cx="28" cy="28" r="22"/>
+            <circle class="progress-ring-fill" id="ring-fill" cx="28" cy="28" r="22"
+              stroke-dasharray="138.2" stroke-dashoffset="138.2"/>
+            <text class="ring-label" x="28" y="29"
+              style="transform:rotate(90deg);transform-origin:28px 28px"
+              id="ring-pct">0%</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pregunta -->
+    <div class="question-card">
+      <div class="question-label">La pregunta de hoy</div>
+      <div id="question-text">
+        <p class="question-intro">No hace falta que esté bien explicado, solo exprésalo, como salga…</p>
+        <p class="question-main">¿Hay algo que llevas dentro y que casi nunca dices en voz alta?</p>
+      </div>
+      <textarea class="journal-textarea" id="journal-text"
+        aria-label="Escribe tu entrada del diario"
+        placeholder="Escribe lo que sea… no hay respuesta correcta ni incorrecta."
+        oninput="onType()" rows="6" maxlength="2000"></textarea>
+      <div class="char-row">
+        <span class="autosave" id="autosave-label" style="display:none">Guardado</span>
+        <span class="char-count" id="char-count">0 / 2000</span>
+      </div>
+    </div>
+
+    <!-- Emociones -->
+    <div class="emotion-section">
+      <span class="emotion-label">¿Qué emociones están presentes?</span>
+      <div class="emotion-chips" id="emotion-chips" role="group" aria-label="Selecciona las emociones presentes">
+        <span class="emotion-chip" role="checkbox" aria-checked="false" onclick="toggleEmotion(this)">agotamiento</span>
+        <span class="emotion-chip" role="checkbox" aria-checked="false" onclick="toggleEmotion(this)">ansiedad</span>
+        <span class="emotion-chip" role="checkbox" aria-checked="false" onclick="toggleEmotion(this)">tristeza</span>
+        <span class="emotion-chip" role="checkbox" aria-checked="false" onclick="toggleEmotion(this)">confusión</span>
+        <span class="emotion-chip" role="checkbox" aria-checked="false" onclick="toggleEmotion(this)">alivio</span>
+        <span class="emotion-chip" role="checkbox" aria-checked="false" onclick="toggleEmotion(this)">esperanza</span>
+        <span class="emotion-chip" role="checkbox" aria-checked="false" onclick="toggleEmotion(this)">soledad</span>
+        <span class="emotion-chip" role="checkbox" aria-checked="false" onclick="toggleEmotion(this)">calma</span>
+        <span class="emotion-chip" role="checkbox" aria-checked="false" onclick="toggleEmotion(this)">enfado</span>
+        <span class="emotion-chip" role="checkbox" aria-checked="false" onclick="toggleEmotion(this)">gratitud</span>
+      </div>
+    </div>
+
+    <!-- Botones DESKTOP (dentro del flow) -->
+    <div class="actions-row">
+      <button class="btn-save" id="btn-save-d" onclick="saveEntry()" aria-busy="false">✦ Guardar y lo suelto aquí…</button>
+      <button class="btn-next" onclick="nextDay()" id="btn-next-d" style="display:none">Día siguiente →</button>
+    </div>
+
+    <!-- Alma response -->
+    <div class="alma-response" id="alma-response">
+      <div class="alma-response-label">· Alma responde</div>
+      <div class="typing" id="typing">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+      <div id="alma-response-text"></div>
+      <div class="alma-pause" id="alma-pause">Tómate un momento antes de seguir</div>
+
+      <!-- Campo de respuesta para turno 2 y 3 -->
+      <div class="turn-reply" id="turn-reply" style="display:none">
+        <textarea class="turn-textarea" id="turn-text"
+          placeholder="Respóndele… lo que sea que surja."
+          oninput="onTurnType()" rows="4" maxlength="1000"></textarea>
+        <div class="turn-footer">
+          <span class="char-count" id="turn-char-count">0 / 1000</span>
+          <button class="btn-turn-send" id="btn-turn-send" onclick="sendTurn()">
+            Responder →
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Botones MÓVIL (fijos al fondo) -->
+<div class="actions-wrap-mobile">
+  <button class="btn-save" id="btn-save-m" onclick="saveEntry()" aria-busy="false">✦ Guardar y lo suelto aquí…</button>
+  <button class="btn-next" onclick="nextDay()" id="btn-next-m" style="display:none">Siguiente →</button>
+</div>
+
+<script>
+
+// =======================
+// CONFIG
+// =======================
+
+const totalDays = 3;
+let currentDay = 0;
+
+// =======================
+// STORAGE
+// =======================
+
+function saveToLocal(day, text, emotions, almaReply, history) {
+  try {
+    const existing = loadFromLocal(day) || {};
+    localStorage.setItem(`alma_${day}`, JSON.stringify({
+      text,
+      emotions,
+      date: existing.date || new Date().toISOString(),
+      almaReply: almaReply !== undefined ? almaReply : (existing.almaReply || null),
+      history: history || existing.history || [],
+    }));
+  } catch(e) {
+    console.warn('localStorage no disponible:', e);
+  }
+}
+
+function loadFromLocal(day) {
+  try {
+    const data = localStorage.getItem(`alma_${day}`);
+    return data ? JSON.parse(data) : null;
+  } catch(e) {
+    return null;
+  }
+}
+
+// =======================
+// QUESTIONS
+// =======================
+
+const questions = [
+  {
+    intro: "No hace falta que esté bien explicado, solo exprésalo, como salga…",
+    text: "¿Hay algo que llevas dentro y que casi nunca dices en voz alta?"
+  },
+  {
+    intro: "No hace falta que esté bien explicado, solo exprésalo, como salga…",
+    text: "¿Recuerdas la última vez que hiciste algo solo para ti, sin sentir que tenías que justificarlo?"
+  },
+  {
+    intro: "No hace falta que esté bien explicado, solo exprésalo, como salga…",
+    text: "Si te hablaras como hablarías a alguien a quien quieres, ¿qué sería diferente?"
+  }
+];
+
+function renderQuestion(day) {
+  const q = questions[day];
+  if (!q) return;
+  const container = document.getElementById('question-text');
+  if (container) {
+    container.innerHTML = `
+      <p class="question-intro">${q.intro}</p>
+      <p class="question-main">${q.text}</p>
+    `;
+  }
+}
+
+// =======================
+// TYPEWRITER
+// =======================
+
+let typeWriterTimer = null;
+
+function typeWriter(text, onComplete) {
+  if (typeWriterTimer) clearTimeout(typeWriterTimer);
+
+  const el = document.getElementById("alma-response-text");
+  el.innerHTML = "";
+  const chars = text.split("");
+  const buf   = [];
+  let i = 0;
+
+  function write() {
+    if (i < chars.length) {
+      buf.push(chars[i++]);
+      el.textContent = buf.join("");
+      typeWriterTimer = setTimeout(write, 18);
+    } else {
+      typeWriterTimer = null;
+      el.innerHTML = el.textContent
+        .split('\n')
+        .filter(p => p.trim())
+        .map(p => `<p>${p}</p>`)
+        .join('');
+      renderNav();
+      if (onComplete) onComplete();
+    }
+  }
+
+  write();
+}
+
+// =======================
+// UI HELPERS
+// =======================
+
+function toggleEmotion(el) {
+  el.classList.toggle('selected');
+  el.setAttribute('aria-checked', el.classList.contains('selected') ? 'true' : 'false');
+}
+
+let typeTimer = null;
+let countTimer = null;
+
+function onType() {
+  const text = document.getElementById('journal-text').value;
+
+  // Debounce contador — actualiza 200ms después de parar de escribir
+  clearTimeout(countTimer);
+  countTimer = setTimeout(() => {
+    const cc = document.getElementById('char-count');
+    if (cc) cc.textContent = `${text.length} / 2000`;
+  }, 200);
+
+  // Debounce autosave label
+  clearTimeout(typeTimer);
+  const al = document.getElementById('autosave-label');
+  if (al) al.style.display = 'none';
+  if (text.trim()) {
+    typeTimer = setTimeout(() => {
+      if (al) al.style.display = 'flex';
+    }, 1500);
+  }
+}
+
+function detectEmotionFromText(text) {
+  if (!text) return 'calma';
+  const t = text.toLowerCase();
+  if (/ansiedad|nervios|agobio|angustia|preocup/.test(t)) return 'ansiedad';
+  if (/triste|llor|pena|dolor|pérdida|perdi/.test(t))     return 'tristeza';
+  if (/enfad|rabia|cabre|furiosa|harta/.test(t))          return 'enfado';
+  if (/confus|perdida|no sé|bloqueo|bloqueada/.test(t))   return 'confusión';
+  if (/sola|soledad|aislada|nadie/.test(t))               return 'soledad';
+  if (/agotad|cansada|exhausta/.test(t))                  return 'agotamiento';
+  if (/bien|gracias|alegr|feliz|contenta/.test(t))        return 'gratitud';
+  return 'calma';
+}
+
+function renderNav() {
+  const dayMeta = [
+    { name:'Día 1', sub:'Para llegar aquí' },
+    { name:'Día 2', sub:'Para mirarse' },
+    { name:'Día 3', sub:'Para cerrar' }
+  ];
+
+  // Una sola pasada — no 3 lecturas separadas por render
+  const savedDays = Array.from({ length: totalDays }, (_, i) => !!loadFromLocal(i));
+
+  const dayList = document.getElementById('day-list');
+  if (dayList) {
+    dayList.innerHTML = dayMeta.map((d, i) => `
+      <div class="day-item ${i === currentDay ? 'active' : ''}" onclick="jumpToDay(${i})">
+        <div class="day-item-dot ${savedDays[i] ? 'dot-done' : i === currentDay ? 'dot-active' : 'dot-pending'}">
+          ${savedDays[i] ? '✓' : i + 1}
+        </div>
+        <div class="day-item-info">
+          <span class="day-item-name">${d.name}</span>
+          <span class="day-item-sub">${d.sub}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  const dayNav = document.getElementById('day-nav');
+  if (dayNav) {
+    dayNav.innerHTML = dayMeta.map((d, i) => `
+      <div class="day-nav-item ${i === currentDay ? 'active' : ''}" onclick="jumpToDay(${i})">
+        <div class="day-nav-dot ${savedDays[i] ? 'dot-done' : i === currentDay ? 'dot-active' : 'dot-pending'}">
+          ${savedDays[i] ? '✓' : i + 1}
+        </div>
+        <span class="day-nav-label">${d.sub}</span>
+      </div>`).join('');
+  }
+
+  const done = savedDays.filter(Boolean).length;
+  const pct  = Math.round(done / totalDays * 100);
+
+  const ringFill = document.getElementById('ring-fill');
+  const ringPct  = document.getElementById('ring-pct');
+  if (ringFill) ringFill.style.strokeDashoffset = 138.2 - (pct / 100) * 138.2;
+  if (ringPct)  ringPct.textContent = pct + '%';
+
+  const barFill = document.getElementById('progress-bar-fill');
+  const barPct  = document.getElementById('progress-bar-pct');
+  if (barFill) barFill.style.width = pct + '%';
+  if (barPct)  barPct.textContent  = pct + '%';
+
+  const msgs = [
+    '"Cada vez que escribes, te escuchas un poco más."',
+    '"Dos días. El espacio ya es tuyo."',
+    '"Tres días. Eso dice mucho de ti."'
+  ];
+  const msg = msgs[Math.min(done, msgs.length - 1)];
+  const n   = Math.max(1, done);
+
+  ['streak-num-d','streak-num-m'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = n;
+  });
+  ['streak-msg-d','streak-msg-m'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = msg;
+  });
+}
+
+function jumpToDay(index) {
+  if (index > currentDay) return; // solo puede ir hacia atrás o al día actual
+  currentDay = index;
+  const meta = [
+    { title: 'Para <em>llegar aquí</em>' },
+    { title: 'Para <em>mirarse</em>' },
+    { title: 'Para cerrar <em>con algo real</em>' }
+  ];
+  const prev = loadFromLocal(index - 1);
+  let prevEmotions = prev?.emotions || [];
+  if (!prevEmotions.length && prev?.text) prevEmotions = [detectEmotionFromText(prev.text)];
+
+  const pill  = document.getElementById('day-pill');
+  const title = document.getElementById('day-title');
+  const qEl   = document.getElementById('question-text');
+  if (pill)  pill.textContent = `Día ${index + 1} de ${totalDays}`;
+  if (title) title.innerHTML  = meta[index].title;
+  renderQuestion(index);
+
+  const saved = loadFromLocal(index);
+  const ta = document.getElementById('journal-text');
+  if (ta) ta.value = saved?.text || '';
+
+  document.getElementById('alma-response').classList.remove('visible');
+  const tr = document.getElementById('turn-reply'); if (tr) tr.style.display = 'none';
+  resetTurnState();
+  document.getElementById('alma-response-text').innerHTML = '';
+  document.getElementById('typing').classList.remove('visible');
+  document.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
+
+  const cc = document.getElementById('char-count');
+  if (cc) {
+    const len = saved?.text?.length || 0;
+    cc.textContent = `${len} / 2000`;
+  }
+
+  ['btn-save-d','btn-save-m'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) { b.disabled = false; b.textContent = '✦ Guardar y lo suelto aquí…'; }
+  });
+  ['btn-next-d','btn-next-m'].forEach(id => {
+    const b = document.getElementById(id);
+    if (!b) return;
+    if (!saved || index >= totalDays - 1) { b.style.display = 'none'; return; }
+    // Mostrar solo si tiene entrada Y es un día calendario distinto
+    const isNewDay = !isSameCalendarDay(saved.date, new Date().toISOString());
+    b.style.display = isNewDay ? 'flex' : 'none';
+  });
+
+  renderNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// =======================
+// SAVE ENTRY + TURNOS
+// =======================
+
+// Estado de la conversación del día actual
+let currentTurn = 1;          // 1, 2 o 3
+let conversationHistory = []; // [{role, text}] — turnos del día
+
+function resetTurnState() {
+  currentTurn = 1;
+  conversationHistory = [];
+}
+
+function onTurnType() {
+  const text = document.getElementById('turn-text')?.value || '';
+  const cc = document.getElementById('turn-char-count');
+  if (cc) cc.textContent = `${text.length} / 1000`;
+}
+
+async function saveEntry() {
+  const btns = ['btn-save-d','btn-save-m'].map(id => document.getElementById(id)).filter(Boolean);
+  if (btns.some(b => b.disabled)) return;
+
+  const existing = loadFromLocal(currentDay);
+  if (existing?.almaReply) return;
+
+  const text = document.getElementById("journal-text").value.trim();
+  if (!text) return;
+
+  const emotions = [...document.querySelectorAll(".emotion-chip.selected")].map(e => e.textContent);
+  saveToLocal(currentDay, text, emotions);
+
+  const previousEntries = {};
+  for (let i = 0; i < currentDay; i++) {
+    const entry = loadFromLocal(i);
+    if (entry?.text) previousEntries[`day${i + 1}`] = entry.text;
+  }
+
+  // Primer turno — inicializar historial
+  conversationHistory = [{ role: 'user', text }];
+  currentTurn = 1;
+
+  await callAlma({
+    btns,
+    text,
+    previousEntries,
+    isFirstTurn: true,
+  });
+}
+
+async function sendTurn() {
+  const btn = document.getElementById('btn-turn-send');
+  const text = document.getElementById('turn-text')?.value.trim();
+  if (!text || btn?.disabled) return;
+
+  // Añadir al historial
+  conversationHistory.push({ role: 'user', text });
+  currentTurn++;
+
+  // Ocultar campo de respuesta mientras Alma piensa
+  const turnReply = document.getElementById('turn-reply');
+  if (turnReply) turnReply.style.display = 'none';
+
+  // Mostrar typing
+  document.getElementById('typing').classList.add('visible');
+  document.getElementById('alma-response-text').innerHTML = '';
+
+  const previousEntries = {};
+  for (let i = 0; i < currentDay; i++) {
+    const entry = loadFromLocal(i);
+    if (entry?.text) previousEntries[`day${i + 1}`] = entry.text;
+  }
+
+  await callAlma({
+    btns: [],
+    text,
+    previousEntries,
+    isFirstTurn: false,
+  });
+}
+
+async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
+  const loadingDots =
+    '<span class="loading-dot"></span>' +
+    '<span class="loading-dot"></span>' +
+    '<span class="loading-dot"></span>';
+
+  if (isFirstTurn) {
+    btns.forEach(b => { b.disabled = true; b.setAttribute('aria-busy','true'); b.innerHTML = loadingDots; });
+    document.getElementById('alma-response').classList.add('visible');
+    document.getElementById('typing').classList.add('visible');
+    document.getElementById('alma-response-text').innerHTML = '';
+    document.getElementById('turn-reply').style.display = 'none';
+    setTimeout(() =>
+      document.getElementById('alma-response').scrollIntoView({ behavior:'smooth', block:'start' }), 150);
+  }
+
+  const controller = new AbortController();
+  const timeoutId  = setTimeout(() => controller.abort(), 20000);
+  const fallbackMsg = "No pude responderte ahora mismo. Lo que has escrito ya tiene valor, independientemente de mi respuesta.";
+
+  try {
+    const res = await fetch("/.netlify/functions/alma", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        day: currentDay + 1,
+        turn: currentTurn,
+        entry: text,
+        conversationHistory: conversationHistory.slice(0, -1),
+        previousEntries,
+        arrivalMode: currentArrivalMode,
+        plan: 'free',
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    const contentType = res.headers.get('content-type') || '';
+
+    // ── STREAMING ──────────────────────────────────────────
+    if (contentType.includes('text/event-stream')) {
+      document.getElementById('typing').classList.remove('visible');
+
+      const responseEl = document.getElementById('alma-response-text');
+      responseEl.innerHTML = '';
+
+      // Cursor parpadeante mientras escribe
+      let cursor = document.createElement('span');
+      cursor.className = 'alma-cursor';
+      cursor.textContent = '▋';
+      responseEl.appendChild(cursor);
+
+      const reader  = res.body.getReader();
+      const decoder = new TextDecoder();
+      let   buffer  = '';
+      let   fullText = '';
+      let   currentParaEl = null; // párrafo activo
+
+      function getOrCreatePara() {
+        if (!currentParaEl) {
+          currentParaEl = document.createElement('p');
+          responseEl.insertBefore(currentParaEl, cursor);
+        }
+        return currentParaEl;
+      }
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const raw = line.slice(6).trim();
+          if (!raw) continue;
+
+          try {
+            const evt = JSON.parse(raw);
+
+            if (evt.type === 'token') {
+              fullText += evt.token;
+
+              // Dividir en párrafos por salto de línea doble
+              const parts = evt.token.split('\n');
+              for (let p = 0; p < parts.length; p++) {
+                if (p > 0) {
+                  // Salto de línea — cerrar párrafo actual y crear nuevo
+                  currentParaEl = null;
+                }
+                if (parts[p]) {
+                  getOrCreatePara().textContent += parts[p];
+                }
+              }
+
+              // Mantener cursor al final
+              responseEl.appendChild(cursor);
+
+              // Auto-scroll suave si está cerca del fondo
+              const resp = document.getElementById('alma-response');
+              const distFromBottom = resp.scrollHeight - resp.scrollTop - resp.clientHeight;
+              if (distFromBottom < 120) {
+                resp.scrollTop = resp.scrollHeight;
+              }
+            }
+
+            if (evt.type === 'done' || evt.type === 'fallback') {
+              const finalText = evt.type === 'fallback' ? evt.text : fullText;
+              const isLast    = evt.isLastTurn || currentTurn >= 3;
+
+              // Quitar cursor
+              if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
+
+              // Si fue fallback, renderizar el texto directamente
+              if (evt.type === 'fallback') {
+                responseEl.innerHTML = finalText
+                  .split('\n').filter(p => p.trim())
+                  .map(p => `<p>${p}</p>`).join('');
+              }
+
+              // Guardar historial
+              conversationHistory.push({ role: 'alma', text: finalText });
+              const entryNow = loadFromLocal(currentDay);
+              saveToLocal(currentDay, entryNow?.text || text, entryNow?.emotions || [], finalText, conversationHistory);
+
+              if (isFirstTurn) {
+                btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
+              }
+
+              renderNav();
+
+              // Pequeña pausa antes de mostrar siguiente acción
+              setTimeout(() => {
+                if (!isLast) {
+                  showTurnReply();
+                } else {
+                  hideTurnReply();
+                  document.getElementById('alma-pause').style.display = 'block';
+                  showNextIfNewDay();
+                }
+              }, 600);
+            }
+
+          } catch (_) { /* JSON parcial — ignorar */ }
+        }
+      }
+
+    // ── FALLBACK JSON (si no hay streaming) ────────────────
+    } else {
+      const data = await res.json();
+      document.getElementById('typing').classList.remove('visible');
+      const almaReply  = data.response || fallbackMsg;
+      const isLastTurn = data.isLastTurn || currentTurn >= 3;
+
+      conversationHistory.push({ role: 'alma', text: almaReply });
+      const entryNow = loadFromLocal(currentDay);
+      saveToLocal(currentDay, entryNow?.text || text, entryNow?.emotions || [], almaReply, conversationHistory);
+
+      if (isFirstTurn) {
+        btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
+      }
+
+      setTimeout(() => {
+        typeWriter(almaReply, () => {
+          if (!isLastTurn) { showTurnReply(); }
+          else { hideTurnReply(); document.getElementById('alma-pause').style.display = 'block'; showNextIfNewDay(); }
+        });
+      }, 1200);
+    }
+
+  } catch(e) {
+    clearTimeout(timeoutId);
+    document.getElementById('typing').classList.remove('visible');
+    const msg = e.name === 'AbortError'
+      ? "Necesito un poco más de tiempo del habitual.\n\nLo que escribiste ya está guardado. Vuelve en un momento y estaré aquí."
+      : fallbackMsg;
+    conversationHistory.push({ role: 'alma', text: msg });
+    const entryErr = loadFromLocal(currentDay);
+    saveToLocal(currentDay, entryErr?.text || text, entryErr?.emotions || [], msg, conversationHistory);
+    if (isFirstTurn) btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
+    setTimeout(() => {
+      typeWriter(msg, () => {
+        hideTurnReply();
+        showNextIfNewDay();
+      });
+    }, 800);
+  }
+}
+
+function showTurnReply() {
+  const turnReply = document.getElementById('turn-reply');
+  const turnText  = document.getElementById('turn-text');
+  const pause     = document.getElementById('alma-pause');
+  if (turnReply) {
+    turnReply.style.display = 'block';
+    if (turnText) { turnText.value = ''; turnText.focus(); }
+    const cc = document.getElementById('turn-char-count');
+    if (cc) cc.textContent = '0 / 1000';
+  }
+  if (pause) pause.style.display = 'none';
+  setTimeout(() =>
+    document.getElementById('alma-response').scrollIntoView({ behavior:'smooth', block:'end' }), 200);
+}
+
+function hideTurnReply() {
+  const turnReply = document.getElementById('turn-reply');
+  if (turnReply) turnReply.style.display = 'none';
+}
+
+// =======================
+// COPIAR / DESCARGAR SEMANA
+// =======================
+
+function buildWeekText() {
+  const QUESTIONS_TEXT = {
+    0: "¿Hay algo que llevas dentro y que casi nunca dices en voz alta?",
+    1: "¿Recuerdas la última vez que hiciste algo solo para ti, sin sentir que tenías que justificarlo?",
+    2: "Si te hablaras como hablarías a alguien a quien quieres, ¿qué sería diferente?"
+  };
+
+  let lines = ["✦ Mi semana con Alma\n", "─".repeat(40)];
+
+  for (let i = 0; i < totalDays; i++) {
+    const entry = loadFromLocal(i);
+    if (!entry) continue;
+    const date = entry.date ? new Date(entry.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) : `Día ${i + 1}`;
+    lines.push(`\nDÍA ${i + 1} — ${date}`);
+    lines.push(`Pregunta: ${QUESTIONS_TEXT[i]}`);
+    lines.push(`\nYo escribí:\n${entry.text || ''}`);
+    if (entry.almaReply) lines.push(`\nAlma respondió:\n${entry.almaReply}`);
+    lines.push("\n" + "─".repeat(40));
+  }
+
+  // Reflejo final
+  try {
+    const farewell = JSON.parse(localStorage.getItem('alma_farewell') || '{}');
+    if (farewell.summary) {
+      lines.push("\nREFLEJO FINAL DE ALMA\n");
+      lines.push(farewell.summary);
+      lines.push("\n" + "─".repeat(40));
+    }
+  } catch(e) {}
+
+  lines.push("\nalmaproyect.netlify.app");
+  return lines.join("\n");
+}
+
+function copyFarewell() {
+  const text = buildWeekText();
+  const btn  = document.getElementById('btn-copy-farewell');
+  navigator.clipboard.writeText(text).then(() => {
+    if (btn) {
+      btn.classList.add('copied');
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg> Copiado`;
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar reflejo`;
+      }, 2500);
+    }
+  }).catch(() => {
+    // Fallback para Safari o contextos sin permiso
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    if (btn) { btn.classList.add('copied'); btn.textContent = '✓ Copiado'; setTimeout(() => { btn.classList.remove('copied'); btn.textContent = 'Copiar reflejo'; }, 2500); }
+  });
+}
+
+function downloadFarewell() {
+  const text = buildWeekText();
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'mi-semana-con-alma.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// Mostrar botones cuando el reflejo está listo
+function showFarewellActions() {
+  const el = document.getElementById('farewell-actions');
+  if (el) el.style.display = 'flex';
+}
+// =======================
+
+function isSameCalendarDay(isoA, isoB) {
+  if (!isoA || !isoB) return false;
+  // Comparar en hora LOCAL del dispositivo, no en UTC
+  const toLocalDate = iso => {
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  };
+  return toLocalDate(isoA) === toLocalDate(isoB);
+}
+
+function showNextIfNewDay() {
+  renderNav();
+  if (currentDay >= totalDays - 1) return;
+
+  const saved = loadFromLocal(currentDay);
+  if (!saved) return;
+
+  const savedDate  = saved.date;
+  const todayISO   = new Date().toISOString();
+  const isNewDay   = !isSameCalendarDay(savedDate, todayISO);
+
+  ['btn-next-d','btn-next-m'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.style.display = isNewDay ? 'flex' : 'none';
+  });
+}
+
+// =======================
+// NEXT DAY
+// =======================
+
+function nextDay() {
+  if (currentDay >= totalDays - 1) {
+    showFarewell();
+    return;
+  }
+
+  // Protección: no avanzar si es el mismo día calendario
+  const saved = loadFromLocal(currentDay);
+  if (saved?.date && isSameCalendarDay(saved.date, new Date().toISOString())) {
+    // Mismo día — ocultar botón por si acaso y salir
+    ['btn-next-d','btn-next-m'].forEach(id => {
+      const b = document.getElementById(id);
+      if (b) b.style.display = 'none';
+    });
+    return;
+  }
+
+  currentDay++;
+  resetTurnState();
+
+  const lastEntry = loadFromLocal(currentDay - 1);
+  let emotions = lastEntry?.emotions || [];
+  if (!emotions.length && lastEntry?.text) {
+    emotions = [detectEmotionFromText(lastEntry.text)];
+  }
+
+  // Actualizar pregunta y UI
+  const questionEl = document.getElementById("question-text");
+  renderQuestion(currentDay);
+
+  document.getElementById("journal-text").value = "";
+  const ccEl = document.getElementById('char-count');
+  if (ccEl) ccEl.textContent = '0 / 2000';
+  document.getElementById('autosave-label') && (document.getElementById('autosave-label').style.display = 'none');
+  document.getElementById('alma-response').classList.remove('visible');
+  const tr2 = document.getElementById('turn-reply'); if (tr2) tr2.style.display = 'none';
+  resetTurnState();
+  document.getElementById('alma-response-text').innerHTML = '';
+  document.getElementById('typing').classList.remove('visible');
+  document.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
+
+  // Actualizar pill y título
+  const meta = [
+    { title: 'Para <em>llegar aquí</em>' },
+    { title: 'Para <em>mirarse</em>' },
+    { title: 'Para cerrar <em>con algo real</em>' }
+  ];
+  const pill = document.getElementById('day-pill');
+  const title = document.getElementById('day-title');
+  if (pill)  pill.textContent = `Día ${currentDay + 1} de ${totalDays}`;
+  if (title) title.innerHTML  = meta[currentDay].title;
+
+  // Resetear botones
+  ['btn-save-d','btn-save-m'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) { b.disabled = false; b.textContent = '✦ Guardar y lo suelto aquí…'; }
+  });
+  ['btn-next-d','btn-next-m'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.style.display = 'none';
+  });
+
+  renderNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// =======================
+// FAREWELL
+// =======================
+
+async function showFarewell() {
+  const entries = {
+    day1: loadFromLocal(0)?.text || "",
+    day2: loadFromLocal(1)?.text || "",
+    day3: loadFromLocal(2)?.text || ""
+  };
+
+  const screen = document.getElementById('farewell-screen');
+  if (screen) screen.classList.add('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const loadingEl = document.getElementById('farewell-alma-loading');
+  const replyEl   = document.getElementById('farewell-alma-text');
+
+  // Si ya tenemos el reflejo guardado, mostrarlo directamente sin llamar a la API
+  const cached = loadFromLocal('farewell');
+  if (cached?.summary) {
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (replyEl) {
+      replyEl.style.display = 'block';
+      replyEl.innerHTML = cached.summary
+        .split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
+      showFarewellActions();
+    }
+    return;
+  }
+
+  const controller = new AbortController();
+  const timeoutId  = setTimeout(() => controller.abort(), 20000);
+
+  try {
+    const res  = await fetch('/.netlify/functions/summary', {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ entries, arrivalMode: currentArrivalMode, plan: 'free' }),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    const data = await res.json();
+    const summaryText = data.summary || data.reply || '';
+
+    // Guardar para no volver a llamar
+    if (summaryText) {
+      try { localStorage.setItem('alma_farewell', JSON.stringify({ summary: summaryText })); } catch(e) {}
+    }
+
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (replyEl && summaryText) {
+      replyEl.style.display = 'block';
+      replyEl.innerHTML = summaryText
+        .split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
+      showFarewellActions();
+    }
+  } catch(e) {
+    clearTimeout(timeoutId);
+    if (loadingEl) loadingEl.style.display = 'none';
+    // La pantalla de cierre sigue completa sin el reflejo
+  }
+}
+
+// =======================
+// INIT
+// =======================
+
+// =======================
+// TEMA — oscuro por defecto, claro opcional
+// =======================
+
+let currentArrivalMode = 'pain'; // por defecto
+
+function initTheme() {
+  const saved = localStorage.getItem('alma_theme') || 'dark';
+  applyTheme(saved);
+}
+
+function applyTheme(theme) {
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    const icon = document.getElementById('theme-icon');
+    if (icon) icon.textContent = '☾';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    const icon = document.getElementById('theme-icon');
+    if (icon) icon.textContent = '☀';
+  }
+  try { localStorage.setItem('alma_theme', theme); } catch(e) {}
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  applyTheme(current === 'light' ? 'dark' : 'light');
+}
+
+// =======================
+// PREGUNTA CERO — modo de llegada
+// =======================
+
+function selectArrival(btn, mode) {
+  document.querySelectorAll('.arrival-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  currentArrivalMode = mode;
+  try { localStorage.setItem('alma_arrival_mode', mode); } catch(e) {}
+  const welcomeBtn = document.getElementById('welcome-btn');
+  if (welcomeBtn) welcomeBtn.classList.add('ready');
+}
+
+function init() {
+  initTheme();
+
+  // Recuperar modo de llegada si ya lo eligió
+  try {
+    const savedMode = localStorage.getItem('alma_arrival_mode');
+    if (savedMode) currentArrivalMode = savedMode;
+  } catch(e) {}
+  // ── GUARDIA DE CONSENTIMIENTO ──────────────────────────
+  try {
+    const consent = JSON.parse(localStorage.getItem('alma_consent') || '{}');
+    if (!consent.accepted) {
+      window.location.replace('/');
+      return;
+    }
+  } catch(e) {
+    // Safari privado o navegador sin localStorage — mensaje claro en pantalla
+    document.body.innerHTML = `
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;
+                  background:#0e0b09;font-family:'Jost',sans-serif;padding:2rem;text-align:center;">
+        <div style="max-width:380px;color:rgba(251,248,244,0.7);line-height:1.8;">
+          <p style="font-size:1.1rem;margin-bottom:1rem;color:#e8c4b4;">Necesitamos acceso a tu almacenamiento local</p>
+          <p style="font-size:0.85rem;margin-bottom:1.5rem;">
+            Parece que estás usando el modo privado o tu navegador bloquea el almacenamiento local.
+            Alma necesita guardarlo para proteger tu espacio entre sesiones.
+          </p>
+          <p style="font-size:0.82rem;opacity:0.55;margin-bottom:1.8rem;">
+            Prueba abriendo este enlace en una ventana normal, no en modo privado.
+          </p>
+          <a href="/" style="color:#e8c4b4;font-size:0.8rem;letter-spacing:0.1em;
+                             text-decoration:underline;text-underline-offset:4px;">
+            ← Volver al inicio
+          </a>
+        </div>
+      </div>`;
+    return;
+  }
+  // ───────────────────────────────────────────────────────
+  // Recuperar el día actual si la usuaria recargó la página
+  for (let i = totalDays - 1; i >= 0; i--) {
+    if (loadFromLocal(i)) {
+      currentDay = i;
+      break;
+    }
+  }
+
+  const today = new Date().toLocaleDateString('es-ES', {
+    weekday: 'long', day: 'numeric', month: 'long'
+  });
+  const dateEl = document.getElementById('today-date');
+  if (dateEl) dateEl.textContent = today;
+
+  renderQuestion(currentDay);
+  renderNav();
+
+  // Si ya escribió hoy y es otro día, mostrar botón de siguiente
+  showNextIfNewDay();
+
+  // Si ya tiene respuesta de Alma guardada, mostrarla (sin typewriter)
+  // También recuperar farewell si ya lo tiene
+  const cachedFarewell = (() => { try { const r = localStorage.getItem('alma_farewell'); return r ? JSON.parse(r) : null; } catch(e) { return null; } })();
+  if (cachedFarewell?.summary) {
+    const allDone = Array.from({ length: totalDays }, (_, i) => loadFromLocal(i)).every(Boolean);
+    if (allDone) showFarewell();
+  }
+
+  const savedEntry = loadFromLocal(currentDay);
+  if (savedEntry?.almaReply) {
+    const responseEl = document.getElementById('alma-response');
+    const textEl     = document.getElementById('alma-response-text');
+    if (responseEl && textEl) {
+      responseEl.classList.add('visible');
+      textEl.innerHTML = savedEntry.almaReply
+        .split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
+    }
+    // Deshabilitar botón guardar si ya tiene respuesta
+    ['btn-save-d','btn-save-m'].forEach(id => {
+      const b = document.getElementById(id);
+      if (b) { b.disabled = true; b.textContent = '✦ Ya guardado'; }
+    });
+  }
+}
+
+function startJourney() {
+  const screen = document.getElementById('welcome-screen');
+  screen.classList.add('hidden');
+  setTimeout(() => screen.style.display = 'none', 500);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
