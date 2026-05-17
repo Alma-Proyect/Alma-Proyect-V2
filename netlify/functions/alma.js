@@ -48,7 +48,11 @@ exports.handler = async function (event) {
         content: t.text,
       });
     }
-    messages.push({ role: "user", content: entry });
+    // Si es el último turno, indicárselo explícitamente en el mensaje
+    const lastTurnNote = isLastTurn
+      ? "\n\n[INSTRUCCIÓN DE CIERRE: Este es el último intercambio del día. No hay más turnos después de este. Cierra como una amiga que se queda pensando en lo que acaba de escuchar — con ganas reales de mañana. Nada de frases de app. Nada de hasta mañana mecánico. Solo presencia y algo que la llame de vuelta.]"
+      : "";
+    messages.push({ role: "user", content: entry + lastTurnNote });
   } else {
     messages.push({
       role: "user",
