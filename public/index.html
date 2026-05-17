@@ -897,29 +897,38 @@ function loadFromLocal(day) {
 // QUESTIONS
 // =======================
 
-const questions = [
-  {
-    intro: "No hace falta que esté bien explicado, solo exprésalo, como salga…",
-    text: "¿Hay algo que llevas dentro y que casi nunca dices en voz alta?"
-  },
-  {
-    intro: "No hace falta que esté bien explicado, solo exprésalo, como salga…",
-    text: "¿Recuerdas la última vez que hiciste algo solo para ti, sin sentir que tenías que justificarlo?"
-  },
-  {
-    intro: "No hace falta que esté bien explicado, solo exprésalo, como salga…",
-    text: "Si te hablaras como hablarías a alguien a quien quieres, ¿qué sería diferente?"
-  }
-];
+const QUESTIONS_BY_MODE = {
+  pain: [
+    "¿Cuándo fue la última vez que sentiste que alguien podía sostener lo que te pasaba… y tú dejaste de fingir que estabas bien?",
+    "¿En qué momento empezaste a creer que tus emociones eran demasiado para los demás?",
+    "Si alguien a quien amas estuviera sintiendo exactamente lo que tú sientes ahora… ¿qué le dirías? Y por qué nunca te lo dices a ti?"
+  ],
+  curiosity: [
+    "¿Qué parte de ti existe en silencio simplemente porque nunca ha tenido espacio para aparecer?",
+    "¿Qué hay en ti que has llamado \"normal\" solo porque siempre has sido así?",
+    "¿Qué parte de ti está esperando vivir con más verdad?"
+  ],
+  open: [
+    "¿Cuándo fue la última vez que sentiste que alguien podía sostener lo que te pasaba… y tú dejaste de fingir que estabas bien?",
+    "¿En qué momento empezaste a creer que tus emociones eran demasiado para los demás?",
+    "Si alguien a quien amas estuviera sintiendo exactamente lo que tú sientes ahora… ¿qué le dirías? Y por qué nunca te lo dices a ti?"
+  ]
+};
+
+const QUESTION_INTRO = "No hace falta que esté bien explicado, solo exprésalo, como salga…";
+
+function getQuestionForDay(day) {
+  const mode = currentArrivalMode || 'pain';
+  const set = QUESTIONS_BY_MODE[mode] || QUESTIONS_BY_MODE.pain;
+  return set[day] || set[0];
+}
 
 function renderQuestion(day) {
-  const q = questions[day];
-  if (!q) return;
   const container = document.getElementById('question-text');
   if (container) {
     container.innerHTML = `
-      <p class="question-intro">${q.intro}</p>
-      <p class="question-main">${q.text}</p>
+      <p class="question-intro">${QUESTION_INTRO}</p>
+      <p class="question-main">${getQuestionForDay(day)}</p>
     `;
   }
 }
@@ -1428,12 +1437,6 @@ function hideTurnReply() {
 // =======================
 
 function buildWeekText() {
-  const QUESTIONS_TEXT = {
-    0: "¿Hay algo que llevas dentro y que casi nunca dices en voz alta?",
-    1: "¿Recuerdas la última vez que hiciste algo solo para ti, sin sentir que tenías que justificarlo?",
-    2: "Si te hablaras como hablarías a alguien a quien quieres, ¿qué sería diferente?"
-  };
-
   let lines = ["✦ Mi semana con Alma\n", "─".repeat(40)];
 
   for (let i = 0; i < totalDays; i++) {
@@ -1441,7 +1444,7 @@ function buildWeekText() {
     if (!entry) continue;
     const date = entry.date ? new Date(entry.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) : `Día ${i + 1}`;
     lines.push(`\nDÍA ${i + 1} — ${date}`);
-    lines.push(`Pregunta: ${QUESTIONS_TEXT[i]}`);
+    lines.push(`Pregunta: ${getQuestionForDay(i)}`);
     lines.push(`\nYo escribí:\n${entry.text || ''}`);
     if (entry.almaReply) lines.push(`\nAlma respondió:\n${entry.almaReply}`);
     lines.push("\n" + "─".repeat(40));
