@@ -1240,7 +1240,7 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
   }
 
   const controller = new AbortController();
-  const timeoutId  = setTimeout(() => controller.abort(), 25000);
+  const timeoutId  = setTimeout(() => controller.abort(), 9000);
   const fallbackMsg = "No pude responderte ahora mismo. Lo que has escrito ya tiene valor, independientemente de mi respuesta.";
 
   try {
