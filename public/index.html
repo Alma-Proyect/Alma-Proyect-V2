@@ -14,22 +14,22 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── TEMA CÁLIDO — cabaña, luz de vela ── */
+/* ── PALETA DEFINITIVA ALMA PROYECT ── */
 :root {
-  --bg:        #f0ddb8;
-  --cream:     #f7e8c8;
-  --warm:      #e6cea0;
-  --clay:      #7a4418;
-  --clay2:     #5c2e0a;
-  --rose:      #c8a870;
+  --bg:        #F5EDD8;
+  --cream:     #FDFAF5;
+  --warm:      #EDE0C4;
+  --clay:      #A86B50;
+  --clay2:     #8B4F38;
+  --rose:      #C4A882;
   --sage:      #7a9e8c;
-  --ink:       #2e1a08;
-  --muted:     #9a7848;
-  --border:    rgba(140,80,20,0.16);
-  --shadow:    0 4px 20px rgba(60,25,5,0.12);
-  --surface:   #2c1a08;
-  --gold:      #8a5220;
-  --gold-soft: rgba(140,80,20,0.08);
+  --ink:       #2C2010;
+  --muted:     #8A6E52;
+  --border:    rgba(168,107,80,0.18);
+  --shadow:    0 4px 20px rgba(44,32,16,0.10);
+  --surface:   #2C1A0A;
+  --gold:      #B8860B;
+  --gold-soft: rgba(184,134,11,0.08);
 }
 
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
@@ -50,7 +50,7 @@ body {
   background: var(--cream); border-bottom: 1px solid var(--border);
   position: sticky; top: 0; z-index: 50;
 }
-.topbar-logo img { height: 32px; width: auto; display: block; }
+.topbar-logo img { height: 40px; width: auto; display: block; }
 .topbar-right    { display: flex; align-items: center; gap: 0.85rem; }
 .topbar-date     { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.05em; }
 .topbar-avatar   {
@@ -323,7 +323,71 @@ body {
 .dot-active  { background: var(--clay); color: #fff; }
 .dot-pending { background: var(--warm); color: var(--muted); border: 1.5px dashed rgba(154,136,128,0.4); }
 
-/* Turn reply field — tarjeta independiente fuera del bloque de Alma */
+/* Botones de cierre al final de la conversación */
+.day-closing-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  animation: slideUp 0.4s ease both;
+}
+.day-closing-buttons .btn-save {
+  flex: 1;
+  background: var(--warm); color: var(--muted);
+  border: 1.5px solid var(--border); cursor: not-allowed;
+}
+.day-closing-buttons .btn-next {
+  background: var(--clay); color: #fff;
+  border-color: var(--clay); cursor: pointer;
+}
+.day-closing-buttons .btn-next:hover {
+  background: var(--clay2);
+}
+.conversation-history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+.history-alma {
+  background: var(--surface);
+  border-radius: 1.2rem;
+  border: 1px solid rgba(184,134,11,0.15);
+  padding: 1.2rem 1.4rem;
+  box-shadow: 0 4px 20px rgba(44,26,8,0.15);
+}
+.history-alma-label {
+  font-size: 0.5rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: rgba(184,134,11,0.55);
+  margin-bottom: 0.6rem;
+  display: flex; align-items: center; gap: 0.35rem;
+}
+.history-alma-label::before { content: '◉'; font-size: 0.38rem; }
+.history-alma p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.93rem; line-height: 1.9;
+  color: rgba(253,250,245,0.82); margin-bottom: 0.5rem; font-weight: 300;
+}
+.history-alma p:last-child { margin-bottom: 0; }
+
+.history-user {
+  background: var(--cream);
+  border-radius: 1.2rem;
+  border: 1px solid var(--border);
+  padding: 1rem 1.4rem;
+  box-shadow: var(--shadow);
+}
+.history-user-label {
+  font-size: 0.5rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 0.5rem;
+  display: flex; align-items: center; gap: 0.35rem;
+}
+.history-user-label::before { content: ''; display: block; width: 8px; height: 1px; background: var(--muted); }
+.history-user p {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.88rem; line-height: 1.8;
+  color: var(--ink); font-weight: 300;
+}
 .turn-reply {
   background: var(--cream);
   border-radius: 1.2rem;
@@ -344,16 +408,16 @@ body {
 .turn-reply-label::before { content: ''; display: block; width: 10px; height: 1px; background: var(--muted); }
 .turn-textarea {
   width: 100%; min-height: 90px;
-  background: rgba(240,220,185,0.06); border: 1px solid rgba(180,120,40,0.2);
-  border-radius: 0.75rem; padding: 0.85rem 1rem;
-  font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; line-height: 1.75;
-  color: rgba(240,220,185,0.85); caret-color: rgba(200,155,70,0.8);
+  background: var(--cream); border: 1.5px solid var(--border);
+  border-radius: 0.85rem; padding: 0.85rem 1rem;
+  font-family: 'Jost', sans-serif; font-size: 15px; line-height: 1.8;
+  color: var(--ink); caret-color: var(--clay);
   resize: none; outline: none; transition: border-color 0.2s;
 }
-.turn-textarea::placeholder { color: rgba(200,155,70,0.25); font-style: italic; }
+.turn-textarea::placeholder { color: var(--muted); font-style: italic; opacity: 0.5; }
 .turn-textarea:focus {
-  border-color: rgba(180,120,40,0.4);
-  box-shadow: 0 0 0 3px rgba(180,120,40,0.06);
+  border-color: rgba(168,107,80,0.4);
+  box-shadow: 0 0 0 3px rgba(168,107,80,0.06);
 }
 .turn-footer {
   display: flex; justify-content: space-between;
@@ -829,12 +893,15 @@ body {
     </div>
 
     <!-- Botones DESKTOP (dentro del flow) -->
-    <div class="actions-row">
+    <div class="actions-row" id="actions-row-d">
       <button class="btn-save" id="btn-save-d" onclick="saveEntry()" aria-busy="false">✦ Guardar y lo suelto aquí…</button>
       <button class="btn-next" onclick="nextDay()" id="btn-next-d">Día siguiente →</button>
     </div>
 
-    <!-- Alma response -->
+    <!-- Historial de conversación — se acumula, nunca desaparece -->
+    <div id="conversation-history" class="conversation-history"></div>
+
+    <!-- Bloque activo de Alma — tipea aquí, luego se mueve al historial -->
     <div class="alma-response" id="alma-response">
       <div class="alma-response-label">· Alma responde</div>
       <div class="typing" id="typing">
@@ -846,7 +913,7 @@ body {
       <div class="alma-pause" id="alma-pause">Tómate un momento antes de seguir</div>
     </div>
 
-    <!-- Campo de respuesta — fuera del bloque de Alma, como tarjeta propia -->
+    <!-- Campo de respuesta — tarjeta propia, fuera del bloque de Alma -->
     <div class="turn-reply" id="turn-reply" style="display:none">
       <div class="turn-reply-label">Tu respuesta</div>
       <textarea class="turn-textarea" id="turn-text"
@@ -857,6 +924,9 @@ body {
         <button class="btn-turn-send" id="btn-turn-send" onclick="sendTurn()">
           Guardar y continuar →
         </button>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1158,6 +1228,8 @@ let conversationHistory = []; // [{role, text}] — turnos del día
 function resetTurnState() {
   currentTurn = 1;
   conversationHistory = [];
+  const histContainer = document.getElementById('conversation-history');
+  if (histContainer) histContainer.innerHTML = '';
 }
 
 function onTurnType() {
@@ -1187,9 +1259,16 @@ async function saveEntry() {
     if (entry?.text) previousEntries[`day${i + 1}`] = entry.text;
   }
 
+  // Limpiar historial visual del día anterior
+  const histContainer = document.getElementById('conversation-history');
+  if (histContainer) histContainer.innerHTML = '';
+
   // Primer turno — inicializar historial
   conversationHistory = [{ role: 'user', text }];
   currentTurn = 1;
+
+  // Añadir primera entrada de la usuaria al historial visual
+  addToHistory('user', text);
 
   await callAlma({
     btns,
@@ -1204,15 +1283,18 @@ async function sendTurn() {
   const text = document.getElementById('turn-text')?.value.trim();
   if (!text || btn?.disabled) return;
 
-  // Añadir al historial
+  // Guardar la respuesta de la usuaria en el historial antes de limpiar
+  addToHistory('user', text);
+
+  // Añadir al historial interno
   conversationHistory.push({ role: 'user', text });
   currentTurn++;
 
   // Ocultar campo de respuesta mientras Alma piensa
-  const turnReply = document.getElementById('turn-reply');
-  if (turnReply) turnReply.style.display = 'none';
+  hideTurnReply();
 
-  // Mostrar typing
+  // Mostrar el bloque de Alma activo con typing
+  document.getElementById('alma-response').classList.add('visible');
   document.getElementById('typing').classList.add('visible');
   document.getElementById('alma-response-text').innerHTML = '';
 
@@ -1287,13 +1369,23 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
     // Typewriter — efecto de escritura palabra a palabra
     typeWriter(almaReply, () => {
       renderNav();
+
+      // Mover respuesta de Alma al historial permanente
+      const almaText = document.getElementById('alma-response-text').innerHTML;
+      addToHistory('alma', almaText);
+
+      // Limpiar el bloque activo para el siguiente turno
+      document.getElementById('alma-response-text').innerHTML = '';
+      document.getElementById('alma-response').classList.remove('visible');
+      document.getElementById('alma-pause').style.display = 'none';
+
       setTimeout(() => {
         if (!isLastTurn) {
           showTurnReply();
         } else {
           hideTurnReply();
-          document.getElementById('alma-pause').style.display = 'block';
-          showNextIfNewDay();
+          // Mostrar botones al final de toda la conversación
+          showFinalButtons();
         }
       }, 400);
     });
@@ -1309,25 +1401,76 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
     saveToLocal(currentDay, entryErr?.text || text, entryErr?.emotions || [], msg, conversationHistory);
     if (isFirstTurn) btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
     typeWriter(msg, () => {
+      const almaText = document.getElementById('alma-response-text').innerHTML;
+      addToHistory('alma', almaText);
+      document.getElementById('alma-response-text').innerHTML = '';
+      document.getElementById('alma-response').classList.remove('visible');
       hideTurnReply();
-      showNextIfNewDay();
+      showFinalButtons();
     });
   }
 }
 
+function addToHistory(role, htmlContent) {
+  const container = document.getElementById('conversation-history');
+  if (!container || !htmlContent) return;
+
+  const block = document.createElement('div');
+  block.style.animation = 'slideUp 0.4s ease both';
+
+  if (role === 'alma') {
+    block.className = 'history-alma';
+    block.innerHTML = `
+      <div class="history-alma-label">· Alma responde</div>
+      <div>${htmlContent}</div>
+    `;
+  } else {
+    block.className = 'history-user';
+    const text = htmlContent.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g, '<br>');
+    block.innerHTML = `
+      <div class="history-user-label">Tú escribiste</div>
+      <p>${text}</p>
+    `;
+  }
+
+  container.appendChild(block);
+  setTimeout(() => block.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+}
+
+function showFinalButtons() {
+  const container = document.getElementById('conversation-history');
+  if (!container) return;
+  // Evitar duplicados
+  if (container.querySelector('.day-closing-buttons')) return;
+
+  const closingDiv = document.createElement('div');
+  closingDiv.className = 'day-closing-buttons';
+  container.appendChild(closingDiv);
+  setTimeout(() => closingDiv.scrollIntoView({ behavior: 'smooth', block: 'end' }), 300);
+
+  // Actualizar también los botones móvil
+  ['btn-next-m','btn-next-d'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.classList.add('ready');
+  });
+}
+
 function showTurnReply() {
+  // Primero guardar la respuesta de la usuaria anterior en el historial si la hay
+  const turnText = document.getElementById('turn-text');
+  if (turnText) turnText.value = '';
+
   const turnReply = document.getElementById('turn-reply');
-  const turnText  = document.getElementById('turn-text');
-  const pause     = document.getElementById('alma-pause');
   if (turnReply) {
     turnReply.style.display = 'block';
-    if (turnText) { turnText.value = ''; turnText.focus(); }
+    if (turnText) setTimeout(() => turnText.focus(), 300);
     const cc = document.getElementById('turn-char-count');
     if (cc) cc.textContent = '0 / 1000';
+    const btn = document.getElementById('btn-turn-send');
+    if (btn) btn.classList.remove('ready');
   }
-  if (pause) pause.style.display = 'none';
   setTimeout(() =>
-    document.getElementById('alma-response').scrollIntoView({ behavior:'smooth', block:'end' }), 200);
+    turnReply?.scrollIntoView({ behavior:'smooth', block:'end' }), 200);
 }
 
 function hideTurnReply() {
