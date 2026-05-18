@@ -1743,7 +1743,7 @@ function init() {
   try {
     const consent = JSON.parse(localStorage.getItem('alma_consent') || '{}');
     if (!consent.accepted) {
-      window.location.replace('/');
+      window.location.replace('/beta-aviso.html');
       return;
     }
   } catch(e) {
