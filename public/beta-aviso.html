@@ -91,6 +91,9 @@
     </p>
   </div>
   <script>
+    // ── Limpiar modo de llegada — siempre elige cómo llega ──────────────
+    try { localStorage.removeItem('alma_arrival_mode'); } catch(e) {}
+
     // ── Si ya aceptó antes, entrar directamente sin mostrar la pantalla ──
     try {
       const c = JSON.parse(localStorage.getItem('alma_consent') || '{}');
