@@ -1,18 +1,18 @@
 [build]
   publish = "public"
- 
+
 [build.environment]
   NODE_VERSION = "18"
- 
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
- 
+
 [[redirects]]
   from = "/"
-  to = "/solicitud.html"
+  to = "/beta-aviso.html"
   status = 200
- 
+
 [[redirects]]
   from = "/tu-espacio"
   to = "/index.html"
