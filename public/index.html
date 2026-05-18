@@ -47,7 +47,7 @@ body {
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0.75rem 1.5rem;
-  background: var(--cream); border-bottom: 1px solid var(--border);
+  background: var(--bg); border-bottom: 1px solid rgba(168,107,80,0.1);
   position: sticky; top: 0; z-index: 50;
 }
 .topbar-logo img { height: 40px; width: auto; display: block; }
@@ -130,34 +130,73 @@ body {
 }
 
 .sidebar {
-  width: 240px; flex-shrink: 0;
-  background: var(--cream); border-right: 1px solid var(--border);
-  padding: 1.8rem 1rem; display: flex; flex-direction: column; gap: 1.8rem;
+  width: 220px; flex-shrink: 0;
+  background: var(--bg);
+  border-right: 1px solid rgba(168,107,80,0.1);
+  padding: 2.4rem 1.4rem 2rem;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  position: sticky; top: 57px;
+  height: calc(100vh - 57px);
+  overflow: hidden;
 }
+
+.sidebar-logo {
+  margin-bottom: 2.5rem;
+}
+.sidebar-logo img {
+  height: 52px; width: auto; display: block;
+}
+
 .sidebar-title {
-  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--muted); font-weight: 600; margin-bottom: 0.7rem; padding-left: 0.5rem;
+  font-size: 0.52rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--muted); font-weight: 500; margin-bottom: 1rem;
+  opacity: 0.7;
 }
-.day-list { display: flex; flex-direction: column; gap: 0.3rem; }
+
+.day-list { display: flex; flex-direction: column; gap: 0.2rem; }
+
 .day-item {
-  display: flex; align-items: center; gap: 0.7rem;
-  padding: 0.75rem 0.7rem; border-radius: 0.75rem;
-  cursor: pointer; transition: all 0.2s; border: 1.5px solid transparent;
+  display: flex; align-items: center; gap: 0.8rem;
+  padding: 0.7rem 0.6rem; border-radius: 0.75rem;
+  cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
+  -webkit-tap-highlight-color: transparent;
 }
-.day-item:hover  { background: var(--warm); }
-.day-item.active { background: rgba(196,137,111,0.09); border-color: rgba(196,137,111,0.28); }
+.day-item:hover { background: var(--warm); }
+.day-item.active {
+  background: rgba(168,107,80,0.07);
+  border-color: rgba(168,107,80,0.2);
+}
+
 .day-item-dot {
-  width: 26px; height: 26px; border-radius: 50%;
+  width: 28px; height: 28px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 0.68rem; font-weight: 600; flex-shrink: 0;
+  transition: all 0.2s;
 }
-.day-item-info    { display: flex; flex-direction: column; gap: 0.1rem; }
-.day-item-name    { font-size: 0.8rem;  font-weight: 500; line-height: 1; color: var(--ink); }
-.day-item-sub     { font-size: 0.68rem; color: var(--muted); }
-.streak-box { background: var(--ink); border-radius: 0.9rem; padding: 1.1rem; text-align: center; }
-.streak-box-num   { font-family: 'Cormorant Garamond', serif; font-size: 2.1rem; font-style: italic; color: var(--rose); line-height: 1; }
-.streak-box-label { font-size: 0.6rem;  color: rgba(251,248,244,0.4); letter-spacing: 0.12em; margin-top: 0.25rem; }
-.streak-box-msg   { font-size: 0.7rem;  color: rgba(251,248,244,0.5); margin-top: 0.55rem; line-height: 1.55; font-style: italic; }
+
+.day-item-info { display: flex; flex-direction: column; gap: 0.15rem; }
+.day-item-name { font-size: 0.82rem; font-weight: 500; line-height: 1; color: var(--ink); }
+.day-item-sub  { font-size: 0.65rem; color: var(--muted); line-height: 1.3; }
+
+/* Cita al fondo del sidebar */
+.sidebar-quote {
+  border-top: 1px solid rgba(168,107,80,0.12);
+  padding-top: 1.4rem;
+  margin-top: auto;
+}
+.sidebar-quote-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.88rem; font-style: italic; font-weight: 300;
+  color: var(--muted); line-height: 1.65;
+  opacity: 0.8;
+}
+.sidebar-quote-mark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem; color: var(--clay);
+  opacity: 0.25; line-height: 1;
+  display: block; margin-bottom: 0.2rem;
+}
 
 /* Ring progress desktop */
 .progress-ring-bg   { fill: none; stroke: var(--warm); stroke-width: 3; }
@@ -482,21 +521,19 @@ body {
 
 /* DESKTOP (≥ 680px) */
 @media (min-width: 680px) {
-  .topbar { padding: 0.75rem 2rem; }
-
   /* Ocultar elementos móvil */
   .day-nav             { display: none; }
   .progress-bar-wrap   { display: none; }
   .streak-banner       { display: none; }
   .actions-wrap-mobile { display: none; }
+  .topbar-logo         { display: none; }
 
   /* Mostrar elementos desktop */
-  .sidebar         { display: flex; }
+  .sidebar         { display: flex; flex-direction: column; }
   .actions-row     { display: flex; }
   .day-header-ring { display: block; }
 
-  .main-content { padding: 2rem 2.5rem; }
-
+  .main-content { padding: 2rem 2.5rem 2rem; }
   .app-layout { min-height: calc(100vh - 57px); }
 }
 
@@ -814,15 +851,24 @@ body {
 
   <!-- SIDEBAR desktop -->
   <aside class="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <img src="/images/logo-web.png" alt="Alma Proyect">
+    </div>
+
+    <!-- Navegación días -->
     <div>
       <div class="sidebar-title">Tu proceso</div>
       <div class="day-list" id="day-list"></div>
     </div>
-    <div class="streak-box">
-      <div class="streak-box-num"  id="streak-num-d">1</div>
-      <div class="streak-box-label">DÍA</div>
-      <div class="streak-box-msg"  id="streak-msg-d">"Cada vez que escribes, te escuchas un poco más."</div>
+
+    <!-- Cita al fondo -->
+    <div class="sidebar-quote">
+      <span class="sidebar-quote-mark">"</span>
+      <p class="sidebar-quote-text" id="streak-msg-d">Cada vez que escribes, te escuchas un poco más.</p>
     </div>
+
   </aside>
 
   <!-- MAIN -->
