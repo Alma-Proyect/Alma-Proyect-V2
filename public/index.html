@@ -134,7 +134,7 @@ body {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
   background: linear-gradient(transparent, var(--bg) 28%);
   padding: 0.9rem 1.2rem 1.5rem;
-  display: flex; gap: 0.6rem;
+  display: none; gap: 0.6rem;
 }
 
 /* ════════════════════════════════
@@ -146,7 +146,7 @@ body {
 
 .sidebar {
   width: 280px; flex-shrink: 0;
-  background: linear-gradient(to right, #1a1006 0%, #2a1a0c 55%, #4a2e18 85%, #7a4e30 100%);
+  background: linear-gradient(to right, #1a1006 0%, #231508 40%, #3a2210 70%, #6b3d22 88%, #9a5c35 100%);
   border-right: none;
   padding: 0 0 1.8rem;
   display: flex; flex-direction: column;
@@ -170,8 +170,8 @@ body {
   content: '';
   position: absolute;
   top: 0; right: -1px; bottom: 0;
-  width: 100px;
-  background: linear-gradient(to right, transparent 0%, rgba(245,237,216,0.15) 70%, rgba(245,237,216,0.4) 100%);
+  width: 140px;
+  background: linear-gradient(to right, transparent 0%, rgba(245,237,216,0.08) 30%, rgba(245,237,216,0.35) 55%, rgba(245,237,216,0.72) 75%, rgba(245,237,216,0.92) 88%, #F5EDD8 100%);
   pointer-events: none;
   z-index: 1;
 }
@@ -646,48 +646,48 @@ body {
 }
 .arrival-btn {
   width: 100%; padding: 0.9rem 1.2rem;
-  background: rgba(245,237,216,0.92);
-  border: 1px solid rgba(245,237,216,0.3); border-radius: 0.9rem;
-  font-family: 'Jost', sans-serif; font-size: 0.88rem; font-weight: 400;
-  color: #2C1A08; cursor: pointer; text-align: left;
+  background: rgba(255,248,235,0.04);
+  border: 1px solid rgba(184,134,11,0.2); border-radius: 0.9rem;
+  font-family: 'Jost', sans-serif; font-size: 0.88rem; font-weight: 300;
+  color: rgba(245,237,216,0.7); cursor: pointer; text-align: left;
   transition: all 0.2s; letter-spacing: 0.01em;
   -webkit-tap-highlight-color: transparent;
   display: flex; align-items: center; gap: 0.7rem;
 }
-.arrival-btn::before { content: '—'; color: #A86B50; font-size: 0.8rem; flex-shrink: 0; }
+.arrival-btn::before { content: '—'; color: rgba(184,134,11,0.5); font-size: 0.8rem; flex-shrink: 0; }
 .arrival-btn:hover {
-  background: rgba(255,252,245,1);
-  border-color: rgba(184,134,11,0.4);
-  color: #1a0e04;
+  border-color: rgba(184,134,11,0.5);
+  background: rgba(184,134,11,0.06);
+  color: rgba(245,237,216,0.95);
 }
 .arrival-btn.selected {
-  background: rgba(255,252,245,1);
-  border-color: rgba(184,134,11,0.6);
-  color: #1a0e04;
-  font-weight: 500;
+  border-color: rgba(184,134,11,0.7);
+  background: rgba(184,134,11,0.08);
+  color: rgba(245,237,216,0.95);
+  font-weight: 400;
 }
 
 .welcome-btn {
   margin-top: 0.4rem;
   width: 100%; padding: 0.95rem;
-  background: rgba(245,237,216,0.15);
-  color: rgba(245,237,216,0.3);
-  border: 1px solid rgba(245,237,216,0.2); border-radius: 0.9rem;
+  background: rgba(184,134,11,0.15);
+  color: rgba(245,237,216,0.4);
+  border: 1px solid rgba(184,134,11,0.2); border-radius: 0.9rem;
   font-size: 0.9rem; font-weight: 400; letter-spacing: 0.08em;
   cursor: not-allowed; transition: all 0.25s;
   font-family: 'Jost', sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 .welcome-btn.ready {
-  background: rgba(245,237,216,0.95);
-  color: #2C1A08;
-  border-color: rgba(245,237,216,0.8);
-  cursor: pointer; font-weight: 600;
+  background: rgba(184,134,11,0.85);
+  color: #0a0704;
+  border-color: rgba(184,134,11,0.9);
+  cursor: pointer; font-weight: 500;
 }
 .welcome-btn.ready:hover {
-  background: #FDFAF5;
+  background: rgba(184,134,11,1);
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 24px rgba(184,134,11,0.3);
 }
 .welcome-btn.ready:active { transform: scale(0.98); }
 .welcome-note {
@@ -1009,7 +1009,7 @@ body {
     </div>
 
     <!-- Botones DESKTOP (dentro del flow) -->
-    <div class="actions-row" id="actions-row-d">
+    <div class="actions-row" id="actions-row-d" style="display:none">
       <button class="btn-save" id="btn-save-d" onclick="saveEntry()" aria-busy="false">✦ Guardar y lo suelto aquí…</button>
       <button class="btn-next" onclick="nextDay()" id="btn-next-d">Día siguiente →</button>
     </div>
@@ -1191,6 +1191,12 @@ function onType() {
     if (b && !b.disabled) b.classList.toggle('ready', text.trim().length > 0);
   });
 
+  // Mostrar fila de botones solo cuando hay texto
+  const rowD = document.getElementById('actions-row-d');
+  if (rowD) rowD.style.display = text.trim().length > 0 ? 'flex' : 'none';
+  const rowM = document.querySelector('.actions-wrap-mobile');
+  if (rowM) rowM.style.display = text.trim().length > 0 ? 'flex' : 'none';
+
   clearTimeout(typeTimer);
   const al = document.getElementById('autosave-label');
   if (al) al.style.display = 'none';
@@ -1328,6 +1334,14 @@ function jumpToDay(index) {
     const isNewDay = !isSameCalendarDay(saved.date, new Date().toISOString());
     b.classList.toggle('ready', isNewDay);
   });
+
+  // Mostrar u ocultar fila de botones según si hay texto guardado o escrito
+  const rowD = document.getElementById('actions-row-d');
+  const rowM = document.querySelector('.actions-wrap-mobile');
+  const taValue = document.getElementById('journal-text')?.value?.trim();
+  const showBtns = !!(saved?.text || taValue);
+  if (rowD) rowD.style.display = showBtns ? 'flex' : 'none';
+  if (rowM) rowM.style.display = showBtns ? 'flex' : 'none';
 
   renderNav();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1764,6 +1778,12 @@ function nextDay() {
     if (b) b.classList.remove('ready'); b.style.display = '';
   });
 
+  // Ocultar fila de botones hasta que escriba algo
+  const rowD = document.getElementById('actions-row-d');
+  const rowM = document.querySelector('.actions-wrap-mobile');
+  if (rowD) rowD.style.display = 'none';
+  if (rowM) rowM.style.display = 'none';
+
   renderNav();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1885,11 +1905,23 @@ function init() {
   if (welcomeScreen) welcomeScreen.style.display = 'flex';
 
   // ─────────────────────────────────────────────────────────
-  // Recuperar el día actual si la usuaria recargó la página
+  // Calcular el día activo correcto por fecha
+  // Si el día 1 es de ayer y hoy es un día nuevo, ir al día 2 directamente
   for (let i = totalDays - 1; i >= 0; i--) {
     if (loadFromLocal(i)) {
       currentDay = i;
       break;
+    }
+  }
+  // Avanzar al siguiente día si el día actual ya es de ayer o anterior
+  // y aún quedan días por hacer
+  const savedToday = loadFromLocal(currentDay);
+  if (savedToday?.date && currentDay < totalDays - 1) {
+    const isOldDay = !isSameCalendarDay(savedToday.date, new Date().toISOString());
+    if (isOldDay) {
+      // Comprobar que el siguiente día no tiene entrada ya
+      const nextSaved = loadFromLocal(currentDay + 1);
+      if (!nextSaved) currentDay++;
     }
   }
 
@@ -1898,6 +1930,17 @@ function init() {
   });
   const dateEl = document.getElementById('today-date');
   if (dateEl) dateEl.textContent = today;
+
+  // Actualizar pill y título al día activo real
+  const metaDays = [
+    { title: 'Para <em>llegar aquí</em>' },
+    { title: 'Para <em>mirarse</em>' },
+    { title: 'Para cerrar <em>con algo real</em>' }
+  ];
+  const pill  = document.getElementById('day-pill');
+  const title = document.getElementById('day-title');
+  if (pill)  pill.textContent = `Día ${currentDay + 1} de ${totalDays}`;
+  if (title) title.innerHTML  = metaDays[currentDay].title;
 
   renderQuestion(currentDay);
   renderNav();
@@ -1915,6 +1958,10 @@ function init() {
 
   const savedEntry = loadFromLocal(currentDay);
   if (savedEntry?.almaReply) {
+    // Limpiar historial visual del día anterior antes de restaurar
+    const histContainer = document.getElementById('conversation-history');
+    if (histContainer) histContainer.innerHTML = '';
+
     const responseEl = document.getElementById('alma-response');
     const textEl     = document.getElementById('alma-response-text');
     if (responseEl && textEl) {
@@ -1927,6 +1974,11 @@ function init() {
       const b = document.getElementById(id);
       if (b) { b.disabled = true; b.textContent = '✦ Ya guardado'; }
     });
+    // Mostrar botones si ya guardó
+    const rowD = document.getElementById('actions-row-d');
+    if (rowD) rowD.style.display = 'flex';
+    const rowM = document.querySelector('.actions-wrap-mobile');
+    if (rowM) rowM.style.display = 'flex';
   }
 }
 
