@@ -833,49 +833,16 @@ async function init() {
   renderEssence();
 }
 
-// ── SUPABASE CONFIG ──────────────────────────────────────────────
-const SUPABASE_URL = 'https://fofgcnwgkdqisjdojcbe.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_z-etBnO3OcNTnv1Bz3K32w_RutbxPcm';
-
-async function sbFetch(path, opts = {}) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    ...opts,
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Prefer': opts.prefer || 'return=representation',
-      ...(opts.headers || {})
-    }
-  });
-  if (!res.ok) throw new Error(`Supabase error: ${res.status}`);
-  const text = await res.text();
-  return text ? JSON.parse(text) : null;
-}
-
+// ── BACKEND API — toda comunicación con Supabase va por el servidor ──
 async function loadData() {
   try {
-    // Cargar entradas desde Supabase
-    const rows = await sbFetch('sanctum_entries?select=*&order=created_at.desc', {
-      headers: { 'Prefer': '' }
-    });
-    entries = (rows || []).map(r => ({
-      id: r.id,
-      date: r.created_at,
-      mood: r.mood,
-      prompt: r.prompt,
-      content: r.content,
-      words: r.words,
-      distilled: r.distilled
-    }));
-
-    // Cargar esencia
-    const essRows = await sbFetch('sanctum_essence?select=*&order=created_at.desc&limit=1', {
-      headers: { 'Prefer': '' }
-    });
-    essence = essRows && essRows[0] ? essRows[0].data : null;
+    const res = await fetch('/.netlify/functions/sanctum-load');
+    if (!res.ok) throw new Error(`sanctum-load error: ${res.status}`);
+    const data = await res.json();
+    entries = data.entries || [];
+    essence = data.essence || null;
   } catch(e) {
-    console.warn('Supabase no disponible, usando localStorage:', e);
+    console.warn('Backend no disponible, usando localStorage:', e);
     try {
       entries = JSON.parse(localStorage.getItem('sanctum_v1_entries') || '[]');
       essence = JSON.parse(localStorage.getItem('sanctum_v1_essence') || 'null');
@@ -929,19 +896,24 @@ async function saveEntry() {
     distilled: false
   };
 
-  // Guardar en Supabase
+  // Guardar en backend
   try {
-    const saved = await sbFetch('sanctum_entries', {
+    const res = await fetch('/.netlify/functions/sanctum-save', {
       method: 'POST',
-      body: JSON.stringify(entry),
-      prefer: 'return=representation'
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entry })
     });
-    const newEntry = saved && saved[0] ? {
-      id: saved[0].id,
-      date: saved[0].created_at,
-      ...entry
-    } : { id: Date.now(), date: new Date().toISOString(), ...entry };
-    entries.unshift(newEntry);
+    if (res.ok) {
+      const data = await res.json();
+      const newEntry = data.entry ? {
+        id: data.entry.id,
+        date: data.entry.created_at,
+        ...entry
+      } : { id: Date.now(), date: new Date().toISOString(), ...entry };
+      entries.unshift(newEntry);
+    } else {
+      throw new Error(`sanctum-save error: ${res.status}`);
+    }
   } catch(e) {
     // Fallback local
     entries.unshift({ id: Date.now(), date: new Date().toISOString(), ...entry });
@@ -1021,6 +993,12 @@ function delEntry(event, id) {
   entries = entries.filter(e => e.id !== id);
   persist();
   renderHistorial();
+  // Borrar en backend (sin bloquear UI)
+  fetch('/.netlify/functions/sanctum-delete', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id })
+  }).catch(e => console.warn('No se pudo borrar en backend:', e));
 }
 
 // ── ESENCIA ──
