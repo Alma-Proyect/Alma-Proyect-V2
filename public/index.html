@@ -1965,28 +1965,59 @@ function init() {
   }
 
   const savedEntry = loadFromLocal(currentDay);
-  if (savedEntry?.almaReply) {
-    // Limpiar historial visual del día anterior antes de restaurar
-    const histContainer = document.getElementById('conversation-history');
-    if (histContainer) histContainer.innerHTML = '';
 
-    const responseEl = document.getElementById('alma-response');
-    const textEl     = document.getElementById('alma-response-text');
+  // Limpiar siempre todo el estado visual antes de restaurar
+  const histContainer = document.getElementById('conversation-history');
+  if (histContainer) histContainer.innerHTML = '';
+  const responseEl = document.getElementById('alma-response');
+  const textEl     = document.getElementById('alma-response-text');
+  if (responseEl) responseEl.classList.remove('visible');
+  if (textEl) textEl.innerHTML = '';
+  const tr = document.getElementById('turn-reply');
+  if (tr) tr.style.display = 'none';
+  document.getElementById('typing')?.classList.remove('visible');
+  document.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
+
+  // Restaurar textarea con el texto del día activo si existe
+  const ta = document.getElementById('journal-text');
+  if (ta) ta.value = savedEntry?.text || '';
+  const cc = document.getElementById('char-count');
+  if (cc) cc.textContent = `${savedEntry?.text?.length || 0} / 2000`;
+
+  // Botones: resetear siempre
+  ['btn-save-d','btn-save-m'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) { b.disabled = false; b.textContent = '✦ Guardar y lo suelto aquí…'; }
+  });
+
+  const rowD = document.getElementById('actions-row-d');
+  const rowM = document.querySelector('.actions-wrap-mobile');
+
+  if (savedEntry?.almaReply) {
+    // El día activo ya tiene conversación — restaurarla
     if (responseEl && textEl) {
       responseEl.classList.add('visible');
       textEl.innerHTML = savedEntry.almaReply
         .split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
     }
-    // Deshabilitar botón guardar si ya tiene respuesta
     ['btn-save-d','btn-save-m'].forEach(id => {
       const b = document.getElementById(id);
       if (b) { b.disabled = true; b.textContent = '✦ Ya guardado'; }
     });
-    // Mostrar botones si ya guardó
-    const rowD = document.getElementById('actions-row-d');
     if (rowD) rowD.style.display = 'flex';
-    const rowM = document.querySelector('.actions-wrap-mobile');
     if (rowM) rowM.style.display = 'flex';
+  } else if (savedEntry?.text) {
+    // Tiene texto pero sin respuesta — mostrar botones
+    if (rowD) rowD.style.display = 'flex';
+    if (rowM) rowM.style.display = 'flex';
+    ['btn-save-d','btn-save-m'].forEach(id => {
+      const b = document.getElementById(id);
+      if (b) b.classList.add('ready');
+    });
+  } else {
+    // Día nuevo — ocultar botones hasta que escriba
+    if (rowD) rowD.style.display = 'none';
+    if (rowM) rowM.style.display = 'none';
   }
 }
 
