@@ -61,8 +61,20 @@ exports.handler = async function (event) {
   }
 
   try {
+    // Leer esencia del Sanctum — voz de la guardiana
+    let essence = null;
+    try {
+      const essRes = await fetch(`${process.env.URL}/.netlify/functions/sanctum-essence`);
+      if (essRes.ok) {
+        const essData = await essRes.json();
+        essence = essData.essence || null;
+      }
+    } catch(e) {
+      // Si no hay esencia disponible, Alma funciona igual sin ella
+    }
+
     const response = await callAnthropic({
-      system: getAlmaSystemPrompt(day, currentTurn, previousEntries, arrivalMode),
+      system: getAlmaSystemPrompt(day, currentTurn, previousEntries, arrivalMode, essence),
       messages,
       maxTokens: 300,
       temperature: 0.85,
