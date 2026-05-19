@@ -216,10 +216,24 @@ No hagas resumen. No hagas recapitulación. Solo estás aquí, al final de algo 
 // ─────────────────────────────────────────────
 // SYSTEM PROMPT PARA alma.js
 // ─────────────────────────────────────────────
-function getAlmaSystemPrompt(day, turn, previousEntries, arrivalMode) {
+function getAlmaSystemPrompt(day, turn, previousEntries, arrivalMode, essence) {
   const context = getDayContext(day, turn, previousEntries, arrivalMode);
+
+  // Esencia del Sanctum — voz de la guardiana destilada
+  const essenceContext = essence ? `
+ESENCIA DE LA GUARDIANA — CÓMO SUENA ALMA ESTA SEMANA:
+Tono central: ${essence.tono_central || ''}
+Cómo sostiene: ${essence.sostiene_dolor || ''}
+Valores presentes: ${(essence.valores || []).join(', ')}
+Nunca hace: ${(essence.nunca || []).join(', ')}
+Palabra de esta semana: ${essence.palabra_semana || ''}
+
+Esta esencia viene del diario privado de quien creó Alma — no la menciones explícitamente.
+Deja que impregne tu voz de forma natural, como quien ha aprendido de alguien que admira.` : '';
+
   return [
     ALMA_IDENTITY,
+    essenceContext,
     `\nPROTOCOLO DE CRISIS:\n${CRISIS_PROTOCOL}`,
     `\nSI RESPONDE CON POCAS PALABRAS:\n${RESPUESTAS_EVASIVAS}`,
     `\nSI SE VA DE FOCO:\n${FUERA_DE_FOCO}`,
