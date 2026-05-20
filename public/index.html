@@ -54,9 +54,9 @@ body {
 ════════════════════════════════ */
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0.75rem 1.5rem;
+  padding: 0.6rem 1.2rem;
   background: var(--bg); border-bottom: 1px solid rgba(168,107,80,0.1);
-  position: sticky; top: 0; z-index: 50;
+  /* Sin sticky en móvil — no tapa el contenido al hacer scroll */
 }
 
 @media (min-width: 680px) {
@@ -65,6 +65,7 @@ body {
     border-bottom: 1px solid rgba(184,134,11,0.08);
     justify-content: flex-end;
     padding: 0.75rem 2rem;
+    position: sticky; top: 0; z-index: 50; /* sticky solo en desktop donde el sidebar lo ancla */
   }
   .topbar-date { color: rgba(245,237,216,0.35); }
   .topbar-avatar {
@@ -140,10 +141,12 @@ body {
 /* Botones fijos móvil */
 .actions-wrap-mobile {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
-  background: linear-gradient(transparent, var(--bg) 28%);
-  padding: 0.9rem 1.2rem 1.5rem;
+  background: linear-gradient(transparent, var(--bg) 40%);
+  padding: 1.2rem 1.2rem 1.4rem;
   display: none; gap: 0.6rem;
 }
+/* Se ocultan cuando la usuaria está en el turn-reply para no tapar ni duplicar */
+.actions-wrap-mobile.turn-active { display: none !important; }
 
 /* ════════════════════════════════
    DESKTOP: sidebar + ring
@@ -426,7 +429,11 @@ body {
   display: flex;
   gap: 0.75rem;
   margin-top: 0.5rem;
+  margin-bottom: 5rem; /* espacio para que no tape los botones fijos en móvil */
   animation: slideUp 0.4s ease both;
+}
+@media (min-width: 680px) {
+  .day-closing-buttons { margin-bottom: 0; }
 }
 .day-closing-buttons .btn-save {
   flex: 1;
@@ -711,8 +718,10 @@ body {
 .farewell-screen {
   position: fixed; inset: 0; z-index: 200;
   background: var(--ink);
-  display: none; align-items: center; justify-content: center;
+  display: none; align-items: flex-start; justify-content: center;
   padding: 2rem 1.5rem;
+  overflow-y: auto; /* scroll para que en móvil llegue a los botones */
+  -webkit-overflow-scrolling: touch;
 }
 .farewell-screen.visible {
   display: flex;
@@ -722,6 +731,7 @@ body {
   max-width: 480px; width: 100%;
   display: flex; flex-direction: column; align-items: center;
   text-align: center; gap: 1.4rem;
+  padding-bottom: 2rem; /* respiro en móvil */
 }
 .farewell-symbol {
   font-family: 'Cormorant Garamond', serif;
@@ -1068,12 +1078,13 @@ body {
 
 const totalDays = 3;
 let currentDay = 0;
+let currentArrivalMode = 'pain'; // declaración explícita — se actualiza en selectArrival e init
 
 // =======================
 // STORAGE
 // =======================
 
-function saveToLocal(day, text, emotions, almaReply, history) {
+function saveToLocal(day, text, emotions, almaReply, history, arrivalMode) {
   try {
     const existing = loadFromLocal(day) || {};
     localStorage.setItem(`alma_${day}`, JSON.stringify({
@@ -1082,6 +1093,7 @@ function saveToLocal(day, text, emotions, almaReply, history) {
       date: existing.date || new Date().toISOString(),
       almaReply: almaReply !== undefined ? almaReply : (existing.almaReply || null),
       history: history || existing.history || [],
+      arrivalMode: arrivalMode || existing.arrivalMode || 'pain',
     }));
   } catch(e) {
     console.warn('localStorage no disponible:', e);
@@ -1203,7 +1215,10 @@ function onType() {
   const rowD = document.getElementById('actions-row-d');
   if (rowD) rowD.style.display = text.trim().length > 0 ? 'flex' : 'none';
   const rowM = document.querySelector('.actions-wrap-mobile');
-  if (rowM) rowM.style.display = text.trim().length > 0 ? 'flex' : 'none';
+  // No tocar rowM si está en modo turno activo (turn-active lo gestiona showTurnReply/hideTurnReply)
+  if (rowM && !rowM.classList.contains('turn-active')) {
+    rowM.style.display = text.trim().length > 0 ? 'flex' : 'none';
+  }
 
   clearTimeout(typeTimer);
   const al = document.getElementById('autosave-label');
@@ -1308,7 +1323,6 @@ function jumpToDay(index) {
 
   const pill  = document.getElementById('day-pill');
   const title = document.getElementById('day-title');
-  const qEl   = document.getElementById('question-text');
   if (pill)  pill.textContent = `Día ${index + 1} de ${totalDays}`;
   if (title) title.innerHTML  = meta[index].title;
   renderQuestion(index);
@@ -1332,7 +1346,13 @@ function jumpToDay(index) {
 
   ['btn-save-d','btn-save-m'].forEach(id => {
     const b = document.getElementById(id);
-    if (b) { b.disabled = false; b.textContent = '✦ Guardar y lo suelto aquí…'; }
+    if (!b) return;
+    if (saved?.almaReply) {
+      // Día ya contestado — bloquear para evitar doble envío
+      b.disabled = true; b.textContent = '✦ Ya guardado';
+    } else {
+      b.disabled = false; b.textContent = '✦ Guardar y lo suelto aquí…';
+    }
   });
   ['btn-next-d','btn-next-m'].forEach(id => {
     const b = document.getElementById(id);
@@ -1368,6 +1388,9 @@ function resetTurnState() {
   conversationHistory = [];
   const histContainer = document.getElementById('conversation-history');
   if (histContainer) histContainer.innerHTML = '';
+  // Limpiar también turn-active por si quedó de un turno anterior
+  const rowM = document.querySelector('.actions-wrap-mobile');
+  if (rowM) rowM.classList.remove('turn-active');
 }
 
 function onTurnType() {
@@ -1389,7 +1412,7 @@ async function saveEntry() {
   if (!text) return;
 
   const emotions = [...document.querySelectorAll(".emotion-chip.selected")].map(e => e.textContent);
-  saveToLocal(currentDay, text, emotions);
+  saveToLocal(currentDay, text, emotions, undefined, undefined, currentArrivalMode);
 
   const previousEntries = {};
   for (let i = 0; i < currentDay; i++) {
@@ -1498,7 +1521,7 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
 
     conversationHistory.push({ role: 'alma', text: almaReply });
     const entryNow = loadFromLocal(currentDay);
-    saveToLocal(currentDay, entryNow?.text || text, entryNow?.emotions || [], almaReply, conversationHistory);
+    saveToLocal(currentDay, entryNow?.text || text, entryNow?.emotions || [], almaReply, conversationHistory, currentArrivalMode);
 
     if (isFirstTurn) {
       btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
@@ -1536,7 +1559,7 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
       : fallbackMsg;
     conversationHistory.push({ role: 'alma', text: msg });
     const entryErr = loadFromLocal(currentDay);
-    saveToLocal(currentDay, entryErr?.text || text, entryErr?.emotions || [], msg, conversationHistory);
+    saveToLocal(currentDay, entryErr?.text || text, entryErr?.emotions || [], msg, conversationHistory, currentArrivalMode);
     if (isFirstTurn) btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
     typeWriter(msg, () => {
       const almaText = document.getElementById('alma-response-text').innerHTML;
@@ -1583,10 +1606,20 @@ function showFinalButtons() {
 
   const closingDiv = document.createElement('div');
   closingDiv.className = 'day-closing-buttons';
+
+  // Botón "Día siguiente" o "Ver mi reflejo" dependiendo del día
+  const isLastDay = currentDay >= totalDays - 1;
+  const nextLabel = isLastDay ? '✦ Ver mi reflejo' : 'Día siguiente →';
+  closingDiv.innerHTML = `
+    <button class="btn-next ready" onclick="nextDay()" style="flex:1; min-height:50px;">
+      ${nextLabel}
+    </button>
+  `;
+
   container.appendChild(closingDiv);
   setTimeout(() => closingDiv.scrollIntoView({ behavior: 'smooth', block: 'end' }), 300);
 
-  // Actualizar también los botones móvil
+  // Actualizar también los botones fijos existentes
   ['btn-next-m','btn-next-d'].forEach(id => {
     const b = document.getElementById(id);
     if (b) b.classList.add('ready');
@@ -1594,6 +1627,10 @@ function showFinalButtons() {
 }
 
 function showTurnReply() {
+  // Ocultar botones fijos móvil para no tapar el campo de respuesta
+  const rowM = document.querySelector('.actions-wrap-mobile');
+  if (rowM) rowM.classList.add('turn-active');
+
   // Primero guardar la respuesta de la usuaria anterior en el historial si la hay
   const turnText = document.getElementById('turn-text');
   if (turnText) turnText.value = '';
@@ -1614,6 +1651,9 @@ function showTurnReply() {
 function hideTurnReply() {
   const turnReply = document.getElementById('turn-reply');
   if (turnReply) turnReply.style.display = 'none';
+  // Restaurar botones fijos móvil
+  const rowM = document.querySelector('.actions-wrap-mobile');
+  if (rowM) rowM.classList.remove('turn-active');
 }
 
 // =======================
@@ -1626,9 +1666,13 @@ function buildWeekText() {
   for (let i = 0; i < totalDays; i++) {
     const entry = loadFromLocal(i);
     if (!entry) continue;
+    // Usar el arrivalMode guardado ese día, no el actual
+    const dayMode = entry.arrivalMode || 'pain';
+    const daySet  = QUESTIONS_BY_MODE[dayMode] || QUESTIONS_BY_MODE.pain;
+    const question = daySet[i] || daySet[0];
     const date = entry.date ? new Date(entry.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) : `Día ${i + 1}`;
     lines.push(`\nDÍA ${i + 1} — ${date}`);
-    lines.push(`Pregunta: ${getQuestionForDay(i)}`);
+    lines.push(`Pregunta: ${question}`);
     lines.push(`\nYo escribí:\n${entry.text || ''}`);
     if (entry.almaReply) lines.push(`\nAlma respondió:\n${entry.almaReply}`);
     lines.push("\n" + "─".repeat(40));
@@ -1736,7 +1780,7 @@ function nextDay() {
     // Mismo día — ocultar botón por si acaso y salir
     ['btn-next-d','btn-next-m'].forEach(id => {
       const b = document.getElementById(id);
-      if (b) b.classList.remove('ready'); b.style.display = '';
+      if (b) { b.classList.remove('ready'); b.style.display = ''; }
     });
     return;
   }
@@ -1760,7 +1804,6 @@ function nextDay() {
   document.getElementById('autosave-label') && (document.getElementById('autosave-label').style.display = 'none');
   document.getElementById('alma-response').classList.remove('visible');
   const tr2 = document.getElementById('turn-reply'); if (tr2) tr2.style.display = 'none';
-  resetTurnState();
   document.getElementById('alma-response-text').innerHTML = '';
   document.getElementById('typing').classList.remove('visible');
   document.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
@@ -1783,7 +1826,7 @@ function nextDay() {
   });
   ['btn-next-d','btn-next-m'].forEach(id => {
     const b = document.getElementById(id);
-    if (b) b.classList.remove('ready'); b.style.display = '';
+    if (b) { b.classList.remove('ready'); b.style.display = ''; }
   });
 
   // Ocultar fila de botones hasta que escriba algo
@@ -1908,9 +1951,14 @@ function init() {
   try { localStorage.removeItem('alma_arrival_mode'); } catch(e) {}
   currentArrivalMode = 'pain'; // reset por defecto
 
-  // Mostrar la pantalla de bienvenida con pregunta cero
+  // Comprobar farewell antes de mostrar bienvenida
+  const cachedFarewellCheck = (() => { try { const r = localStorage.getItem('alma_farewell'); return r ? JSON.parse(r) : null; } catch(e) { return null; } })();
+  const allDaysComplete = Array.from({ length: totalDays }, (_, i) => loadFromLocal(i)).every(Boolean);
+  const goToFarewell = cachedFarewellCheck?.summary && allDaysComplete;
+
+  // Mostrar la pantalla de bienvenida solo si no vamos directas al farewell
   const welcomeScreen = document.getElementById('welcome-screen');
-  if (welcomeScreen) welcomeScreen.style.display = 'flex';
+  if (!goToFarewell && welcomeScreen) welcomeScreen.style.display = 'flex';
 
   // ─────────────────────────────────────────────────────────
   // Calcular el día activo correcto por fecha
@@ -1957,12 +2005,7 @@ function init() {
   showNextIfNewDay();
 
   // Si ya tiene respuesta de Alma guardada, mostrarla (sin typewriter)
-  // También recuperar farewell si ya lo tiene
-  const cachedFarewell = (() => { try { const r = localStorage.getItem('alma_farewell'); return r ? JSON.parse(r) : null; } catch(e) { return null; } })();
-  if (cachedFarewell?.summary) {
-    const allDone = Array.from({ length: totalDays }, (_, i) => loadFromLocal(i)).every(Boolean);
-    if (allDone) showFarewell();
-  }
+  // El farewell se lanza al final, después de limpiar todo el estado
 
   const savedEntry = loadFromLocal(currentDay);
 
@@ -1994,18 +2037,36 @@ function init() {
   const rowM = document.querySelector('.actions-wrap-mobile');
 
   if (savedEntry?.almaReply) {
-    // El día activo ya tiene conversación — restaurarla
-    if (responseEl && textEl) {
-      responseEl.classList.add('visible');
-      textEl.innerHTML = savedEntry.almaReply
-        .split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
+    // El día activo ya tiene conversación — restaurar historial completo si existe
+    const history = savedEntry.history || [];
+    if (history.length > 0) {
+      // Restaurar cada turno del historial visual
+      history.forEach(turn => {
+        if (turn.role === 'user') {
+          addToHistory('user', turn.text);
+        } else if (turn.role === 'alma') {
+          const html = turn.text.split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
+          addToHistory('alma', html);
+        }
+      });
+      // Conversación completa — mostrar botón de siguiente en el historial
+      showFinalButtons();
+    } else {
+      // Solo almaReply sin historial detallado — mostrar en bloque activo como antes
+      if (responseEl && textEl) {
+        responseEl.classList.add('visible');
+        textEl.innerHTML = savedEntry.almaReply
+          .split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
+      }
     }
     ['btn-save-d','btn-save-m'].forEach(id => {
       const b = document.getElementById(id);
       if (b) { b.disabled = true; b.textContent = '✦ Ya guardado'; }
     });
     if (rowD) rowD.style.display = 'flex';
-    if (rowM) rowM.style.display = 'flex';
+    // En móvil: si hay historial completo, los botones fijos no hacen falta
+    // (el botón de siguiente ya está dentro del historial)
+    if (rowM) rowM.style.display = history.length > 0 ? 'none' : 'flex';
   } else if (savedEntry?.text) {
     // Tiene texto pero sin respuesta — mostrar botones
     if (rowD) rowD.style.display = 'flex';
@@ -2019,6 +2080,10 @@ function init() {
     if (rowD) rowD.style.display = 'none';
     if (rowM) rowM.style.display = 'none';
   }
+
+  // Farewell al final — después de que todo el estado esté limpio
+  // Evita el flash de bienvenida y la restauración incompleta
+  if (goToFarewell) showFarewell();
 }
 
 function startJourney() {
