@@ -591,12 +591,12 @@ body {
   .day-nav             { display: none; }
   .progress-bar-wrap   { display: none; }
   .streak-banner       { display: none; }
-  .actions-wrap-mobile { display: none; }
+  .actions-wrap-mobile { display: none !important; } /* !important para que el JS nunca lo pise en desktop */
   .topbar-logo         { display: none; }
 
   /* Mostrar elementos desktop */
   .sidebar         { display: flex; flex-direction: column; }
-  .actions-row     { display: flex; }
+  /* actions-row lo gestiona el JS — no tocar aquí */
   .day-header-ring { display: block; }
 
   .main-content { padding: 2rem 2.5rem 2rem; }
@@ -711,6 +711,7 @@ body {
   line-height: 1.5; letter-spacing: 0.05em;
 }
 
+@keyframes fadeIn  { from{opacity:0;transform:scale(1.01)} to{opacity:1;transform:scale(1)} }
 @keyframes fadeOut { from{opacity:1} to{opacity:0;transform:scale(0.98)} }
 /* ════════════════════════════════
    PANTALLA DE CIERRE
@@ -1188,6 +1189,14 @@ function typeWriter(text, onComplete) {
 // UI HELPERS
 // =======================
 
+// Helper — solo actúa en móvil para no pisar el CSS de desktop
+function setMobileButtons(show) {
+  if (window.innerWidth >= 680) return; // en desktop lo controla el CSS, nunca el JS
+  const rowM = document.querySelector('.actions-wrap-mobile');
+  if (!rowM || rowM.classList.contains('turn-active')) return;
+  rowM.style.display = show ? 'flex' : 'none';
+}
+
 function toggleEmotion(el) {
   el.classList.toggle('selected');
   el.setAttribute('aria-checked', el.classList.contains('selected') ? 'true' : 'false');
@@ -1214,11 +1223,7 @@ function onType() {
   // Mostrar fila de botones solo cuando hay texto
   const rowD = document.getElementById('actions-row-d');
   if (rowD) rowD.style.display = text.trim().length > 0 ? 'flex' : 'none';
-  const rowM = document.querySelector('.actions-wrap-mobile');
-  // No tocar rowM si está en modo turno activo (turn-active lo gestiona showTurnReply/hideTurnReply)
-  if (rowM && !rowM.classList.contains('turn-active')) {
-    rowM.style.display = text.trim().length > 0 ? 'flex' : 'none';
-  }
+  setMobileButtons(text.trim().length > 0);
 
   clearTimeout(typeTimer);
   const al = document.getElementById('autosave-label');
@@ -1299,7 +1304,7 @@ function renderNav() {
   const msg = msgs[Math.min(done, msgs.length - 1)];
   const n   = Math.max(1, done);
 
-  ['streak-num-d','streak-num-m'].forEach(id => {
+  ['streak-num-m'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.textContent = n;
   });
@@ -1365,11 +1370,10 @@ function jumpToDay(index) {
 
   // Mostrar u ocultar fila de botones según si hay texto guardado o escrito
   const rowD = document.getElementById('actions-row-d');
-  const rowM = document.querySelector('.actions-wrap-mobile');
   const taValue = document.getElementById('journal-text')?.value?.trim();
   const showBtns = !!(saved?.text || taValue);
   if (rowD) rowD.style.display = showBtns ? 'flex' : 'none';
-  if (rowM) rowM.style.display = showBtns ? 'flex' : 'none';
+  setMobileButtons(showBtns);
 
   renderNav();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1630,7 +1634,6 @@ function showTurnReply() {
   // Ocultar botones fijos móvil para no tapar el campo de respuesta
   const rowM = document.querySelector('.actions-wrap-mobile');
   if (rowM) rowM.classList.add('turn-active');
-
   // Primero guardar la respuesta de la usuaria anterior en el historial si la hay
   const turnText = document.getElementById('turn-text');
   if (turnText) turnText.value = '';
@@ -1795,7 +1798,6 @@ function nextDay() {
   }
 
   // Actualizar pregunta y UI
-  const questionEl = document.getElementById("question-text");
   renderQuestion(currentDay);
 
   document.getElementById("journal-text").value = "";
@@ -1831,9 +1833,8 @@ function nextDay() {
 
   // Ocultar fila de botones hasta que escriba algo
   const rowD = document.getElementById('actions-row-d');
-  const rowM = document.querySelector('.actions-wrap-mobile');
   if (rowD) rowD.style.display = 'none';
-  if (rowM) rowM.style.display = 'none';
+  setMobileButtons(false);
 
   renderNav();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2034,7 +2035,6 @@ function init() {
   });
 
   const rowD = document.getElementById('actions-row-d');
-  const rowM = document.querySelector('.actions-wrap-mobile');
 
   if (savedEntry?.almaReply) {
     // El día activo ya tiene conversación — restaurar historial completo si existe
@@ -2064,13 +2064,12 @@ function init() {
       if (b) { b.disabled = true; b.textContent = '✦ Ya guardado'; }
     });
     if (rowD) rowD.style.display = 'flex';
-    // En móvil: si hay historial completo, los botones fijos no hacen falta
-    // (el botón de siguiente ya está dentro del historial)
-    if (rowM) rowM.style.display = history.length > 0 ? 'none' : 'flex';
+    // En móvil: si hay historial completo el botón está dentro del historial, no hace falta la barra fija
+    setMobileButtons(history.length === 0);
   } else if (savedEntry?.text) {
     // Tiene texto pero sin respuesta — mostrar botones
     if (rowD) rowD.style.display = 'flex';
-    if (rowM) rowM.style.display = 'flex';
+    setMobileButtons(true);
     ['btn-save-d','btn-save-m'].forEach(id => {
       const b = document.getElementById(id);
       if (b) b.classList.add('ready');
@@ -2078,7 +2077,7 @@ function init() {
   } else {
     // Día nuevo — ocultar botones hasta que escriba
     if (rowD) rowD.style.display = 'none';
-    if (rowM) rowM.style.display = 'none';
+    setMobileButtons(false);
   }
 
   // Farewell al final — después de que todo el estado esté limpio
