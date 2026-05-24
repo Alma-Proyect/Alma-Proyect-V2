@@ -609,8 +609,9 @@ body {
 .welcome-screen {
   position: fixed; inset: 0; z-index: 100;
   background: radial-gradient(ellipse at 50% 0%, #2c1f0a 0%, #120d04 60%, #0a0704 100%);
-  display: flex; align-items: center; justify-content: center;
-  padding: 2rem 1.5rem;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 2rem 1.5rem 3rem;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
   animation: fadeIn 0.8s ease both;
 }
 .welcome-screen.hidden {
@@ -624,8 +625,8 @@ body {
   text-align: center; gap: 0.9rem;
 }
 .welcome-logo {
-  height: 200px; width: auto;
-  margin-bottom: 0.4rem;
+  height: 140px; width: auto;
+  margin-bottom: 0.2rem;
   filter: drop-shadow(0 0 40px rgba(184,134,11,0.5)) drop-shadow(0 0 80px rgba(184,134,11,0.2));
 }
 .welcome-title {
