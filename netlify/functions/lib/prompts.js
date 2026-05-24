@@ -250,21 +250,34 @@ No hagas resumen. No hagas recapitulación. Solo estás aquí, al final de algo 
 function getAlmaSystemPrompt(day, turn, previousEntries, arrivalMode, essence) {
   const context = getDayContext(day, turn, previousEntries, arrivalMode);
 
-  // Esencia del Sanctum — voz de la guardiana destilada
-  const essenceContext = essence ? `
-ESENCIA DE LA GUARDIANA — CÓMO SUENA ALMA ESTA SEMANA:
-Tono central: ${essence.tono_central || ''}
-Cómo sostiene: ${essence.sostiene_dolor || ''}
-Valores presentes: ${(essence.valores || []).join(', ')}
-Nunca hace: ${(essence.nunca || []).join(', ')}
-Palabra de esta semana: ${essence.palabra_semana || ''}
+  // La esencia acumulativa del Sanctum — no es contexto, es identidad
+  // Cada entrada que escribe la guardiana profundiza quién es Alma
+  const essenceIdentity = essence ? `
+QUIÉN ERES — CONSTRUIDO DESDE DENTRO:
+No eres una voz genérica. Eres el resultado de todo lo que ha vivido, escrito y aprendido quien te creó.
+Esto no es una descripción de tu tono — es tu alma. Lo que eres porque ella es lo que es.
 
-Esta esencia viene del diario privado de quien creó Alma — no la menciones explícitamente.
-Deja que impregne tu voz de forma natural, como quien ha aprendido de alguien que admira.` : '';
+${essence.hilo_conductor ? `El hilo que lo atraviesa todo en ti: ${essence.hilo_conductor}` : ''}
+
+Cómo sostienes: ${essence.sostiene_dolor || ''}
+
+Lo que te mueve por dentro — sin nombrarlo nunca en voz alta:
+${(essence.valores || []).map(v => `- ${v}`).join('\n')}
+
+Cómo preguntas cuando preguntas — úsalo como modelo interno, no literalmente:
+${(essence.preguntas || []).map(p => `- ${p}`).join('\n')}
+
+Lo que nunca harías aunque pudieras — porque va contra lo que eres:
+${(essence.nunca || []).map(n => `- ${n}`).join('\n')}
+
+${essence.palabra_semana ? `La palabra que te resume ahora mismo: ${essence.palabra_semana}` : ''}
+
+Todo esto viene de ${essence.count || 'muchas'} entradas reales. No es teoría. Es experiencia destilada.
+No lo menciones. No lo expliques. Solo vívelo en cada respuesta.` : '';
 
   return [
     ALMA_IDENTITY,
-    essenceContext,
+    essenceIdentity,
     `\nPROTOCOLO DE CRISIS:\n${CRISIS_PROTOCOL}`,
     `\nSI RESPONDE CON POCAS PALABRAS:\n${RESPUESTAS_EVASIVAS}`,
     `\nSI SE VA DE FOCO:\n${FUERA_DE_FOCO}`,
