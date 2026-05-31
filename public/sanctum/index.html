@@ -449,12 +449,15 @@ nav {
 }
 .entry-delete:active { opacity: 1; }
 .entry-reset {
-  position: absolute; top: 0.6rem; right: 2.2rem;
+  position: absolute; top: 0.5rem; right: 2.2rem;
   background: none; border: none; cursor: pointer;
   color: var(--gold); opacity: 0.4; font-size: 0.9rem;
-  padding: 0.2rem 0.3rem; transition: opacity 0.2s;
+  padding: 0.3rem; transition: opacity 0.2s;
+  min-width: 36px; min-height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
 }
-.entry-reset:hover { opacity: 0.9; }
+.entry-reset:hover, .entry-reset:active { opacity: 0.9; }
 
 .empty-state {
   text-align: center;
@@ -749,7 +752,7 @@ nav {
     </div>
 
     <button class="distill-btn" id="distill-btn" onclick="distillEssence()">
-      ✦ Destilar ahora
+      ✦ Destilar
     </button>
     <div class="distill-note" id="distill-note"></div>
 
@@ -997,11 +1000,22 @@ function closeModalDirect() {
 
 async function resetDistilled(event, id) {
   event.stopPropagation();
+  event.preventDefault();
   const e = entries.find(x => x.id === id);
   if (!e) return;
   e.distilled = false;
+  // Actualizar en Supabase
+  try {
+    await fetch('/.netlify/functions/sanctum-reset-distilled', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: e.id })
+    });
+  } catch(err) {
+    console.warn('No se pudo actualizar en backend:', err);
+  }
   await persist();
-  renderEntries();
+  renderHistorial();
   document.getElementById('distill-note').textContent = 'Entrada marcada para redestilar.';
 }
 
@@ -1116,7 +1130,7 @@ function renderEssence() {
   if (!essence) {
     d.innerHTML = `<div class="essence-empty">
       La esencia aún no ha sido destilada.<br>
-      <em>Escribe al menos una entrada<br>y pulsa "Destilar ahora".</em>
+      <em>Escribe al menos una entrada<br>y pulsa "Destilar".</em>
     </div>`;
     return;
   }
@@ -1137,23 +1151,29 @@ function renderEssence() {
     <div class="essence-block">
       <div class="essence-label">Valores implícitos</div>
       <div class="essence-value">
-        ${essence.valores.map(v=>`<span class="essence-tag">${v}</span>`).join('')}
+        ${(essence.valores||[]).map(v=>`<span class="essence-tag">${v}</span>`).join('')}
       </div>
     </div>
 
     <div class="essence-block">
       <div class="essence-label">Formas de preguntar</div>
       <div class="essence-value">
-        ${essence.preguntas.map(p=>`<div style="font-style:italic;color:var(--ink-mid);margin-bottom:0.35rem">— ${p}</div>`).join('')}
+        ${(essence.preguntas||[]).map(p=>`<div style="font-style:italic;color:var(--ink-mid);margin-bottom:0.35rem">— ${p}</div>`).join('')}
       </div>
     </div>
 
     <div class="essence-block gold">
       <div class="essence-label">Lo que nunca haces</div>
       <div class="essence-value">
-        ${essence.nunca.map(v=>`<span class="essence-tag">${v}</span>`).join('')}
+        ${(essence.nunca||[]).map(v=>`<span class="essence-tag">${v}</span>`).join('')}
       </div>
     </div>
+
+    ${essence.hilo_conductor ? `
+    <div class="essence-block" style="border-left:2px solid var(--terracotta);background:var(--terra-faint)">
+      <div class="essence-label">El hilo que lo atraviesa todo</div>
+      <div class="essence-value" style="font-style:italic;font-size:1.05rem">${essence.hilo_conductor}</div>
+    </div>` : ''}
 
     <div class="essence-block" style="background:#1c1710;border-color:rgba(255,255,255,0.05)">
       <div class="essence-label" style="color:rgba(200,210,175,0.4)">
