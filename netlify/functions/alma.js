@@ -25,6 +25,7 @@ exports.handler = async function (event) {
     previousEntries,
     arrivalMode,
     plan,
+    questionSet,
   } = JSON.parse(event.body || "{}");
 
   if (!entry || entry.trim().length === 0) {
@@ -40,9 +41,8 @@ exports.handler = async function (event) {
   // Construir historial de mensajes — solo lo esencial para no superar el timeout
   const messages = [];
   if (conversationHistory && conversationHistory.length > 0) {
-    // Solo el último turno del historial para mantener contexto sin alargar
-    const recent = conversationHistory.slice(-2);
-    for (const t of recent) {
+    // Mandar todos los turnos del día para mantener el hilo completo
+    for (const t of conversationHistory) {
       messages.push({
         role: t.role === "alma" ? "assistant" : "user",
         content: t.text,
@@ -56,7 +56,7 @@ exports.handler = async function (event) {
   } else {
     messages.push({
       role: "user",
-      content: `La pregunta de hoy era: "${getQuestion(arrivalMode, day)}"\n\nEsto es lo que escribió:\n\n"${entry}"`,
+      content: `La pregunta de hoy era: "${getQuestion(arrivalMode, day, questionSet)}"\n\nEsto es lo que escribió:\n\n"${entry}"`,
     });
   }
 
