@@ -448,6 +448,13 @@ nav {
   -webkit-tap-highlight-color: transparent;
 }
 .entry-delete:active { opacity: 1; }
+.entry-reset {
+  position: absolute; top: 0.6rem; right: 2.2rem;
+  background: none; border: none; cursor: pointer;
+  color: var(--gold); opacity: 0.4; font-size: 0.9rem;
+  padding: 0.2rem 0.3rem; transition: opacity 0.2s;
+}
+.entry-reset:hover { opacity: 0.9; }
 
 .empty-state {
   text-align: center;
@@ -966,6 +973,7 @@ function renderHistorial() {
       </div>
       <div class="entry-preview">${esc(e.content)}</div>
       <div class="entry-words">${e.words} palabras${e.distilled ? ' · destilada ✓' : ''}</div>
+      ${e.distilled ? `<button class="entry-reset" onclick="resetDistilled(event,${e.id})" title="Marcar como no destilada">↺</button>` : ''}
       <button class="entry-delete" onclick="delEntry(event,${e.id})">✕</button>
     </div>
   `).join('');
@@ -987,6 +995,16 @@ function closeModalDirect() {
   document.getElementById('modal').classList.remove('open');
 }
 
+async function resetDistilled(event, id) {
+  event.stopPropagation();
+  const e = entries.find(x => x.id === id);
+  if (!e) return;
+  e.distilled = false;
+  await persist();
+  renderEntries();
+  document.getElementById('distill-note').textContent = 'Entrada marcada para redestilar.';
+}
+
 function delEntry(event, id) {
   event.stopPropagation();
   if (!confirm('¿Borrar esta entrada?')) return;
@@ -1003,10 +1021,8 @@ function delEntry(event, id) {
 
 // ── ESENCIA ──
 async function distillEssence() {
-  const fresh = entries.filter(e => !e.distilled);
-  if (!fresh.length) {
-    document.getElementById('distill-note').textContent =
-      'No hay entradas nuevas. Escribe más primero.';
+  if (!entries.length) {
+    document.getElementById('distill-note').textContent = 'Escribe al menos una entrada primero.';
     return;
   }
 
@@ -1016,43 +1032,40 @@ async function distillEssence() {
   document.getElementById('distill-note').textContent = '';
 
   try {
-    // Llamar al backend serverless — la API key nunca sale del servidor
+    // Siempre manda TODAS las entradas — el servidor integra con la esencia anterior
     const res = await fetch('/.netlify/functions/sanctum-distill', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ entries: fresh })
+      body: JSON.stringify({ entries })
     });
 
     let essenceData;
     if (res.ok) {
       const data = await res.json();
-      essenceData = data.essence || buildEssence(fresh);
+      essenceData = data.essence || buildEssence(entries);
     } else {
       console.warn('sanctum-distill error:', res.status);
-      essenceData = buildEssence(fresh);
+      essenceData = buildEssence(entries);
     }
 
     essence = essenceData;
-
-    // Marcar entradas como destiladas localmente
-    // (el backend ya las marcó en Supabase)
-    fresh.forEach(e => e.distilled = true);
+    entries.forEach(e => e.distilled = true);
 
     await persist();
     renderEssence();
     document.getElementById('distill-note').textContent =
-      `Generada de ${fresh.length} entrada${fresh.length !== 1 ? 's' : ''} · ${new Date().toLocaleDateString('es-ES')}`;
+      `Retrato actualizado · ${entries.length} entrada${entries.length !== 1 ? 's' : ''} · ${new Date().toLocaleDateString('es-ES')}`;
 
   } catch(e) {
     console.error('Error destilando:', e);
-    essence = buildEssence(fresh);
-    fresh.forEach(e => e.distilled = true);
+    essence = buildEssence(entries);
+    entries.forEach(e => e.distilled = true);
     await persist();
     renderEssence();
     document.getElementById('distill-note').textContent = 'Destilada localmente.';
   } finally {
     btn.disabled = false;
-    btn.textContent = '✦ Destilar ahora';
+    btn.textContent = '✦ Destilar';
   }
 }
 
