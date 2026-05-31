@@ -1565,6 +1565,7 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
         conversationHistory: conversationHistory.slice(0, -1),
         previousEntries,
         arrivalMode: currentArrivalMode,
+        questionSet: getOrCreateQuestionSet(currentArrivalMode),
         plan: 'free',
       }),
       signal: controller.signal,
