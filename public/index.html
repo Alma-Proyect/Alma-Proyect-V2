@@ -1725,13 +1725,20 @@ function buildWeekText() {
     if (!entry) continue;
     // Usar el arrivalMode guardado ese día, no el actual
     const dayMode = entry.arrivalMode || 'pain';
-    const daySet  = QUESTIONS_BY_MODE[dayMode] || QUESTIONS_BY_MODE.pain;
+    const daySet  = getOrCreateQuestionSet(dayMode);
     const question = daySet[i] || daySet[0];
     const date = entry.date ? new Date(entry.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) : `Día ${i + 1}`;
     lines.push(`\nDÍA ${i + 1} — ${date}`);
     lines.push(`Pregunta: ${question}`);
     lines.push(`\nYo escribí:\n${entry.text || ''}`);
-    if (entry.almaReply) lines.push(`\nAlma respondió:\n${entry.almaReply}`);
+    // Usar historial completo si existe, si no almaReply como fallback
+    if (entry.history?.length) {
+      entry.history.filter(t => t.role === 'alma').forEach(t => {
+        lines.push(`\nAlma respondió:\n${t.text}`);
+      });
+    } else if (entry.almaReply) {
+      lines.push(`\nAlma respondió:\n${entry.almaReply}`);
+    }
     lines.push("\n" + "─".repeat(40));
   }
 
@@ -1899,11 +1906,14 @@ function nextDay() {
 // =======================
 
 async function showFarewell() {
+  // Mandar historial completo de cada día para que el reflejo sea más profundo
+  const d0 = loadFromLocal(0), d1 = loadFromLocal(1), d2 = loadFromLocal(2);
   const entries = {
-    day1: loadFromLocal(0)?.text || "",
-    day2: loadFromLocal(1)?.text || "",
-    day3: loadFromLocal(2)?.text || ""
+    day1: d0?.history?.length ? d0.history : (d0?.text || ""),
+    day2: d1?.history?.length ? d1.history : (d1?.text || ""),
+    day3: d2?.history?.length ? d2.history : (d2?.text || ""),
   };
+  const questionSet = getOrCreateQuestionSet(currentArrivalMode);
 
   const screen = document.getElementById('farewell-screen');
   if (screen) screen.classList.add('visible');
@@ -1932,7 +1942,7 @@ async function showFarewell() {
     const res  = await fetch('/.netlify/functions/summary', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ entries, arrivalMode: currentArrivalMode, plan: 'free' }),
+      body: JSON.stringify({ entries, arrivalMode: currentArrivalMode, plan: 'free', questionSet }),
       signal: controller.signal
     });
     clearTimeout(timeoutId);
@@ -2006,7 +2016,7 @@ function init() {
   try {
     localStorage.removeItem('alma_arrival_mode');
     // Limpiar sets de preguntas para que cada nueva sesión pueda traer preguntas distintas
-    ['pain','curiosity','open'].forEach(m => localStorage.removeItem(`alma_qset_${m}`));
+    ['pain','curiosity','open','depth'].forEach(m => localStorage.removeItem(`alma_qset_${m}`));
   } catch(e) {}
   currentArrivalMode = 'pain'; // reset por defecto
 
