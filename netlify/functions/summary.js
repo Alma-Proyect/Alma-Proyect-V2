@@ -4,6 +4,7 @@
 
 const { callAnthropic } = require("./lib/anthropic");
 const { SUMMARY_SYSTEM_PROMPT, getSummaryUserMessage } = require("./lib/prompts");
+const { getQuestion } = require("./lib/questions");
 
 const FALLBACKS = [
   "Algo cambió esta semana. No sé si tú lo notaste, pero estaba en tus palabras.\n\nHay una honestidad en lo que escribiste que no todo el mundo se permite.\n\nEso no es pequeño.",
@@ -16,7 +17,7 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  const { entries, plan, arrivalMode } = JSON.parse(event.body || "{}");
+  const { entries, plan, arrivalMode, questionSet } = JSON.parse(event.body || "{}");
 
   if (!entries || !entries.day1) {
     return {
@@ -28,14 +29,14 @@ exports.handler = async function (event) {
   try {
     const summary = await callAnthropic({
       system: SUMMARY_SYSTEM_PROMPT,
-      messages: [{ role: "user", content: getSummaryUserMessage(entries, arrivalMode) }],
+      messages: [{ role: "user", content: getSummaryUserMessage(entries, arrivalMode, questionSet) }],
       maxTokens: 300,
       temperature: 0.75,
       plan: plan || "free",
     });
 
     // Generamos también el texto listo para descargar
-    const downloadText = buildDownloadText(entries, summary);
+    const downloadText = buildDownloadText(entries, summary, arrivalMode, questionSet);
 
     return {
       statusCode: 200,
@@ -45,7 +46,7 @@ exports.handler = async function (event) {
   } catch (error) {
     console.error("Error en summary.js:", error);
     const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
-    const downloadText = buildDownloadText(entries, fallback);
+    const downloadText = buildDownloadText(entries, fallback, arrivalMode, questionSet);
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
@@ -59,23 +60,19 @@ exports.handler = async function (event) {
 // Incluye las preguntas, lo que escribió la usuaria,
 // y el reflejo de Alma al final
 // ─────────────────────────────────────────────
-function buildDownloadText(entries, summary) {
+function buildDownloadText(entries, summary, arrivalMode, questionSet) {
   const fecha = new Date().toLocaleDateString("es-ES", {
     weekday: "long", day: "numeric", month: "long", year: "numeric"
   });
 
-  const PREGUNTAS = {
-    1: "¿Hay algo que llevas dentro y que casi nunca dices en voz alta?",
-    2: "¿Recuerdas la última vez que hiciste algo solo para ti, sin sentir que tenías que justificarlo?",
-    3: "Si te hablaras como hablarías a alguien a quien quieres, ¿qué sería diferente?",
-  };
+  const mode = arrivalMode || "pain";
 
   function formatDayForDownload(dayEntries, pregunta, numDia) {
     if (!dayEntries) return `DÍA ${numDia}\n${pregunta}\n\n(Este día elegiste no escribir)\n`;
     if (typeof dayEntries === "string") {
       return `DÍA ${numDia}\n${pregunta}\n\n${dayEntries}\n`;
     }
-    // Array de turnos
+    // Array de turnos — solo lo que escribió la usuaria
     const lines = dayEntries
       .filter(t => t.role === "user")
       .map(t => t.text)
@@ -87,13 +84,13 @@ function buildDownloadText(entries, summary) {
 ${fecha}
 ${"─".repeat(40)}
 
-${formatDayForDownload(entries.day1, PREGUNTAS[1], 1)}
+${formatDayForDownload(entries.day1, getQuestion(mode, 1, questionSet), 1)}
 ${"─".repeat(40)}
 
-${formatDayForDownload(entries.day2, PREGUNTAS[2], 2)}
+${formatDayForDownload(entries.day2, getQuestion(mode, 2, questionSet), 2)}
 ${"─".repeat(40)}
 
-${formatDayForDownload(entries.day3, PREGUNTAS[3], 3)}
+${formatDayForDownload(entries.day3, getQuestion(mode, 3, questionSet), 3)}
 ${"─".repeat(40)}
 
 LO QUE ALMA VIO
