@@ -88,7 +88,7 @@ Ahora lee las entradas nuevas y profundiza el retrato. No lo borra — lo comple
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 800,
+        max_tokens: 600,
         system: `Eres un destilador de voz. Lees el diario completo de la guardiana de Alma Proyect y construyes un retrato acumulativo de su esencia — cómo sostiene, escucha, acompaña y existe.
 
 No resumes lo que escribió. Destilas quién es, cómo suena, qué lleva.
@@ -120,12 +120,23 @@ Devuelve SOLO un JSON con esta estructura exacta, sin texto adicional, sin bloqu
 
     let essenceData;
     try {
-      essenceData = JSON.parse(text.replace(/```json|```/g, '').trim());
+      // Intentar parsear directamente primero
+      const clean = text.replace(/```json|```/g, '').trim();
+      try {
+        essenceData = JSON.parse(clean);
+      } catch(e1) {
+        // Si falla, extraer el bloque JSON con regex — por si Claude añade texto antes o después
+        const match = clean.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error('No se encontró JSON en la respuesta');
+        essenceData = JSON.parse(match[0]);
+      }
     } catch (e) {
+      console.error('JSON parse error:', e.message, '| Raw:', text.slice(0, 200));
+      // Devolver 500 en lugar de 422 para que el frontend use buildEssence como fallback
       return {
-        statusCode: 422,
+        statusCode: 500,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'El modelo no devolvió JSON válido.', raw: text })
+        body: JSON.stringify({ error: 'El modelo no devolvió JSON válido.', raw: text.slice(0, 300) })
       };
     }
 
@@ -135,15 +146,17 @@ Devuelve SOLO un JSON con esta estructura exacta, sin texto adicional, sin bloqu
 
     // 4. Guardar nueva esencia — borrar anterior primero para no acumular filas
     if (SUPABASE_URL && SUPABASE_KEY) {
+      // Borrar TODAS las esencias anteriores usando UPSERT o DELETE sin filtro
+      // Supabase requiere filtro para DELETE — usamos created_at > epoch (borra todo)
       try {
-        // Borrar esencias viejas
-        await sbFetch('sanctum_essence?id=neq.0', {
+        await sbFetch("sanctum_essence?created_at=gte.2000-01-01", {
           method: 'DELETE',
           prefer: 'return=minimal'
         });
       } catch (e) {
         console.warn('No se pudo borrar esencia anterior:', e);
       }
+      // Guardar nueva esencia
       try {
         await sbFetch('sanctum_essence', {
           method: 'POST',
