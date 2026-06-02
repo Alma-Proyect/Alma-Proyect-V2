@@ -120,19 +120,17 @@ Devuelve SOLO un JSON con esta estructura exacta, sin texto adicional, sin bloqu
 
     let essenceData;
     try {
-      // Intentar parsear directamente primero
-      const clean = text.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
-      try {
-        essenceData = JSON.parse(clean);
-      } catch(e1) {
-        // Si falla, extraer el bloque JSON con regex — por si Claude añade texto antes o después
-        const match = clean.match(/\{[\s\S]*\}/);
-        if (!match) throw new Error('No se encontró JSON en la respuesta');
-        essenceData = JSON.parse(match[0]);
+      // Extraer el bloque JSON — funciona con o sin bloques de código markdown
+      // Buscar directamente la primera { y la última } para extraer el JSON
+      const firstBrace = text.indexOf('{');
+      const lastBrace  = text.lastIndexOf('}');
+      if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+        throw new Error('No se encontró JSON en la respuesta. Raw: ' + text.slice(0, 150));
       }
+      const jsonStr = text.slice(firstBrace, lastBrace + 1);
+      essenceData = JSON.parse(jsonStr);
     } catch (e) {
-      console.error('JSON parse error:', e.message, '| Raw:', text.slice(0, 200));
-      // Devolver 500 en lugar de 422 para que el frontend use buildEssence como fallback
+      console.error('JSON parse error:', e.message);
       return {
         statusCode: 500,
         headers: { 'Content-Type': 'application/json' },
