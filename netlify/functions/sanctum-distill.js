@@ -121,7 +121,7 @@ Devuelve SOLO un JSON con esta estructura exacta, sin texto adicional, sin bloqu
     let essenceData;
     try {
       // Intentar parsear directamente primero
-      const clean = text.replace(/```json|```/g, '').trim();
+      const clean = text.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
       try {
         essenceData = JSON.parse(clean);
       } catch(e1) {
