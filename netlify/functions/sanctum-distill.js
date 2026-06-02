@@ -125,7 +125,7 @@ Devuelve SOLO un JSON con esta estructura exacta, sin texto adicional, sin bloqu
       const firstBrace = text.indexOf('{');
       const lastBrace  = text.lastIndexOf('}');
       if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
-        throw new Error('No se encontró JSON en la respuesta. Raw: ' + text.slice(0, 150));
+        throw new Error('NUEVO: sin JSON'' + text.slice(0, 150));
       }
       const jsonStr = text.slice(firstBrace, lastBrace + 1);
       essenceData = JSON.parse(jsonStr);
