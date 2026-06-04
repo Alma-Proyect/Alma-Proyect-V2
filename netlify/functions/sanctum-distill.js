@@ -44,21 +44,24 @@ exports.handler = async function (event) {
     console.warn('No se pudo cargar esencia anterior:', e.message);
   }
 
-  // 2. Ordenar entradas por fecha y construir texto
-  const ordenadas = [...entries].sort((a, b) => new Date(a.date) - new Date(b.date));
-  const entriesText = ordenadas
-    .map((e, i) => `Entrada ${i + 1} (${new Date(e.date).toLocaleDateString('es-ES')}):\n${e.content}`)
-    .join('\n\n---\n\n');
+  // 2. Ordenar entradas y construir texto — limitar a las 15 más recientes para no superar el contexto
+  const ordenadas = [...entries]
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(-15);
 
-  // 3. Construir mensaje
+  const entriesText = ordenadas
+    .map((e, i) => `E${i + 1} (${new Date(e.date).toLocaleDateString('es-ES')}): ${e.content.slice(0, 300)}`)
+    .join('\n\n');
+
+  // 3. Construir mensaje compacto
   let mensajeUsuario;
   if (esenciaAnterior) {
-    mensajeUsuario = `RETRATO ANTERIOR:\n- Tono: ${esenciaAnterior.tono_central}\n- Sostiene: ${esenciaAnterior.sostiene_dolor}\n- Valores: ${(esenciaAnterior.valores||[]).join(', ')}\n- Nunca: ${(esenciaAnterior.nunca||[]).join(', ')}\n- Hilo: ${esenciaAnterior.hilo_conductor||''}\n\nENTRADAS (${ordenadas.length} en total):\n\n${entriesText}\n\nProfundiza el retrato con todo lo que ves.`;
+    mensajeUsuario = `Retrato anterior: tono="${esenciaAnterior.tono_central}", hilo="${esenciaAnterior.hilo_conductor||''}"\n\nEntradas nuevas:\n${entriesText}\n\nActualiza el retrato.`;
   } else {
-    mensajeUsuario = `ENTRADAS (${ordenadas.length} en total):\n\n${entriesText}\n\nDestila la voz de esta mujer.`;
+    mensajeUsuario = `Entradas:\n${entriesText}\n\nDestila la voz de esta mujer.`;
   }
 
-  // 4. Llamar a Claude con prefill para garantizar JSON puro
+  // 4. Llamar a Claude con prefill
   let claudeText = '';
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -70,8 +73,8 @@ exports.handler = async function (event) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
-        system: 'Eres un destilador de voz. Responde SOLO con JSON. Sin markdown, sin bloques de código, sin texto adicional. Solo el objeto JSON.',
+        max_tokens: 350,
+        system: 'Responde SOLO con JSON. Sin markdown. Sin texto extra. Valores cortos, máximo 15 palabras cada uno.',
         messages: [
           { role: 'user', content: mensajeUsuario },
           { role: 'assistant', content: '{"tono_central":' }
@@ -95,16 +98,15 @@ exports.handler = async function (event) {
     };
   }
 
-  // 5. Parsear JSON — el prefill añadió '{"tono_central":', Claude completa desde ahí
+  // 5. Parsear JSON con prefill
   let essenceData;
   try {
     const fullJson = '{"tono_central":' + claudeText;
-    // Encontrar el cierre del JSON
     const lastBrace = fullJson.lastIndexOf('}');
-    if (lastBrace === -1) throw new Error('Sin cierre de JSON. Raw: ' + claudeText.slice(0, 100));
+    if (lastBrace === -1) throw new Error('JSON sin cierre');
     essenceData = JSON.parse(fullJson.slice(0, lastBrace + 1));
   } catch (e) {
-    console.error('JSON parse error:', e.message);
+    console.error('JSON parse error:', e.message, '| Raw:', claudeText.slice(0, 200));
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
@@ -116,7 +118,7 @@ exports.handler = async function (event) {
   essenceData.count = entries.length;
   essenceData.total_words = entries.reduce((acc, e) => acc + (e.words || 0), 0);
 
-  // 6. Guardar en Supabase — borrar anterior y guardar nueva
+  // 6. Guardar en Supabase
   try {
     await sbFetch('sanctum_essence?created_at=gte.2000-01-01', { method: 'DELETE' });
   } catch (e) {
@@ -138,9 +140,7 @@ exports.handler = async function (event) {
         method: 'PATCH',
         body: JSON.stringify({ distilled: true }),
       });
-    } catch (e) {
-      // Continuar aunque falle una entrada
-    }
+    } catch (e) {}
   }
 
   return {
