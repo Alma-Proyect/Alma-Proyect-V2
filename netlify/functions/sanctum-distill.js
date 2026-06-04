@@ -88,24 +88,9 @@ Ahora lee las entradas nuevas y profundiza el retrato. No lo borra — lo comple
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 600,
-        system: `Eres un destilador de voz. Lees el diario completo de la guardiana de Alma Proyect y construyes un retrato acumulativo de su esencia — cómo sostiene, escucha, acompaña y existe.
-
-No resumes lo que escribió. Destilas quién es, cómo suena, qué lleva.
-
-Si recibes un retrato anterior, lo profundizas con lo nuevo. No lo borras. El retrato solo puede crecer.
-
-Devuelve SOLO un JSON con esta estructura exacta, sin texto adicional, sin bloques de código:
-{
-  "tono_central": "cómo suena su voz ahora — no esta semana, sino en general, desde lo que llevas leyendo",
-  "sostiene_dolor": "cómo sostiene el dolor ajeno según todo lo que ha escrito",
-  "valores": ["valor1", "valor2", "valor3", "valor4"],
-  "preguntas": ["pregunta que haría", "otra pregunta", "otra más"],
-  "nunca": ["cosa que nunca haría", "otra", "otra"],
-  "estados_presentes": ["estado emocional recurrente", "otro"],
-  "palabra_semana": "una palabra que la resume ahora mismo",
-  "hilo_conductor": "una frase que captura lo que la mueve desde el principio — el hilo que atraviesa todo"
-}`,
+        max_tokens: 400,
+        system: `Destila la voz de esta mujer. Responde ÚNICAMENTE con JSON válido, sin texto antes ni después, sin bloques de código markdown. El JSON debe tener exactamente estas claves:
+{"tono_central":"","sostiene_dolor":"","valores":[],"preguntas":[],"nunca":[],"estados_presentes":[],"palabra_semana":"","hilo_conductor":""}`,
         messages: [{ role: 'user', content: mensajeUsuario }]
       })
     });
