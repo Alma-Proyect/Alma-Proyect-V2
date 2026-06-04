@@ -44,7 +44,7 @@ exports.handler = async function (event) {
   // Últimas 8 entradas, 150 chars cada una
   const ordenadas = [...entries]
     .sort((a, b) => new Date(a.date) - new Date(b.date))
-    .slice(-10);
+    .slice(-12);
 
   const entriesText = ordenadas
     .map((e, i) => `E${i + 1}: ${e.content.slice(0, 150)}`)
