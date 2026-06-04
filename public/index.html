@@ -1157,8 +1157,8 @@ async function generarReflejoPDF(reflejo, fechaTexto){
   page.drawLine({start:{x:W/2-27,y}, end:{x:W/2+27,y}, thickness:0.8, color:oro});
   y -= 26;
 
-  // fecha en versalitas espaciadas
-  const fechaUp = (fechaTexto||'').toUpperCase().split('').join('\u200a');
+  // fecha en mayúsculas
+  const fechaUp = (fechaTexto||'').toUpperCase();
   const fSize = 8.5;
   const fW = serif.widthOfTextAtSize(fechaUp, fSize);
   page.drawText(fechaUp,{x:(W-fW)/2, y, size:fSize, font:serif, color:oroTenue});
@@ -1170,7 +1170,9 @@ async function generarReflejoPDF(reflejo, fechaTexto){
   const gapParrafo = 9;
   const fondoY = 96;
 
-  const parrafos = (reflejo||'').replace(/\r/g,'').split(/\n\n+/);
+  // limpiar espacios Unicode que la fuente Times no sabe codificar (nbsp, hair space, etc.)
+  const reflejoLimpio = (reflejo||'').replace(/[\u00a0\u2000-\u200b\u202f\u205f\u3000]/g, ' ');
+  const parrafos = reflejoLimpio.replace(/\r/g,'').split(/\n\n+/);
   for(const par of parrafos){
     const lineas = _wrapText(par, serif, cuerpoSize, anchoTexto);
     for(const linea of lineas){
