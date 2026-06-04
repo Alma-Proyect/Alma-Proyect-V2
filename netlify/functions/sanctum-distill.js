@@ -1,20 +1,19 @@
 // netlify/functions/sanctum-distill.js
 // Destilación acumulativa — el retrato crece con cada entrada nueva.
-// Claude recibe TODAS las entradas + la esencia anterior y profundiza el retrato.
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
 async function sbFetch(path, opts = {}) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    ...opts,
+    method: opts.method || 'GET',
     headers: {
       'Content-Type': 'application/json',
       'apikey': SUPABASE_KEY,
       'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Prefer': opts.prefer || 'return=representation',
-      ...(opts.headers || {})
-    }
+      'Prefer': opts.prefer || 'return=minimal',
+    },
+    body: opts.body || undefined,
   });
   const text = await res.text();
   return { ok: res.ok, status: res.status, data: text ? JSON.parse(text) : null };
@@ -36,144 +35,117 @@ exports.handler = async function (event) {
     return { statusCode: 400, body: JSON.stringify({ error: 'No hay entradas.' }) };
   }
 
-  // 1. Cargar esencia anterior desde Supabase (si existe)
+  // 1. Cargar esencia anterior desde Supabase
   let esenciaAnterior = null;
-  if (SUPABASE_URL && SUPABASE_KEY) {
-    try {
-      const { data } = await sbFetch(
-        'sanctum_essence?select=data&order=created_at.desc&limit=1',
-        { prefer: '' }
-      );
-      if (data && data[0]?.data) esenciaAnterior = data[0].data;
-    } catch (e) {
-      console.warn('No se pudo cargar esencia anterior:', e);
-    }
+  try {
+    const { data } = await sbFetch('sanctum_essence?select=data&order=created_at.desc&limit=1');
+    if (data && data[0] && data[0].data) esenciaAnterior = data[0].data;
+  } catch (e) {
+    console.warn('No se pudo cargar esencia anterior:', e.message);
   }
 
-  // 2. Construir el texto de todas las entradas ordenadas por fecha
-  const entradasOrdenadas = [...entries].sort(
-    (a, b) => new Date(a.date) - new Date(b.date)
-  );
-
-  const entriesText = entradasOrdenadas
-    .map((e, i) =>
-      `Entrada ${i + 1} (${new Date(e.date).toLocaleDateString('es-ES')}):\n${e.content}`
-    )
+  // 2. Ordenar entradas por fecha y construir texto
+  const ordenadas = [...entries].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const entriesText = ordenadas
+    .map((e, i) => `Entrada ${i + 1} (${new Date(e.date).toLocaleDateString('es-ES')}):\n${e.content}`)
     .join('\n\n---\n\n');
 
-  // 3. Si hay esencia anterior, construir el bloque de contexto
-  const contextoAnterior = esenciaAnterior ? `
-RETRATO ACUMULADO HASTA AHORA:
-- Tono central: ${esenciaAnterior.tono_central}
-- Cómo sostiene el dolor: ${esenciaAnterior.sostiene_dolor}
-- Valores: ${(esenciaAnterior.valores || []).join(', ')}
-- Lo que nunca hace: ${(esenciaAnterior.nunca || []).join(', ')}
-- Palabra que la resumía: ${esenciaAnterior.palabra_semana || ''}
+  // 3. Construir mensaje
+  let mensajeUsuario;
+  if (esenciaAnterior) {
+    mensajeUsuario = `RETRATO ANTERIOR:\n- Tono: ${esenciaAnterior.tono_central}\n- Sostiene: ${esenciaAnterior.sostiene_dolor}\n- Valores: ${(esenciaAnterior.valores||[]).join(', ')}\n- Nunca: ${(esenciaAnterior.nunca||[]).join(', ')}\n- Hilo: ${esenciaAnterior.hilo_conductor||''}\n\nENTRADAS (${ordenadas.length} en total):\n\n${entriesText}\n\nProfundiza el retrato con todo lo que ves.`;
+  } else {
+    mensajeUsuario = `ENTRADAS (${ordenadas.length} en total):\n\n${entriesText}\n\nDestila la voz de esta mujer.`;
+  }
 
-Este retrato fue construido con ${esenciaAnterior.count || 0} entradas anteriores.
-Ahora lee las entradas nuevas y profundiza el retrato. No lo borra — lo completa.
-` : '';
-
-  const mensajeUsuario = esenciaAnterior
-    ? `${contextoAnterior}\n\nENTRADAS COMPLETAS DEL SANCTUM (todas, desde el principio):\n\n${entriesText}\n\nProfundiza el retrato acumulado con todo lo que ves ahora.`
-    : `Estas son todas mis entradas en el Sanctum:\n\n${entriesText}\n\nDestila mi voz. Este es el primer retrato.`;
-
+  // 4. Llamar a Claude con prefill para garantizar JSON puro
+  let claudeText = '';
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 400,
-        system: `Destila la voz de esta mujer. Responde ÚNICAMENTE con JSON válido, sin texto antes ni después, sin bloques de código markdown. El JSON debe tener exactamente estas claves:
-{"tono_central":"","sostiene_dolor":"","valores":[],"preguntas":[],"nunca":[],"estados_presentes":[],"palabra_semana":"","hilo_conductor":""}`,
-        messages: [{ role: 'user', content: mensajeUsuario }]
-      })
+        system: 'Eres un destilador de voz. Responde SOLO con JSON. Sin markdown, sin bloques de código, sin texto adicional. Solo el objeto JSON.',
+        messages: [
+          { role: 'user', content: mensajeUsuario },
+          { role: 'assistant', content: '{"tono_central":' }
+        ],
+      }),
     });
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.error?.message || `API error ${res.status}`);
+      throw new Error(err.error && err.error.message ? err.error.message : `API error ${res.status}`);
     }
 
     const data = await res.json();
-    const text = data.content?.[0]?.text || '';
-
-    let essenceData;
-    try {
-      // Extraer el bloque JSON — funciona con o sin bloques de código markdown
-      // Buscar directamente la primera { y la última } para extraer el JSON
-      const firstBrace = text.indexOf('{');
-      const lastBrace  = text.lastIndexOf('}');
-      if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
-        throw new Error('No se encontró JSON en la respuesta. Raw: ' + text.slice(0, 150));
-      }
-      const jsonStr = text.slice(firstBrace, lastBrace + 1);
-      essenceData = JSON.parse(jsonStr);
-    } catch (e) {
-      console.error('JSON parse error:', e.message);
-      return {
-        statusCode: 500,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'El modelo no devolvió JSON válido.', raw: text.slice(0, 300) })
-      };
-    }
-
-    essenceData.generatedAt = new Date().toISOString();
-    essenceData.count = entries.length;
-    essenceData.total_words = entries.reduce((acc, e) => acc + (e.words || 0), 0);
-
-    // 4. Guardar nueva esencia — borrar anterior primero para no acumular filas
-    if (SUPABASE_URL && SUPABASE_KEY) {
-      // Borrar TODAS las esencias anteriores usando UPSERT o DELETE sin filtro
-      // Supabase requiere filtro para DELETE — usamos created_at > epoch (borra todo)
-      try {
-        await sbFetch("sanctum_essence?created_at=gte.2000-01-01", {
-          method: 'DELETE',
-          prefer: 'return=minimal'
-        });
-      } catch (e) {
-        console.warn('No se pudo borrar esencia anterior:', e);
-      }
-      // Guardar nueva esencia
-      try {
-        await sbFetch('sanctum_essence', {
-          method: 'POST',
-          prefer: 'return=minimal',
-          body: JSON.stringify({ data: essenceData })
-        });
-      } catch (e) {
-        console.warn('No se pudo guardar esencia nueva:', e);
-      }
-
-      // 5. Marcar todas las entradas como destiladas
-      for (const entry of entries) {
-        try {
-          await sbFetch(`sanctum_entries?id=eq.${entry.id}`, {
-            method: 'PATCH',
-            prefer: 'return=minimal',
-            body: JSON.stringify({ distilled: true })
-          });
-        } catch (e) {}
-      }
-    }
-
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ essence: essenceData })
-    };
-
+    claudeText = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
   } catch (e) {
-    console.error('Error en sanctum-distill:', e);
+    console.error('Error llamando a Claude:', e.message);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: e.message || 'Error interno' })
+      body: JSON.stringify({ error: 'Error llamando a Claude: ' + e.message }),
     };
   }
+
+  // 5. Parsear JSON — el prefill añadió '{"tono_central":', Claude completa desde ahí
+  let essenceData;
+  try {
+    const fullJson = '{"tono_central":' + claudeText;
+    // Encontrar el cierre del JSON
+    const lastBrace = fullJson.lastIndexOf('}');
+    if (lastBrace === -1) throw new Error('Sin cierre de JSON. Raw: ' + claudeText.slice(0, 100));
+    essenceData = JSON.parse(fullJson.slice(0, lastBrace + 1));
+  } catch (e) {
+    console.error('JSON parse error:', e.message);
+    return {
+      statusCode: 500,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'JSON inválido: ' + e.message }),
+    };
+  }
+
+  essenceData.generatedAt = new Date().toISOString();
+  essenceData.count = entries.length;
+  essenceData.total_words = entries.reduce((acc, e) => acc + (e.words || 0), 0);
+
+  // 6. Guardar en Supabase — borrar anterior y guardar nueva
+  try {
+    await sbFetch('sanctum_essence?created_at=gte.2000-01-01', { method: 'DELETE' });
+  } catch (e) {
+    console.warn('No se pudo borrar esencia anterior:', e.message);
+  }
+  try {
+    await sbFetch('sanctum_essence', {
+      method: 'POST',
+      body: JSON.stringify({ data: essenceData }),
+    });
+  } catch (e) {
+    console.warn('No se pudo guardar esencia:', e.message);
+  }
+
+  // 7. Marcar entradas como destiladas
+  for (const entry of entries) {
+    try {
+      await sbFetch(`sanctum_entries?id=eq.${entry.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ distilled: true }),
+      });
+    } catch (e) {
+      // Continuar aunque falle una entrada
+    }
+  }
+
+  return {
+    statusCode: 200,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ essence: essenceData }),
+  };
 };
