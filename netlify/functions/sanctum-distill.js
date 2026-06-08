@@ -41,22 +41,22 @@ exports.handler = async function (event) {
     if (data && data[0] && data[0].data) esenciaAnterior = data[0].data;
   } catch (e) {}
 
-  // Últimas 8 entradas, 150 chars cada una
+  // Últimas 8 entradas, 120 chars cada una — máximo brevedad para no rozar timeout
   const ordenadas = [...entries]
     .sort((a, b) => new Date(a.date) - new Date(b.date))
-    .slice(-12);
+    .slice(-8);
 
   const entriesText = ordenadas
-    .map((e, i) => `E${i + 1}: ${e.content.slice(0, 150)}`)
+    .map((e, i) => `E${i + 1}:${e.content.slice(0, 120)}`)
     .join('\n');
 
   const contexto = esenciaAnterior
-    ? `Retrato previo: tono="${(esenciaAnterior.tono_central||'').slice(0,60)}", hilo="${(esenciaAnterior.hilo_conductor||'').slice(0,60)}".`
+    ? `Previo:tono="${(esenciaAnterior.tono_central||'').slice(0,40)}",hilo="${(esenciaAnterior.hilo_conductor||'').slice(0,40)}".`
     : '';
 
-  const mensajeUsuario = `${contexto}\n\nEntradas:\n${entriesText}`.trim();
+  const totalWords = entries.reduce((sum, e) => sum + (e.words || 0), 0);
 
-  // Llamar a Claude — dos turnos para garantizar JSON corto
+  // Prefill — Claude solo completa, mucho más rápido
   let claudeText = '';
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -69,11 +69,11 @@ exports.handler = async function (event) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 280,
-        system: 'Eres un destilador de voz. Completa el JSON con valores MUY CORTOS (5-7 palabras máximo cada uno). Sin markdown. Solo JSON.',
+        system: 'Destilador de voz. Completa el JSON. Valores de 5 palabras máximo. Solo JSON, sin markdown.',
         messages: [
           {
             role: 'user',
-            content: `${mensajeUsuario}\n\nCompleta este JSON:\n{"tono_central":"...","sostiene_dolor":"...","valores":["...","...","..."],"nunca":["...","..."],"preguntas":["...","..."],"palabra_semana":"...","hilo_conductor":"..."}`
+            content: `${contexto}\nEntradas:\n${entriesText}\n\nCompleta:{"tono_central":"...","sostiene_dolor":"...","valores":["...","...","..."],"nunca":["...","..."],"preguntas":["...","..."],"palabra_semana":"...","hilo_conductor":"..."}`
           },
           {
             role: 'assistant',
@@ -95,20 +95,38 @@ exports.handler = async function (event) {
     return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: e.message }) };
   }
 
-  // Parsear
+  // Parse blindado — reconstruye el JSON desde el prefill
   let essenceData;
   try {
+    // Reconstruir JSON completo
     const fullJson = '{"tono_central":"' + claudeText;
+
+    // Buscar el último } válido
     const lastBrace = fullJson.lastIndexOf('}');
-    if (lastBrace === -1) throw new Error('Sin cierre. Raw: ' + claudeText.slice(0, 150));
-    essenceData = JSON.parse(fullJson.slice(0, lastBrace + 1));
+    if (lastBrace === -1) throw new Error('Sin cierre de JSON');
+
+    const candidate = fullJson.slice(0, lastBrace + 1);
+    essenceData = JSON.parse(candidate);
+
+    // Verificar campos mínimos obligatorios
+    const required = ['tono_central', 'sostiene_dolor', 'valores', 'nunca', 'preguntas', 'palabra_semana', 'hilo_conductor'];
+    for (const field of required) {
+      if (!essenceData[field]) {
+        essenceData[field] = field === 'valores' || field === 'nunca' || field === 'preguntas' ? [] : '—';
+      }
+    }
   } catch (e) {
-    console.error('JSON parse error:', e.message);
-    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: e.message }) };
+    console.error('JSON parse error:', e.message, '| Raw:', claudeText.slice(0, 200));
+    return {
+      statusCode: 500,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Parse fallido', raw: claudeText.slice(0, 200) })
+    };
   }
 
   essenceData.generatedAt = new Date().toISOString();
   essenceData.count = entries.length;
+  essenceData.total_words = totalWords;
 
   // Guardar en Supabase
   try { await sbFetch('sanctum_essence?created_at=gte.2000-01-01', { method: 'DELETE' }); } catch (e) {}
@@ -116,7 +134,7 @@ exports.handler = async function (event) {
     await sbFetch('sanctum_essence', { method: 'POST', body: JSON.stringify({ data: essenceData }) });
   } catch (e) { console.warn('No se pudo guardar:', e.message); }
 
-  // Marcar entradas destiladas
+  // Marcar entradas como destiladas
   for (const entry of entries) {
     try {
       await sbFetch(`sanctum_entries?id=eq.${entry.id}`, { method: 'PATCH', body: JSON.stringify({ distilled: true }) });
