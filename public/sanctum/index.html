@@ -222,6 +222,35 @@ nav {
   margin-top: 0.2rem;
 }
 
+/* Toggle modo escritura */
+.write-mode-toggle {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.write-mode-btn {
+  font-family: 'Lora', serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--ink-faint);
+  border-radius: 100px;
+  padding: 0.35rem 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.write-mode-btn.active {
+  color: var(--terracotta);
+  border-color: var(--terracotta);
+  background: var(--terra-faint);
+}
+
+.write-mode-btn:hover { opacity: 0.85; }
+
 .prompt-box {
   background: var(--terra-faint);
   border: 1px solid rgba(139,58,40,0.15);
@@ -699,11 +728,18 @@ nav {
   <!-- WRITE -->
   <div class="view active" id="view-write">
     <div class="write-date" id="write-date"></div>
-    <div class="write-prompt-label">Tu pregunta de hoy</div>
 
-    <div class="prompt-box">
-      <span id="prompt-text"></span>
-      <button class="prompt-refresh" onclick="newPrompt()" title="Otro">↻</button>
+    <div class="write-mode-toggle">
+      <button class="write-mode-btn active" id="mode-prompt-btn" onclick="setWriteMode('prompt')">Con pregunta</button>
+      <button class="write-mode-btn" id="mode-blank-btn" onclick="setWriteMode('blank')">Página en blanco</button>
+    </div>
+
+    <div id="prompt-section">
+      <div class="write-prompt-label">Tu pregunta de hoy</div>
+      <div class="prompt-box">
+        <span id="prompt-text"></span>
+        <button class="prompt-refresh" onclick="newPrompt()" title="Otro">↻</button>
+      </div>
     </div>
 
     <div>
@@ -880,6 +916,29 @@ function newPrompt() {
     PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
 }
 
+// ── MODO DE ESCRITURA — con pregunta o página en blanco ──
+let writeMode = 'prompt';
+
+function setWriteMode(mode) {
+  writeMode = mode;
+  const promptSection = document.getElementById('prompt-section');
+  const promptBtn = document.getElementById('mode-prompt-btn');
+  const blankBtn  = document.getElementById('mode-blank-btn');
+  const writeArea = document.getElementById('write-area');
+
+  if (mode === 'blank') {
+    promptSection.style.display = 'none';
+    promptBtn.classList.remove('active');
+    blankBtn.classList.add('active');
+    writeArea.placeholder = 'Página en blanco. Lo que sea que necesites poner aquí, sin pregunta, sin guía. Solo tú.';
+  } else {
+    promptSection.style.display = '';
+    promptBtn.classList.add('active');
+    blankBtn.classList.remove('active');
+    writeArea.placeholder = 'Escribe desde donde estás. Sin filtro. Sin audiencia. Solo tú.';
+  }
+}
+
 // ── WRITE ──
 function selectMood(btn) {
   document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
@@ -900,7 +959,7 @@ async function saveEntry() {
 
   const entry = {
     mood: selectedMood,
-    prompt: document.getElementById('prompt-text').textContent,
+    prompt: writeMode === 'blank' ? '' : document.getElementById('prompt-text').textContent,
     content: text,
     words: text.split(/\s+/).length,
     distilled: false
@@ -936,6 +995,7 @@ async function saveEntry() {
   selectedMood = '';
   updateCount();
   newPrompt();
+  setWriteMode('prompt');
 
   const c = document.getElementById('save-confirm');
   c.classList.add('show');
