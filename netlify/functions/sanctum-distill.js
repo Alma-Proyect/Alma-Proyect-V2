@@ -41,13 +41,13 @@ exports.handler = async function (event) {
     if (data && data[0] && data[0].data) esenciaAnterior = data[0].data;
   } catch (e) {}
 
-  // Últimas 8 entradas, 120 chars cada una — máximo brevedad para no rozar timeout
+  // Últimas 5 entradas, 280 chars cada una — prioriza sustancia sobre cantidad
   const ordenadas = [...entries]
     .sort((a, b) => new Date(a.date) - new Date(b.date))
-    .slice(-8);
+    .slice(-5);
 
   const entriesText = ordenadas
-    .map((e, i) => `E${i + 1}:${e.content.slice(0, 120)}`)
+    .map((e, i) => `E${i + 1}:${e.content.slice(0, 280)}`)
     .join('\n');
 
   const contexto = esenciaAnterior
