@@ -1247,6 +1247,16 @@ function loadFromLocal(day) {
   }
 }
 
+// Hash simple de un string — para detectar cambios en las entradas
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash.toString(36);
+}
+
 // =======================
 // QUESTIONS
 // =======================
@@ -1741,6 +1751,8 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
           hideTurnReply();
           // Mostrar botones al final de toda la conversación
           showFinalButtons();
+          // Ocultar barra fija móvil — el botón ya está en el historial
+          setMobileButtons(false);
         }
       }, 400);
     });
@@ -1762,6 +1774,7 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
       document.getElementById('alma-response').classList.remove('visible');
       hideTurnReply();
       showFinalButtons();
+      setMobileButtons(false);
     });
   }
 }
@@ -2076,6 +2089,10 @@ async function showFarewell() {
   };
   const questionSet = getOrCreateQuestionSet(currentArrivalMode);
 
+  // Hash simple de las tres entradas — para detectar si las entradas cambiaron
+  // desde la última vez que se generó el reflejo
+  const entriesHash = simpleHash(JSON.stringify(entries));
+
   const screen = document.getElementById('farewell-screen');
   if (screen) screen.classList.add('visible');
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2083,9 +2100,9 @@ async function showFarewell() {
   const loadingEl = document.getElementById('farewell-alma-loading');
   const replyEl   = document.getElementById('farewell-alma-text');
 
-  // Si ya tenemos el reflejo guardado, mostrarlo directamente sin llamar a la API
+  // Si ya tenemos el reflejo guardado Y corresponde a estas mismas entradas, mostrarlo sin llamar a la API
   const cached = loadFromLocal('farewell');
-  if (cached?.summary) {
+  if (cached?.summary && cached?.entriesHash === entriesHash) {
     if (loadingEl) loadingEl.style.display = 'none';
     if (replyEl) {
       replyEl.style.display = 'block';
@@ -2110,9 +2127,9 @@ async function showFarewell() {
     const data = await res.json();
     const summaryText = data.summary || data.reply || '';
 
-    // Guardar para no volver a llamar
+    // Guardar para no volver a llamar — junto con el hash de estas entradas
     if (summaryText) {
-      try { localStorage.setItem('alma_farewell', JSON.stringify({ summary: summaryText })); } catch(e) {}
+      try { localStorage.setItem('alma_farewell', JSON.stringify({ summary: summaryText, entriesHash })); } catch(e) {}
     }
 
     if (loadingEl) loadingEl.style.display = 'none';
@@ -2199,16 +2216,21 @@ function init() {
       break;
     }
   }
-  // Avanzar al siguiente día si el día actual ya es de ayer o anterior
-  // y aún quedan días por hacer
-  const savedToday = loadFromLocal(currentDay);
-  if (savedToday?.date && currentDay < totalDays - 1) {
+  // Avanzar tantos días como sea necesario si las entradas son de días anteriores
+  // y aún quedan días por hacer — corrige el caso de "no avanza" si pasan varios días
+  while (currentDay < totalDays - 1) {
+    const savedToday = loadFromLocal(currentDay);
+    if (!savedToday?.date) break;
     const isOldDay = !isSameCalendarDay(savedToday.date, new Date().toISOString());
-    if (isOldDay) {
-      // Comprobar que el siguiente día no tiene entrada ya
-      const nextSaved = loadFromLocal(currentDay + 1);
-      if (!nextSaved) currentDay++;
+    if (!isOldDay) break;
+    const nextSaved = loadFromLocal(currentDay + 1);
+    if (nextSaved) {
+      // El siguiente día ya tiene datos — saltar a él y seguir comprobando
+      currentDay++;
+      continue;
     }
+    currentDay++;
+    break;
   }
 
   const today = new Date().toLocaleDateString('es-ES', {
