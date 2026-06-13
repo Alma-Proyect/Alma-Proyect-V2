@@ -1257,6 +1257,13 @@ function simpleHash(str) {
   return hash.toString(36);
 }
 
+// Evento de Google Analytics — seguro aunque gtag no esté disponible
+function trackEvent(name, params) {
+  try {
+    if (typeof gtag === 'function') gtag('event', name, params || {});
+  } catch(e) {}
+}
+
 // =======================
 // QUESTIONS
 // =======================
@@ -1753,6 +1760,8 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
           showFinalButtons();
           // Ocultar barra fija móvil — el botón ya está en el historial
           setMobileButtons(false);
+          // Evento GA — día completado
+          trackEvent('day_completed', { day: currentDay + 1 });
         }
       }, 400);
     });
@@ -2025,6 +2034,7 @@ function nextDay() {
 
   currentDay++;
   resetTurnState();
+  trackEvent('day_advanced', { day: currentDay + 1 });
 
   const lastEntry = loadFromLocal(currentDay - 1);
   let emotions = lastEntry?.emotions || [];
@@ -2096,6 +2106,7 @@ async function showFarewell() {
   const screen = document.getElementById('farewell-screen');
   if (screen) screen.classList.add('visible');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  trackEvent('farewell_reached');
 
   const loadingEl = document.getElementById('farewell-alma-loading');
   const replyEl   = document.getElementById('farewell-alma-text');
@@ -2161,6 +2172,7 @@ function selectArrival(btn, mode) {
   try { localStorage.setItem('alma_arrival_mode', mode); } catch(e) {}
   const welcomeBtn = document.getElementById('welcome-btn');
   if (welcomeBtn) welcomeBtn.classList.add('ready');
+  trackEvent('arrival_mode_selected', { mode });
 }
 
 function init() {
