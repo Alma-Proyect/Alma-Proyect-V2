@@ -30,7 +30,7 @@ exports.handler = async function (event) {
     const summary = await callAnthropic({
       system: SUMMARY_SYSTEM_PROMPT,
       messages: [{ role: "user", content: getSummaryUserMessage(entries, arrivalMode, questionSet) }],
-      maxTokens: 512,
+      maxTokens: 320,
       temperature: 0.75,
       plan: plan || "free",
     });

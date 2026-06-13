@@ -62,21 +62,27 @@ exports.handler = async function (event) {
 
   try {
     // Leer esencia del Sanctum — voz de la guardiana
+    // Timeout corto: si tarda, seguimos sin esencia para no arriesgar el timeout total
     let essence = null;
     try {
-      const essRes = await fetch(`${process.env.URL}/.netlify/functions/sanctum-essence`);
+      const essController = new AbortController();
+      const essTimeout = setTimeout(() => essController.abort(), 2500);
+      const essRes = await fetch(`${process.env.URL}/.netlify/functions/sanctum-essence`, {
+        signal: essController.signal,
+      });
+      clearTimeout(essTimeout);
       if (essRes.ok) {
         const essData = await essRes.json();
         essence = essData.essence || null;
       }
     } catch(e) {
-      // Si no hay esencia disponible, Alma funciona igual sin ella
+      // Si no hay esencia disponible o tarda demasiado, Alma funciona igual sin ella
     }
 
     const response = await callAnthropic({
       system: getAlmaSystemPrompt(day, currentTurn, previousEntries, arrivalMode, essence),
       messages,
-      maxTokens: 300,
+      maxTokens: 220,
       temperature: 0.85,
       plan: plan || "free",
     });
