@@ -1106,37 +1106,45 @@ async function distillEssence() {
   document.getElementById('distill-note').textContent = '';
 
   try {
-    // Siempre manda TODAS las entradas — el servidor integra con la esencia anterior
     const res = await fetch('/.netlify/functions/sanctum-distill', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ entries })
     });
 
-    let essenceData;
-    if (res.ok) {
-      const data = await res.json();
-      essenceData = data.essence || buildEssence(entries);
-    } else {
-      console.warn('sanctum-distill error:', res.status);
-      essenceData = buildEssence(entries);
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      console.error('sanctum-distill error:', res.status, errData);
+      throw new Error(`Error del servidor: ${res.status}`);
     }
 
-    essence = essenceData;
+    const data = await res.json();
+
+    if (!data.essence) {
+      console.error('sanctum-distill: sin esencia en respuesta', data);
+      throw new Error('Sin esencia en la respuesta');
+    }
+
+    // Actualizar estado local con la esencia nueva
+    essence = data.essence;
     entries.forEach(e => e.distilled = true);
 
-    await persist();
+    // Renderizar inmediatamente con lo que llegó del servidor
     renderEssence();
     document.getElementById('distill-note').textContent =
       `Retrato actualizado · ${entries.length} entrada${entries.length !== 1 ? 's' : ''} · ${new Date().toLocaleDateString('es-ES')}`;
 
+    // Guardar en localStorage en segundo plano — no bloqueante
+    persist().catch(e => console.warn('persist error:', e));
+
   } catch(e) {
     console.error('Error destilando:', e);
+    // Fallback local solo si el servidor falla completamente
     essence = buildEssence(entries);
     entries.forEach(e => e.distilled = true);
-    await persist();
     renderEssence();
-    document.getElementById('distill-note').textContent = 'Destilada localmente.';
+    document.getElementById('distill-note').textContent = `Error: ${e.message}. Mostrando destilación local.`;
+    persist().catch(() => {});
   } finally {
     btn.disabled = false;
     btn.textContent = '✦ Destilar';
@@ -1244,7 +1252,7 @@ function renderEssence() {
     </div>
 
     <div class="essence-footer">
-      ${fmtDate(essence.generatedAt)} · ${essence.count} entradas · ${essence.total_words} palabras
+      ${fmtDate(essence.generatedAt)} · ${essence.count || 0} entradas · ${essence.total_words || 0} palabras
     </div>
   `;
 
