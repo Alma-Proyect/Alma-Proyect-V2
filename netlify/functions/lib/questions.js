@@ -69,6 +69,15 @@ const QUESTION_BANK = {
   ],
 };
 
+// ── PREGUNTAS BETA — una por modo de llegada ─────────────────────────────
+// Simples. Directas. La profundidad la pone Alma en la respuesta.
+const BETA_QUESTIONS = {
+  pain:      "¿Hay algo que necesitas contar y no puedes?",
+  search:    "¿De quién necesitas permiso para ser tú misma?",
+  self:      "¿Qué hay en tu vida ahora mismo que te está pidiendo atención?",
+  unclear:   "¿Qué te ha traído aquí hoy?",
+};
+
 // "open" tiene su propio banco — no cae a pain
 // pain es el fallback solo si el modo no existe
 
@@ -96,10 +105,17 @@ function getQuestion(arrivalMode, day, questionSet) {
   return bank[day - 1] || bank[0];
 }
 
+// ── HELPER — devuelve la pregunta beta según modo ─────────────────────────
+function getBetaQuestion(arrivalMode) {
+  return BETA_QUESTIONS[arrivalMode] || BETA_QUESTIONS.unclear;
+}
+
 module.exports = {
   ARRIVAL_QUESTION,
   QUESTION_BANK,
+  BETA_QUESTIONS,
   MAX_TURNS_PER_DAY,
   getRandomQuestions,
-  getQuestion
+  getQuestion,
+  getBetaQuestion,
 };
