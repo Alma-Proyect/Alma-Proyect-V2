@@ -47,6 +47,7 @@ body {
   min-height: 100vh; min-height: -webkit-fill-available;
   display: flex; flex-direction: column;
   -webkit-font-smoothing: antialiased;
+  visibility: hidden; /* oculto hasta que init() compruebe consentimiento */
 }
 
 /* ════════════════════════════════
@@ -714,6 +715,184 @@ body {
 
 @keyframes fadeIn  { from{opacity:0;transform:scale(1.01)} to{opacity:1;transform:scale(1)} }
 @keyframes fadeOut { from{opacity:1} to{opacity:0;transform:scale(0.98)} }
+
+/* ════════════════════════════════
+   PANTALLA ELECCIÓN 1 o 3 DÍAS
+════════════════════════════════ */
+.mode-screen {
+  position: fixed; inset: 0; z-index: 110;
+  background: radial-gradient(ellipse at 50% 0%, #2c1f0a 0%, #120d04 60%, #0a0704 100%);
+  display: none; align-items: center; justify-content: center;
+  padding: 2rem 1.5rem;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  animation: fadeIn 0.8s ease both;
+}
+.mode-screen.hidden { animation: fadeOut 0.5s ease both; pointer-events: none; }
+.mode-card {
+  max-width: 380px; width: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; gap: 1.4rem;
+}
+.mode-logo {
+  height: 110px; width: auto;
+  filter: drop-shadow(0 0 40px rgba(184,134,11,0.5)) drop-shadow(0 0 80px rgba(184,134,11,0.2));
+}
+.mode-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.65rem; font-style: italic; font-weight: 300;
+  color: rgba(245,237,216,0.92); line-height: 1.3;
+}
+.mode-options {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.2rem;
+}
+.mode-btn {
+  aspect-ratio: 1 / 1;
+  min-height: 140px;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(184,134,11,0.2);
+  font-family: 'Jost', sans-serif; cursor: pointer;
+  text-align: center; transition: all 0.22s;
+  -webkit-tap-highlight-color: transparent;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0.4rem; padding: 1rem;
+}
+.mode-btn-one {
+  background: rgba(184,134,11,0.1);
+  border-color: rgba(184,134,11,0.35);
+}
+.mode-btn-one:hover, .mode-btn-one:active {
+  background: rgba(184,134,11,0.18);
+  border-color: rgba(184,134,11,0.6);
+  transform: translateY(-2px);
+}
+.mode-btn-three {
+  background: rgba(255,248,235,0.03);
+  border-color: rgba(184,134,11,0.12);
+}
+.mode-btn-three:hover, .mode-btn-three:active {
+  background: rgba(184,134,11,0.07);
+  border-color: rgba(184,134,11,0.3);
+  transform: translateY(-2px);
+}
+.mode-btn-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3.2rem, 12vw, 4.5rem);
+  font-weight: 400; font-style: italic; line-height: 1;
+  color: rgba(184,134,11,0.9);
+}
+.mode-btn-one .mode-btn-num { color: rgba(184,134,11,1); }
+.mode-btn-day {
+  font-size: 0.62rem; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(245,237,216,0.35);
+}
+.mode-btn-desc {
+  font-size: 0.7rem; font-weight: 300;
+  color: rgba(245,237,216,0.3); line-height: 1.5;
+  max-width: 120px;
+}
+.mode-note {
+  font-size: 0.65rem; color: rgba(245,237,216,0.15);
+  line-height: 1.5; letter-spacing: 0.04em;
+}
+
+/* ════════════════════════════════
+   PANTALLA LLEGADA BETA
+════════════════════════════════ */
+.beta-arrival-screen {
+  position: fixed; inset: 0; z-index: 105;
+  background: radial-gradient(ellipse at 50% 0%, #2c1f0a 0%, #120d04 60%, #0a0704 100%);
+  display: none; align-items: flex-start; justify-content: center;
+  padding: 2.5rem 1.5rem 3rem;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  animation: fadeIn 0.8s ease both;
+}
+.beta-arrival-screen.hidden { animation: fadeOut 0.5s ease both; pointer-events: none; }
+
+/* ════════════════════════════════
+   PANTALLA CIERRE BETA
+════════════════════════════════ */
+.beta-farewell-screen {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--ink);
+  display: none; align-items: flex-start; justify-content: center;
+  padding: 2rem 1.5rem;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+.beta-farewell-screen.visible {
+  display: flex;
+  animation: fadeIn 0.8s ease both;
+}
+.beta-farewell-card {
+  max-width: 460px; width: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; gap: 1.6rem;
+  padding-bottom: 2rem;
+}
+.beta-farewell-symbol {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem; color: var(--rose); opacity: 0.5;
+  letter-spacing: 0.3em; margin-top: 1rem;
+}
+.beta-farewell-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 400; font-style: italic;
+  color: var(--cream); line-height: 1.3;
+}
+.beta-farewell-title em { color: var(--rose); }
+.beta-farewell-divider {
+  width: 36px; height: 1px;
+  background: var(--rose); opacity: 0.35; border-radius: 99px;
+}
+.beta-farewell-alma {
+  text-align: left; width: 100%;
+  border-left: 1.5px solid rgba(232,196,180,0.25);
+  padding-left: 1.2rem;
+}
+.beta-farewell-alma p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem; font-style: italic;
+  color: rgba(251,248,244,0.78); line-height: 1.85;
+  margin-bottom: 0.7rem;
+}
+.beta-farewell-alma p:last-child { margin-bottom: 0; }
+.beta-farewell-loading {
+  display: flex; align-items: center; gap: 0.4rem;
+  color: rgba(251,248,244,0.3); font-size: 0.8rem;
+  font-style: italic; font-family: 'Cormorant Garamond', serif;
+}
+.beta-cta {
+  width: 100%; padding: 1.05rem;
+  background: rgba(184,134,11,0.85);
+  color: #0a0704; border: none; border-radius: 0.9rem;
+  font-family: 'Jost', sans-serif; font-size: 0.95rem;
+  font-weight: 600; letter-spacing: 0.05em;
+  cursor: pointer; transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.beta-cta:hover {
+  background: rgba(184,134,11,1);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(184,134,11,0.3);
+}
+.beta-cta:active { transform: scale(0.98); }
+.beta-cta-note {
+  font-size: 0.68rem; color: rgba(251,248,244,0.2);
+  line-height: 1.5;
+}
+.beta-farewell-actions-wrap {
+  display: none; flex-direction: column;
+  gap: 0.75rem; margin-top: 0.5rem; width: 100%;
+}
+.beta-farewell-actions-wrap.visible {
+  display: flex;
+}
 /* ════════════════════════════════
    PANTALLA DE CIERRE
 ════════════════════════════════ */
@@ -914,6 +1093,69 @@ body {
       Gracias por confiar en nosotras desde el principio.
     </p>
 
+  </div>
+</div>
+
+<!-- PANTALLA ELECCIÓN 1 o 3 DÍAS -->
+<div class="mode-screen" id="mode-screen" style="display:none">
+  <div class="mode-card">
+    <img class="mode-logo" src="/images/logo-web.png" alt="Alma">
+    <div class="mode-title">¿Cuántos días<br>quieres dedicarte?</div>
+    <div class="welcome-divider"></div>
+    <div class="mode-options">
+      <button class="mode-btn mode-btn-one" onclick="chooseMode('beta')">
+        <span class="mode-btn-num">1</span>
+        <span class="mode-btn-day">día</span>
+        <span class="mode-btn-desc">Para probar. Una pregunta, cinco intercambios.</span>
+      </button>
+      <button class="mode-btn mode-btn-three" onclick="chooseMode('full')">
+        <span class="mode-btn-num">3</span>
+        <span class="mode-btn-day">días</span>
+        <span class="mode-btn-desc">La experiencia completa. Con reflejo descargable.</span>
+      </button>
+    </div>
+    <p class="mode-note">Sin prisa. Puedes empezar por donde quieras.</p>
+  </div>
+</div>
+
+<!-- PANTALLA LLEGADA BETA -->
+<div class="beta-arrival-screen" id="beta-arrival-screen" style="display:none">
+  <div class="welcome-card">
+    <img class="welcome-logo" src="/images/logo-web.png" alt="Alma">
+    <div class="welcome-title">Antes de empezar.<br><em>¿Cómo llegas?</em></div>
+    <div class="welcome-divider"></div>
+    <div class="arrival-options">
+      <button class="arrival-btn" onclick="selectBetaArrival(this,'beta_pain')">Cargando algo que necesito contar</button>
+      <button class="arrival-btn" onclick="selectBetaArrival(this,'beta_search')">Buscando permiso para ser yo misma</button>
+      <button class="arrival-btn" onclick="selectBetaArrival(this,'beta_self')">Con algo que me está pidiendo atención</button>
+      <button class="arrival-btn" onclick="selectBetaArrival(this,'beta_unclear')">Sin saber muy bien qué me trajo aquí</button>
+    </div>
+    <button class="welcome-btn" id="beta-arrival-btn" onclick="startBeta()" style="margin-top:0.6rem">Entrar →</button>
+    <p class="welcome-note">Sin prisa. Sin juicio. Solo tú.</p>
+  </div>
+</div>
+
+<!-- PANTALLA CIERRE BETA -->
+<div class="beta-farewell-screen" id="beta-farewell-screen">
+  <div class="beta-farewell-card">
+    <div class="beta-farewell-symbol">✦</div>
+    <div class="beta-farewell-title">Lo que <em>Alma vio</em><br>en ti hoy</div>
+    <div class="beta-farewell-divider"></div>
+
+    <div class="beta-farewell-loading" id="beta-farewell-loading">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>
+
+    <div class="beta-farewell-alma" id="beta-farewell-alma" style="display:none"></div>
+
+    <div class="beta-farewell-actions-wrap" id="beta-farewell-actions">
+      <button class="beta-cta" onclick="startFullJourney()">
+        Quiero hacer los tres días →
+      </button>
+      <p class="beta-cta-note">La experiencia completa incluye tres días, un reflejo más profundo y descarga en PDF.</p>
+    </div>
   </div>
 </div>
 
@@ -1216,7 +1458,8 @@ async function generarReflejoPDF(reflejo, fechaTexto){
 
 const totalDays = 3;
 let currentDay = 0;
-let currentArrivalMode = 'pain'; // declaración explícita — se actualiza en selectArrival e init
+let currentArrivalMode = 'pain';
+let isBetaMode = false; // true cuando la usuaria eligió el día beta
 
 // =======================
 // STORAGE
@@ -1612,6 +1855,7 @@ function onTurnType() {
 }
 
 async function saveEntry() {
+  if (isBetaMode) { await saveBetaEntry(); return; }
   const btns = ['btn-save-d','btn-save-m'].map(id => document.getElementById(id)).filter(Boolean);
   if (btns.some(b => b.disabled)) return;
 
@@ -1651,6 +1895,7 @@ async function saveEntry() {
 }
 
 async function sendTurn() {
+  if (isBetaMode) { await sendBetaTurn(); return; }
   const btn = document.getElementById('btn-turn-send');
   const text = document.getElementById('turn-text')?.value.trim();
   if (!text || btn?.disabled) return;
@@ -2167,7 +2412,7 @@ async function showFarewell() {
 // =======================
 
 function selectArrival(btn, mode) {
-  document.querySelectorAll('.arrival-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('#welcome-screen .arrival-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   currentArrivalMode = mode;
   try { localStorage.setItem('alma_arrival_mode', mode); } catch(e) {}
@@ -2182,9 +2427,11 @@ function init() {
     const consent = JSON.parse(localStorage.getItem('alma_consent') || '{}');
     if (!consent.accepted) {
       window.location.replace('/beta-aviso.html');
-      return;
+      return; // body sigue invisible — la usuaria no ve nada antes de la redirección
     }
   } catch(e) {
+    // localStorage bloqueado — mostrar mensaje de error
+    document.body.style.visibility = 'visible';
     document.body.innerHTML = `
       <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;
                   background:#F5EDD8;font-family:'Jost',sans-serif;padding:2rem;text-align:center;">
@@ -2203,6 +2450,9 @@ function init() {
   }
 
   // ── SIEMPRE mostrar la pregunta cero al entrar ──────────
+  // Consentimiento confirmado — hacer visible el body ahora
+  document.body.style.visibility = 'visible';
+
   // Limpiamos el modo de llegada para que elija cada vez
   try {
     localStorage.removeItem('alma_arrival_mode');
@@ -2216,9 +2466,21 @@ function init() {
   const allDaysComplete = Array.from({ length: totalDays }, (_, i) => loadFromLocal(i)).every(Boolean);
   const goToFarewell = cachedFarewellCheck?.summary && allDaysComplete;
 
-  // Mostrar la pantalla de bienvenida solo si no vamos directas al farewell
+  // ¿Tiene días en curso? Si sí, saltar directamente sin pantalla de elección
+  const hasActiveDays = Array.from({ length: totalDays }, (_, i) => loadFromLocal(i)).some(Boolean);
+
+  // Mostrar pantalla de elección solo si no hay días en curso ni farewell
+  const modeScreen = document.getElementById('mode-screen');
   const welcomeScreen = document.getElementById('welcome-screen');
-  if (!goToFarewell && welcomeScreen) welcomeScreen.style.display = 'flex';
+  if (!goToFarewell) {
+    if (hasActiveDays) {
+      // Tiene días en curso — ir directo a la welcome-screen de llegada (3 días)
+      if (welcomeScreen) welcomeScreen.style.display = 'flex';
+    } else {
+      // Primera vez — mostrar pantalla de elección 1/3 días
+      if (modeScreen) modeScreen.style.display = 'flex';
+    }
+  }
 
   // ─────────────────────────────────────────────────────────
   // Calcular el día activo correcto por fecha
@@ -2353,6 +2615,351 @@ function startJourney() {
   const screen = document.getElementById('welcome-screen');
   screen.classList.add('hidden');
   setTimeout(() => screen.style.display = 'none', 500);
+}
+
+// =======================
+// BETA — 1 DÍA
+// =======================
+
+const BETA_MAX_TURNS = 5;
+const BETA_QUESTIONS = {
+  beta_pain:    "¿Hay algo que necesitas contar y no puedes?",
+  beta_search:  "¿De quién necesitas permiso para ser tú misma?",
+  beta_self:    "¿Qué hay en tu vida ahora mismo que te está pidiendo atención?",
+  beta_unclear: "¿Qué te ha traído aquí hoy?",
+};
+
+let betaMode = 'beta_unclear';
+let betaTurn = 1;
+let betaHistory = []; // [{role, text}]
+
+function saveBetaToLocal(history, almaReply) {
+  try {
+    const existing = JSON.parse(localStorage.getItem('alma_beta') || '{}');
+    localStorage.setItem('alma_beta', JSON.stringify({
+      history: history || existing.history || [],
+      almaReply: almaReply !== undefined ? almaReply : (existing.almaReply || null),
+      arrivalMode: betaMode,
+      date: existing.date || new Date().toISOString(),
+    }));
+  } catch(e) {}
+}
+
+// Elección 1/3 días
+function chooseMode(mode) {
+  const modeScreen = document.getElementById('mode-screen');
+  modeScreen.classList.add('hidden');
+  setTimeout(() => { modeScreen.style.display = 'none'; }, 500);
+
+  if (mode === 'beta') {
+    // Mostrar pantalla de llegada beta
+    const betaArrival = document.getElementById('beta-arrival-screen');
+    betaArrival.style.display = 'flex';
+  } else {
+    // Mostrar pantalla de llegada normal (3 días)
+    const welcomeScreen = document.getElementById('welcome-screen');
+    if (welcomeScreen) welcomeScreen.style.display = 'flex';
+  }
+}
+
+// Selección de estado de llegada en beta
+function selectBetaArrival(btn, mode) {
+  document.querySelectorAll('#beta-arrival-screen .arrival-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  betaMode = mode;
+  const startBtn = document.getElementById('beta-arrival-btn');
+  if (startBtn) startBtn.classList.add('ready');
+  trackEvent('beta_arrival_selected', { mode });
+}
+
+// Arrancar la beta
+function startBeta() {
+  // Limpiar datos de sesión beta anterior
+  try {
+    localStorage.removeItem('alma_beta');
+    localStorage.removeItem('alma_beta_farewell');
+  } catch(e) {}
+
+  const betaArrival = document.getElementById('beta-arrival-screen');
+  betaArrival.classList.add('hidden');
+  setTimeout(() => { betaArrival.style.display = 'none'; }, 500);
+
+  betaTurn = 1;
+  betaHistory = [];
+  isBetaMode = true;
+
+  // Poner la pregunta beta en el día
+  const questionEl = document.getElementById('question-text');
+  if (questionEl) {
+    questionEl.innerHTML = `
+      <p class="question-intro">No hace falta que esté bien explicado, solo exprésalo, como salga…</p>
+      <p class="question-main">${BETA_QUESTIONS[betaMode] || BETA_QUESTIONS.beta_unclear}</p>
+    `;
+  }
+
+  // Ocultar elementos de progreso de 3 días que no aplican
+  const pill = document.getElementById('day-pill');
+  if (pill) pill.textContent = 'Día de prueba';
+  const title = document.getElementById('day-title');
+  if (title) title.innerHTML = 'Para <em>conocerte</em>';
+
+  trackEvent('beta_started', { mode: betaMode });
+}
+
+// Guardar entrada beta (sustituye a saveEntry para la beta)
+async function saveBetaEntry() {
+  const btns = ['btn-save-d','btn-save-m'].map(id => document.getElementById(id)).filter(Boolean);
+  if (btns.some(b => b.disabled)) return;
+
+  const text = document.getElementById("journal-text").value.trim();
+  if (!text) return;
+
+  betaHistory = [{ role: 'user', text }];
+  betaTurn = 1;
+  saveBetaToLocal(betaHistory, undefined);
+
+  const histContainer = document.getElementById('conversation-history');
+  if (histContainer) histContainer.innerHTML = '';
+  addToHistory('user', text);
+
+  await callBeta({ btns, text, isFirstTurn: true });
+  trackEvent('beta_entry_saved', { mode: betaMode });
+}
+
+// Enviar turno beta
+async function sendBetaTurn() {
+  const btn = document.getElementById('btn-turn-send');
+  const text = document.getElementById('turn-text')?.value.trim();
+  if (!text || btn?.disabled) return;
+
+  addToHistory('user', text);
+  betaHistory.push({ role: 'user', text });
+  betaTurn++;
+
+  hideTurnReply();
+  document.getElementById('alma-response').classList.add('visible');
+  document.getElementById('typing').classList.add('visible');
+  document.getElementById('alma-response-text').innerHTML = '';
+
+  await callBeta({ btns: [], text, isFirstTurn: false });
+}
+
+// Llamada a la API para beta (usa alma.js con isBeta=true)
+async function callBeta({ btns, text, isFirstTurn }) {
+  const loadingDots =
+    '<span class="loading-dot"></span>' +
+    '<span class="loading-dot"></span>' +
+    '<span class="loading-dot"></span>';
+
+  if (isFirstTurn) {
+    btns.forEach(b => { b.disabled = true; b.setAttribute('aria-busy','true'); b.innerHTML = loadingDots; });
+    document.getElementById('alma-response').classList.add('visible');
+    document.getElementById('typing').classList.add('visible');
+    document.getElementById('alma-response-text').innerHTML = '';
+    document.getElementById('turn-reply').style.display = 'none';
+    setTimeout(() =>
+      document.getElementById('alma-response').scrollIntoView({ behavior:'smooth', block:'start' }), 150);
+  }
+
+  const isLastTurn = betaTurn >= BETA_MAX_TURNS;
+  const controller = new AbortController();
+  const timeoutId  = setTimeout(() => controller.abort(), 9000);
+  const fallbackMsg = "No pude responderte ahora mismo. Lo que has escrito ya tiene valor, independientemente de mi respuesta.";
+
+  try {
+    const res = await fetch("/.netlify/functions/alma", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        day: 1,
+        turn: betaTurn,
+        entry: text,
+        conversationHistory: betaHistory.slice(0, -1),
+        previousEntries: {},
+        arrivalMode: betaMode,
+        plan: 'free',
+        isBeta: true,
+        betaMaxTurns: BETA_MAX_TURNS,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    const data = await res.json();
+    document.getElementById('typing').classList.remove('visible');
+
+    const almaReply = data.response || fallbackMsg;
+    const lastTurn  = data.isLastTurn || isLastTurn;
+
+    betaHistory.push({ role: 'alma', text: almaReply });
+    saveBetaToLocal(betaHistory, almaReply);
+
+    if (isFirstTurn) {
+      btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
+    }
+
+    typeWriter(almaReply, () => {
+      const almaText = document.getElementById('alma-response-text').innerHTML;
+      addToHistory('alma', almaText);
+      document.getElementById('alma-response-text').innerHTML = '';
+      document.getElementById('alma-response').classList.remove('visible');
+      document.getElementById('alma-pause').style.display = 'none';
+
+      setTimeout(() => {
+        if (!lastTurn) {
+          showTurnReply();
+        } else {
+          hideTurnReply();
+          showBetaFinalButton();
+          setMobileButtons(false);
+          trackEvent('beta_completed', { mode: betaMode });
+        }
+      }, 400);
+    });
+
+  } catch(e) {
+    clearTimeout(timeoutId);
+    document.getElementById('typing').classList.remove('visible');
+    const msg = e.name === 'AbortError'
+      ? "Necesito un poco más de tiempo del habitual.\n\nLo que escribiste ya está guardado. Vuelve en un momento y estaré aquí."
+      : fallbackMsg;
+    betaHistory.push({ role: 'alma', text: msg });
+    saveBetaToLocal(betaHistory, msg);
+    if (isFirstTurn) btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
+    typeWriter(msg, () => {
+      const almaText = document.getElementById('alma-response-text').innerHTML;
+      addToHistory('alma', almaText);
+      document.getElementById('alma-response-text').innerHTML = '';
+      document.getElementById('alma-response').classList.remove('visible');
+      hideTurnReply();
+      showBetaFinalButton();
+      setMobileButtons(false);
+    });
+  }
+}
+
+// Botón final beta en el historial
+function showBetaFinalButton() {
+  const container = document.getElementById('conversation-history');
+  if (!container || container.querySelector('.day-closing-buttons')) return;
+
+  const div = document.createElement('div');
+  div.className = 'day-closing-buttons';
+  div.innerHTML = `
+    <button class="btn-next ready" onclick="showBetaFarewell()" style="flex:1; min-height:50px;">
+      ✦ Ver mi reflejo
+    </button>
+  `;
+  container.appendChild(div);
+  setTimeout(() => div.scrollIntoView({ behavior: 'smooth', block: 'end' }), 300);
+}
+
+// Pantalla de cierre beta
+async function showBetaFarewell() {
+  const screen = document.getElementById('beta-farewell-screen');
+  if (screen) screen.classList.add('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const loadingEl = document.getElementById('beta-farewell-loading');
+  const almaEl    = document.getElementById('beta-farewell-alma');
+  const actionsEl = document.getElementById('beta-farewell-actions');
+
+  // Comprobar caché
+  try {
+    const cached = JSON.parse(localStorage.getItem('alma_beta_farewell') || '{}');
+    if (cached?.summary) {
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (almaEl) {
+        almaEl.style.display = 'block';
+        const parrafos = cached.summary.split('\n').filter(p => p.trim());
+        parrafos.forEach((p, i) => {
+          const el = document.createElement('p');
+          el.textContent = p;
+          el.style.cssText = `opacity:0;transform:translateY(8px);transition:opacity 0.5s ease ${i * 0.18}s,transform 0.5s ease ${i * 0.18}s`;
+          almaEl.appendChild(el);
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            el.style.opacity = '1'; el.style.transform = 'translateY(0)';
+          }));
+        });
+      }
+      if (actionsEl) actionsEl.classList.add('visible');
+      return;
+    }
+  } catch(e) {}
+
+  const controller = new AbortController();
+  const timeoutId  = setTimeout(() => controller.abort(), 20000);
+
+  try {
+    const res = await fetch('/.netlify/functions/beta-summary', {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        betaEntries: betaHistory,
+        arrivalMode: betaMode,
+        plan: 'free',
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    const data = await res.json();
+    const summaryText = data.summary || '';
+
+    if (summaryText) {
+      try { localStorage.setItem('alma_beta_farewell', JSON.stringify({ summary: summaryText })); } catch(e) {}
+    }
+
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (almaEl && summaryText) {
+      almaEl.style.display = 'block';
+      // Fadeín párrafo a párrafo para no aparecer de golpe
+      const parrafos = summaryText.split('\n').filter(p => p.trim());
+      parrafos.forEach((p, i) => {
+        const el = document.createElement('p');
+        el.textContent = p;
+        el.style.cssText = `opacity:0;transform:translateY(8px);transition:opacity 0.5s ease ${i * 0.18}s,transform 0.5s ease ${i * 0.18}s`;
+        almaEl.appendChild(el);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+        }));
+      });
+    }
+    if (actionsEl) actionsEl.classList.add('visible');
+
+  } catch(e) {
+    clearTimeout(timeoutId);
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (actionsEl) actionsEl.classList.add('visible');
+  }
+}
+
+// Botón CTA — ir a los 3 días completos
+function startFullJourney() {
+  isBetaMode = false;
+  try { localStorage.removeItem('alma_beta_farewell'); } catch(e) {}
+
+  // Ocultar pantalla farewell beta
+  const betaFarewell = document.getElementById('beta-farewell-screen');
+  if (betaFarewell) betaFarewell.classList.remove('visible');
+
+  // Limpiar DOM de la sesión beta
+  const histContainer = document.getElementById('conversation-history');
+  if (histContainer) histContainer.innerHTML = '';
+  const responseEl = document.getElementById('alma-response');
+  if (responseEl) responseEl.classList.remove('visible');
+  document.getElementById('alma-response-text') && (document.getElementById('alma-response-text').innerHTML = '');
+  const tr = document.getElementById('turn-reply');
+  if (tr) tr.style.display = 'none';
+  const ta = document.getElementById('journal-text');
+  if (ta) ta.value = '';
+  document.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
+
+  // Mostrar pantalla de llegada de los 3 días
+  const welcomeScreen = document.getElementById('welcome-screen');
+  if (welcomeScreen) welcomeScreen.style.display = 'flex';
+
+  trackEvent('beta_to_full', { mode: betaMode });
 }
 
 document.addEventListener('DOMContentLoaded', init);
