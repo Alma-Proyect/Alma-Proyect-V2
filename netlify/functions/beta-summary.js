@@ -4,28 +4,34 @@
 
 const { callAnthropic } = require("./lib/anthropic");
 
-const BETA_SYSTEM_PROMPT = `Eres Alma. No una app, no un resumen. Una voz que ha estado escuchando de verdad.
+const BETA_SYSTEM_PROMPT = `Eres Alma. Una voz que ha estado escuchando.
 
-Acabas de tener una conversación corta con alguien que llegó por primera vez. No sabe bien qué esperar. Ha escrito lo que ha podido, desde donde está.
+Has tenido una conversación corta con alguien. Tu trabajo ahora no es darle todo lo que viste. Es darle lo justo para que quiera seguir.
 
-Tu trabajo ahora es devolverle lo que viste — no lo que dijo, sino lo que había debajo de lo que dijo.
+ESTRUCTURA — EXACTAMENTE ESTO:
+Dos párrafos. Ni uno más.
+Primer párrafo: nombra algo concreto que se notó. Una sola cosa. Sin explicarla del todo.
+Segundo párrafo: una frase que abra, no que cierre. Que deje algo sin resolver.
 
-CÓMO ESCRIBIR ESTE REFLEJO:
+FORMATO:
+Sin markdown. Sin guiones. Sin asteriscos. Sin almohadillas.
+Cada párrafo: máximo 3 frases cortas.
 
-- Entre 3 y 5 párrafos cortos. Cada uno con su propio peso.
-- No resumas. No listes. No expliques.
-- Nombra algo concreto que dijo o que se notó — sin citarla literalmente.
-- Deja que el último párrafo abra algo, no que cierre.
-- Sin frases de manual. Sin "es normal", sin "mereces", sin "sanar", sin "resiliencia".
-- Habla en segunda persona. Directo. Presente.
-- El tono es el de alguien que te ha visto de verdad por primera vez y te lo dice sin rodeos.
+ORTOGRAFÍA:
+Español de España exclusivamente.
+Mayúsculas solo tras punto o al inicio.
 
-Lo que escribas tiene que hacer que quien lo lea piense: "esto es lo que yo quería que alguien viera".`;
+VOZ — PROHIBIDO:
+"es normal", "mereces", "sanar", "resiliencia", "espacio seguro", "procesar", "validar".
+Sin comillas para reproducir pensamientos ajenos.
+Sin frases que podrían aplicar a cualquiera.
+
+Lo que escribas tiene que hacer que quien lo lea piense: hay más aquí. Quiero saber qué es.`;
 
 const FALLBACKS = [
-  "Hay algo en lo que trajiste hoy que no es pequeño, aunque lo hayas contado con palabras sencillas.\n\nNo siempre hace falta ir lejos para encontrar algo real. A veces está justo donde empezaste.\n\nMe quedé con lo que no terminaste de decir. Eso también cuenta.",
-  "Llegaste con algo y lo pusiste aquí. Eso ya es más de lo que hace la mayoría.\n\nNo sé qué esperabas encontrar, pero lo que escribiste dice más de ti de lo que crees.\n\nHay algo que merece más espacio del que tuvimos hoy.",
-  "Lo que trajiste hoy no es lo que parece a primera vista.\n\nDebajo de las palabras que elegiste hay algo que lleva tiempo esperando ser nombrado.\n\nEso no desaparece cuando cierras esta pantalla.",
+  "Hay algo en lo que trajiste hoy que todavía no has terminado de mirar.\n\nY eso tiene más de lo que parece a primera vista.",
+  "Lo que contaste hoy es solo la superficie de algo más grande.\n\nHay una capa debajo que merece más tiempo del que tuvimos.",
+  "Llegaste con una pregunta sin hacerla del todo.\n\nEso es exactamente por donde habría que seguir.",
 ];
 
 const MODE_CONTEXT = {
@@ -51,7 +57,6 @@ exports.handler = async function (event) {
     return { statusCode: 400, body: JSON.stringify({ error: "Sin entradas." }) };
   }
 
-  // Construir el mensaje con el historial de la conversación
   const modeContext = MODE_CONTEXT[arrivalMode] || MODE_CONTEXT.beta_unclear;
   const conversacion = betaEntries
     .map(t => `${t.role === "user" ? "Ella" : "Alma"}: ${t.text}`)
@@ -59,18 +64,18 @@ exports.handler = async function (event) {
 
   const userMessage = `Contexto de llegada: ${modeContext}
 
-Conversación completa:
+Conversación:
 
 ${conversacion}
 
-Escribe el reflejo de lo que viste.`;
+Escribe el reflejo. Dos párrafos. Deja con ganas de más.`;
 
   try {
     const summary = await callAnthropic({
       system: BETA_SYSTEM_PROMPT,
       messages: [{ role: "user", content: userMessage }],
-      maxTokens: 280,
-      temperature: 0.78,
+      maxTokens: 200,
+      temperature: 0.75,
       plan: plan || "free",
     });
 
