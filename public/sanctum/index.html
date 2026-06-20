@@ -694,6 +694,192 @@ nav {
   color: var(--ink-soft);
   text-align: right;
 }
+
+/* ── ALMA CHAT ── */
+#view-alma {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  height: calc(100dvh - 57px);
+  overflow: hidden;
+}
+#view-alma.active { display: flex; }
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 1.2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  scroll-behavior: smooth;
+}
+
+.chat-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-width: 88%;
+}
+
+.chat-msg.user { align-self: flex-end; align-items: flex-end; }
+.chat-msg.alma  { align-self: flex-start; align-items: flex-start; }
+
+.chat-bubble {
+  padding: 0.95rem 1.15rem;
+  border-radius: 12px;
+  font-family: 'Lora', serif;
+  font-size: 0.93rem;
+  line-height: 1.85;
+  white-space: pre-wrap;
+}
+
+.chat-msg.user .chat-bubble {
+  background: var(--dark-bg);
+  color: var(--dark-ink);
+  border-radius: 12px 12px 4px 12px;
+}
+
+.chat-msg.alma .chat-bubble {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--ink-faint);
+  border-radius: 12px 12px 12px 4px;
+}
+
+/* Espejo — visualmente distinto */
+.chat-mirror {
+  align-self: flex-start;
+  max-width: 92%;
+  background: var(--terra-faint);
+  border: 1px solid rgba(122,68,24,0.2);
+  border-left: 3px solid var(--terracotta);
+  border-radius: 0 8px 8px 0;
+  padding: 1rem 1.2rem;
+  font-family: 'Cormorant', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.75;
+  color: var(--ink);
+  animation: espejo-appear 0.6s ease;
+}
+
+.chat-mirror-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.48rem;
+  letter-spacing: 0.28em;
+  color: var(--terracotta);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  font-style: normal;
+}
+
+@keyframes espejo-appear {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.chat-time {
+  font-family: 'Cormorant', serif;
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+  margin-top: 0.1rem;
+}
+
+/* Indicador de escritura */
+.chat-typing {
+  align-self: flex-start;
+  display: flex;
+  gap: 5px;
+  padding: 0.9rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--ink-faint);
+  border-radius: 12px 12px 12px 4px;
+}
+.chat-typing span {
+  width: 6px; height: 6px;
+  background: var(--ink-soft);
+  border-radius: 50%;
+  animation: typing-dot 1.2s ease-in-out infinite;
+}
+.chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+.chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Input área */
+.chat-input-area {
+  padding: 0.9rem 1.2rem calc(0.9rem + var(--safe-bottom));
+  border-top: 1px solid var(--ink-faint);
+  background: var(--bg);
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-end;
+}
+
+.chat-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--ink-faint);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  font-family: 'Lora', serif;
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: var(--ink);
+  resize: none;
+  outline: none;
+  max-height: 140px;
+  overflow-y: auto;
+  -webkit-appearance: none;
+  transition: border-color 0.2s;
+}
+.chat-input:focus { border-color: rgba(122,68,24,0.3); }
+.chat-input::placeholder { color: var(--ink-soft); font-style: italic; }
+
+.chat-send {
+  background: var(--terracotta);
+  border: none;
+  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.2s;
+  color: rgba(244,239,228,0.95);
+  font-size: 1.1rem;
+}
+.chat-send:active { opacity: 0.7; }
+.chat-send:disabled { opacity: 0.35; cursor: default; }
+
+.chat-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 2rem;
+  text-align: center;
+  pointer-events: none;
+}
+.chat-empty-icon { font-size: 2rem; opacity: 0.25; }
+.chat-empty-text {
+  font-family: 'Cormorant', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
 </style>
 </head>
 <body>
@@ -721,6 +907,7 @@ nav {
       <button class="nav-tab active" onclick="switchView('write')">Escribir</button>
       <button class="nav-tab" onclick="switchView('historial')">Historial</button>
       <button class="nav-tab" onclick="switchView('esencia')">Esencia</button>
+      <button class="nav-tab" onclick="switchView('alma')">Alma</button>
     </div>
     <button class="nav-lock" onclick="lock()">🔒</button>
   </nav>
@@ -795,6 +982,24 @@ nav {
     <div id="essence-display"></div>
   </div>
 </div>
+
+  <!-- ALMA -->
+  <div class="view" id="view-alma">
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-empty" id="chat-empty">
+        <div class="chat-empty-icon">🕯</div>
+        <div class="chat-empty-text">Aquí estoy.<br>Escribe lo que necesites.</div>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chat-input"
+        placeholder="Escribe a Alma…"
+        rows="1"
+        oninput="chatInputResize()"
+        onkeydown="chatKeyDown(event)"></textarea>
+      <button class="chat-send" id="chat-send" onclick="sendMessage()">↑</button>
+    </div>
+  </div>
 
 <!-- MODAL (bottom sheet) -->
 <div class="modal-overlay" id="modal" onclick="closeModal(event)">
@@ -1008,10 +1213,11 @@ function switchView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
-  const idx = ['write','historial','esencia'].indexOf(name);
+  const idx = ['write','historial','esencia','alma'].indexOf(name);
   document.querySelectorAll('.nav-tab')[idx].classList.add('active');
   if (name === 'historial') renderHistorial();
   if (name === 'esencia') renderEssence();
+  if (name === 'alma') chatScrollBottom();
 }
 
 // ── HISTORIAL ──
@@ -1286,7 +1492,152 @@ function copyPrompt() {
   });
 }
 
-// ── UTILS ──
+// ── ALMA CHAT ──
+let chatHistory = []; // [{role, content}] para enviar a la API
+let chatWaiting = false;
+
+function chatScrollBottom() {
+  const el = document.getElementById('chat-messages');
+  if (el) el.scrollTop = el.scrollHeight;
+}
+
+function chatInputResize() {
+  const el = document.getElementById('chat-input');
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+}
+
+function chatKeyDown(e) {
+  // Enviar con Enter en desktop (no en móvil — Shift+Enter salta línea)
+  if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 600) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function fmtTime(date) {
+  return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+}
+
+function appendUserMessage(text) {
+  const empty = document.getElementById('chat-empty');
+  if (empty) empty.remove();
+
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg user';
+  div.innerHTML = `
+    <div class="chat-bubble">${esc(text)}</div>
+    <div class="chat-time">${fmtTime(new Date())}</div>
+  `;
+  container.appendChild(div);
+  chatScrollBottom();
+}
+
+function appendAlmaMessage(text, isEspejo = false) {
+  const container = document.getElementById('chat-messages');
+
+  if (isEspejo) {
+    const div = document.createElement('div');
+    div.className = 'chat-mirror';
+    div.innerHTML = `
+      <div class="chat-mirror-label">Lo que veo</div>
+      ${esc(text.replace(/^Lo que veo:\s*/i, ''))}
+    `;
+    container.appendChild(div);
+  } else {
+    const div = document.createElement('div');
+    div.className = 'chat-msg alma';
+    div.innerHTML = `
+      <div class="chat-bubble">${esc(text)}</div>
+      <div class="chat-time">${fmtTime(new Date())}</div>
+    `;
+    container.appendChild(div);
+  }
+
+  chatScrollBottom();
+}
+
+function showTyping() {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.id = 'chat-typing';
+  div.className = 'chat-typing';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  container.appendChild(div);
+  chatScrollBottom();
+}
+
+function hideTyping() {
+  const el = document.getElementById('chat-typing');
+  if (el) el.remove();
+}
+
+async function sendMessage() {
+  if (chatWaiting) return;
+
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Limpiar input
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('chat-send').disabled = true;
+  chatWaiting = true;
+
+  // Mostrar mensaje de la guardiana
+  appendUserMessage(text);
+
+  // Añadir al historial local
+  chatHistory.push({ role: 'user', content: text });
+
+  // Mostrar typing
+  showTyping();
+
+  try {
+    const res = await fetch('/.netlify/functions/sanctum-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        history: chatHistory.slice(0, -1) // historial sin el último (ya está en message)
+      })
+    });
+
+    hideTyping();
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `Error ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    // Respuesta normal de Alma
+    if (data.respuesta) {
+      appendAlmaMessage(data.respuesta);
+      chatHistory.push({ role: 'assistant', content: data.respuesta });
+    }
+
+    // Espejo — si Alma tiene algo que observar
+    if (data.espejo) {
+      setTimeout(() => {
+        appendAlmaMessage(data.espejo, true);
+      }, 800);
+    }
+
+  } catch (e) {
+    hideTyping();
+    appendAlmaMessage('Algo falló. Inténtalo de nuevo.');
+    console.error('Chat error:', e);
+  } finally {
+    chatWaiting = false;
+    document.getElementById('chat-send').disabled = false;
+    input.focus();
+  }
+}
+
 function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('es-ES', {
     weekday:'short', day:'numeric', month:'long'
