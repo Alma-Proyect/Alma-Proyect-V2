@@ -1637,6 +1637,7 @@ async function saveEntry() {
   // Primer turno — inicializar historial
   conversationHistory = [{ role: 'user', text }];
   currentTurn = 1;
+  trackEvent('day_started', { day: currentDay + 1 });
 
   // Añadir primera entrada de la usuaria al historial visual
   addToHistory('user', text);
