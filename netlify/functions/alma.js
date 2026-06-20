@@ -26,6 +26,8 @@ exports.handler = async function (event) {
     arrivalMode,
     plan,
     questionSet,
+    isBeta,
+    betaMaxTurns,
   } = JSON.parse(event.body || "{}");
 
   if (!entry || entry.trim().length === 0) {
@@ -36,7 +38,8 @@ exports.handler = async function (event) {
   }
 
   const currentTurn = turn || 1;
-  const isLastTurn  = currentTurn >= MAX_TURNS_PER_DAY;
+  const maxTurns    = (isBeta && betaMaxTurns) ? betaMaxTurns : MAX_TURNS_PER_DAY;
+  const isLastTurn  = currentTurn >= maxTurns;
 
   // Construir historial de mensajes — solo lo esencial para no superar el timeout
   const messages = [];
