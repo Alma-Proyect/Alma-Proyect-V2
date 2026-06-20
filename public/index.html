@@ -2621,7 +2621,7 @@ function startJourney() {
 // BETA — 1 DÍA
 // =======================
 
-const BETA_MAX_TURNS = 4;
+const BETA_MAX_TURNS = 5;
 const BETA_QUESTIONS = {
   beta_pain:    "¿Hay algo que necesitas contar y no puedes?",
   beta_search:  "¿De quién necesitas permiso para ser tú misma?",
@@ -2702,18 +2702,6 @@ function startBeta() {
   if (pill) pill.textContent = 'Día de prueba';
   const title = document.getElementById('day-title');
   if (title) title.innerHTML = 'Para <em>conocerte</em>';
-
-  // Ocultar sidebar y nav de días — no aplican en experiencia de 1 día
-  const sidebar = document.querySelector('.sidebar');
-  if (sidebar) sidebar.style.display = 'none';
-  const dayNav = document.getElementById('day-nav');
-  if (dayNav) dayNav.style.display = 'none';
-
-  // Ocultar botones de día siguiente — no aplican en experiencia de 1 día
-  ['btn-next-d', 'btn-next-m'].forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) btn.style.display = 'none';
-  });
 
   trackEvent('beta_started', { mode: betaMode });
 }
@@ -2966,6 +2954,18 @@ function startFullJourney() {
   const ta = document.getElementById('journal-text');
   if (ta) ta.value = '';
   document.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
+
+  // Restaurar sidebar y nav de días para la experiencia completa
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) sidebar.style.display = '';
+  const dayNav = document.getElementById('day-nav');
+  if (dayNav) dayNav.style.display = '';
+
+  // Restaurar botones de día siguiente
+  ['btn-next-d', 'btn-next-m'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.style.display = '';
+  });
 
   // Mostrar pantalla de llegada de los 3 días
   const welcomeScreen = document.getElementById('welcome-screen');
