@@ -2703,6 +2703,12 @@ function startBeta() {
   const title = document.getElementById('day-title');
   if (title) title.innerHTML = 'Para <em>conocerte</em>';
 
+  // Ocultar sidebar y nav de días — no aplican en experiencia de 1 día
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar) sidebar.style.display = 'none';
+  const dayNav = document.getElementById('day-nav');
+  if (dayNav) dayNav.style.display = 'none';
+
   trackEvent('beta_started', { mode: betaMode });
 }
 
