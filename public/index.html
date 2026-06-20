@@ -2709,6 +2709,12 @@ function startBeta() {
   const dayNav = document.getElementById('day-nav');
   if (dayNav) dayNav.style.display = 'none';
 
+  // Ocultar botones de día siguiente — no aplican en experiencia de 1 día
+  ['btn-next-d', 'btn-next-m'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.style.display = 'none';
+  });
+
   trackEvent('beta_started', { mode: betaMode });
 }
 
