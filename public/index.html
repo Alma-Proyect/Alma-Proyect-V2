@@ -596,8 +596,9 @@ body {
   .topbar-logo         { display: none; }
 
   /* Mostrar elementos desktop */
-  .sidebar         { display: flex; flex-direction: column; }
-  .sidebar.sidebar-hidden { display: none; }
+  .sidebar         { display: none; flex-direction: column; }
+  .sidebar.sidebar-visible { display: flex; }
+  .sidebar.sidebar-hidden  { display: none; }
   /* actions-row lo gestiona el JS — no tocar aquí */
   .day-header-ring { display: block; }
 
@@ -2690,7 +2691,7 @@ function chooseMode(mode) {
   } else {
     // Restaurar sidebar y nav para experiencia de 3 días
     const sidebar = document.querySelector('.sidebar');
-    if (sidebar) sidebar.classList.remove('sidebar-hidden');
+    if (sidebar) sidebar.classList.add('sidebar-visible');
     const dayNav = document.getElementById('day-nav');
     if (dayNav) dayNav.style.display = '';
     ['btn-next-d', 'btn-next-m'].forEach(id => {
@@ -2998,7 +2999,7 @@ function startFullJourney() {
 
   // Restaurar sidebar y nav de días para la experiencia completa
   const sidebar = document.querySelector('.sidebar');
-  if (sidebar) sidebar.classList.remove('sidebar-hidden');
+  if (sidebar) sidebar.classList.add('sidebar-visible');
   const dayNav = document.getElementById('day-nav');
   if (dayNav) dayNav.style.display = '';
 
