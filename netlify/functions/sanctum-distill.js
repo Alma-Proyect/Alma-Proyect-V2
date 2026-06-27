@@ -134,12 +134,11 @@ exports.handler = async function (event) {
     await sbFetch('sanctum_essence', { method: 'POST', body: JSON.stringify({ data: essenceData }) });
   } catch (e) { console.warn('No se pudo guardar:', e.message); }
 
-  // Marcar entradas como destiladas
-  for (const entry of entries) {
-    try {
-      await sbFetch(`sanctum_entries?id=eq.${entry.id}`, { method: 'PATCH', body: JSON.stringify({ distilled: true }) });
-    } catch (e) {}
-  }
+  // Marcar todas las entradas como destiladas en una sola llamada
+  try {
+    const ids = entries.map(e => e.id).join(',');
+    await sbFetch(`sanctum_entries?id=in.(${ids})`, { method: 'PATCH', body: JSON.stringify({ distilled: true }) });
+  } catch (e) { console.warn('No se pudo marcar como destiladas:', e.message); }
 
   return {
     statusCode: 200,
