@@ -195,7 +195,7 @@ nav {
 
 /* Views */
 .view { display: none; flex: 1; overflow-y: auto; }
-.view.active { display: flex; flex-direction: column; }
+.view.active { display: flex; flex-direction: column; min-height: 0; }
 
 /* ── WRITE ── */
 #view-write {
@@ -704,7 +704,9 @@ nav {
   width: 100%;
   margin: 0 auto;
   height: calc(100dvh - 57px);
+  max-height: calc(100dvh - 57px);
   overflow: hidden;
+  position: relative;
 }
 #view-alma.active { display: flex; }
 
