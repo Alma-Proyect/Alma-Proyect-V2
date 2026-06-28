@@ -2183,9 +2183,9 @@ function showFinalButtons() {
 
 async function generateDayCard(cardWrap) {
   const dayImages = {
-    0: '/images/day-card-1.png',
-    1: '/images/day-card-2.png',
-    2: '/images/day-card-3.png',
+    0: window.location.origin + '/images/day-card-1.png',
+    1: window.location.origin + '/images/day-card-2.png',
+    2: window.location.origin + '/images/day-card-3.png',
   };
   const imgSrc = dayImages[currentDay] || dayImages[0];
 
@@ -2197,7 +2197,7 @@ async function generateDayCard(cardWrap) {
         conversationHistory,
         day: currentDay + 1,
         arrivalMode: currentArrivalMode,
-        plan: currentPlan || 'free',
+        plan: 'free',
       }),
     });
 
