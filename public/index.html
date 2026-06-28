@@ -18,7 +18,7 @@
 <meta name="description" content="Alma Proyect. Entiende lo que sientes, no lo hagas sola. Sin prisas, sin juicios, a tu ritmo… Tres preguntas. Tres días.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@300;400;500;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -426,11 +426,96 @@ body {
 .dot-pending { background: var(--warm); color: var(--muted); border: 1.5px dashed rgba(154,136,128,0.4); }
 
 /* Botones de cierre al final de la conversación */
+/* ── TARJETA DEL DÍA ── */
+.day-card-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 1.2rem;
+  margin-bottom: 0.5rem;
+  animation: slideUp 0.5s ease both;
+}
+
+.day-card {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 9/16;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}
+
+.day-card img.day-card-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.day-card-frase-zona {
+  position: absolute;
+  top: 33%;
+  left: 28%;
+  width: 52%;
+  height: 38%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+.day-card-frase {
+  font-family: 'Dancing Script', 'Brush Script MT', cursive;
+  font-size: clamp(0.95rem, 2.8vw, 1.2rem);
+  font-weight: 700;
+  color: #8a6020;
+  line-height: 1.85;
+  text-align: center;
+  transform: rotate(-0.5deg);
+}
+
+.day-card-loading {
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 9/16;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.btn-download-card {
+  background: none;
+  border: 1.5px solid var(--clay);
+  color: var(--clay);
+  border-radius: 8px;
+  padding: 0.7rem 1.4rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.88rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-download-card:hover { background: var(--clay); color: #fff; }
+.btn-download-card:active { transform: scale(0.97); }
+
 .day-closing-buttons {
   display: flex;
   gap: 0.75rem;
   margin-top: 0.5rem;
-  margin-bottom: 5rem; /* espacio para que no tape los botones fijos en móvil */
+  margin-bottom: 5rem;
   animation: slideUp 0.4s ease both;
 }
 @media (min-width: 680px) {
@@ -2065,29 +2150,163 @@ function addToHistory(role, htmlContent) {
 function showFinalButtons() {
   const container = document.getElementById('conversation-history');
   if (!container) return;
-  // Evitar duplicados
   if (container.querySelector('.day-closing-buttons')) return;
 
-  const closingDiv = document.createElement('div');
-  closingDiv.className = 'day-closing-buttons';
-
-  // Botón "Día siguiente" o "Ver mi reflejo" dependiendo del día
   const isLastDay = currentDay >= totalDays - 1;
   const nextLabel = isLastDay ? '✦ Ver mi reflejo' : 'Día siguiente →';
+
+  // Tarjeta del día — se muestra antes del botón
+  const cardWrap = document.createElement('div');
+  cardWrap.className = 'day-card-wrap';
+  cardWrap.innerHTML = `<div class="day-card-loading">Alma está escribiendo...</div>`;
+  container.appendChild(cardWrap);
+  setTimeout(() => cardWrap.scrollIntoView({ behavior: 'smooth', block: 'end' }), 300);
+
+  // Botón siguiente
+  const closingDiv = document.createElement('div');
+  closingDiv.className = 'day-closing-buttons';
   closingDiv.innerHTML = `
     <button class="btn-next ready" onclick="nextDay()" style="flex:1; min-height:50px;">
       ${nextLabel}
     </button>
   `;
-
   container.appendChild(closingDiv);
-  setTimeout(() => closingDiv.scrollIntoView({ behavior: 'smooth', block: 'end' }), 300);
 
-  // Actualizar también los botones fijos existentes
   ['btn-next-m','btn-next-d'].forEach(id => {
     const b = document.getElementById(id);
     if (b) b.classList.add('ready');
   });
+
+  // Generar la frase de Alma
+  generateDayCard(cardWrap);
+}
+
+async function generateDayCard(cardWrap) {
+  const dayImages = {
+    0: '/images/day-card-1.png',
+    1: '/images/day-card-2.png',
+    2: '/images/day-card-3.png',
+  };
+  const imgSrc = dayImages[currentDay] || dayImages[0];
+
+  try {
+    const res = await fetch('/.netlify/functions/day-card', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        conversationHistory,
+        day: currentDay + 1,
+        arrivalMode: currentArrivalMode,
+        plan: currentPlan || 'free',
+      }),
+    });
+
+    const data = await res.json();
+    const frase = data.frase || 'Hoy vi a alguien que llegó aunque podría no haberlo hecho.';
+
+    cardWrap.innerHTML = `
+      <div class="day-card" id="day-card-img">
+        <img class="day-card-bg" src="${imgSrc}" alt="Tarjeta del día ${currentDay + 1}" crossorigin="anonymous">
+        <div class="day-card-frase-zona">
+          <div class="day-card-frase">${frase}</div>
+        </div>
+      </div>
+      <button class="btn-download-card" onclick="downloadDayCard('${frase.replace(/'/g, "\\'")}', '${imgSrc}')">
+        ↓ Guardar imagen
+      </button>
+    `;
+
+  } catch (e) {
+    console.error('Error generando tarjeta:', e);
+    const frase = 'Hoy vi a alguien que llegó aunque podría no haberlo hecho.';
+    cardWrap.innerHTML = `
+      <div class="day-card" id="day-card-img">
+        <img class="day-card-bg" src="${imgSrc}" alt="Tarjeta del día ${currentDay + 1}" crossorigin="anonymous">
+        <div class="day-card-frase-zona">
+          <div class="day-card-frase">${frase}</div>
+        </div>
+      </div>
+      <button class="btn-download-card" onclick="downloadDayCard('${frase}', '${imgSrc}')">
+        ↓ Guardar imagen
+      </button>
+    `;
+  }
+}
+
+async function downloadDayCard(frase, imgSrc) {
+  const canvas = document.createElement('canvas');
+  // 9:16 a 1080x1920
+  canvas.width = 1080;
+  canvas.height = 1920;
+  const ctx = canvas.getContext('2d');
+
+  // Cargar imagen de fondo
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = imgSrc;
+
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+  });
+
+  // Dibujar fondo
+  ctx.drawImage(img, 0, 0, 1080, 1920);
+
+  // Zona de la frase — misma proporción que el CSS
+  // top: 33%, left: 28%, width: 52%, height: 38%
+  const zoneX = 1080 * 0.28;
+  const zoneY = 1920 * 0.33;
+  const zoneW = 1080 * 0.52;
+  const zoneH = 1920 * 0.38;
+
+  // Tipografía manuscrita dorada
+  ctx.fillStyle = '#8a6020';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+
+  // Wrap de texto
+  const fontSize = 62;
+  ctx.font = `700 ${fontSize}px 'Dancing Script', cursive`;
+  const lineHeight = fontSize * 1.85;
+  const maxWidth = zoneW - 40;
+  const words = frase.split(' ');
+  const lines = [];
+  let line = '';
+
+  for (const word of words) {
+    const test = line ? line + ' ' + word : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  }
+  if (line) lines.push(line);
+
+  // Centrar verticalmente en la zona
+  const totalH = lines.length * lineHeight;
+  let y = zoneY + (zoneH - totalH) / 2;
+  const x = zoneX + zoneW / 2;
+
+  // Ligera rotación
+  ctx.save();
+  ctx.translate(x, zoneY + zoneH / 2);
+  ctx.rotate(-0.008);
+  ctx.translate(-x, -(zoneY + zoneH / 2));
+
+  for (const l of lines) {
+    ctx.fillText(l, x, y);
+    y += lineHeight;
+  }
+  ctx.restore();
+
+  // Descargar
+  const link = document.createElement('a');
+  link.download = `alma-dia-${currentDay + 1}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
 }
 
 function showTurnReply() {
