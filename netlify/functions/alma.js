@@ -69,7 +69,7 @@ exports.handler = async function (event) {
     let essence = null;
     try {
       const essController = new AbortController();
-      const essTimeout = setTimeout(() => essController.abort(), 2500);
+      const essTimeout = setTimeout(() => essController.abort(), 1200);
       const essRes = await fetch(`${process.env.URL}/.netlify/functions/sanctum-essence`, {
         signal: essController.signal,
       });
@@ -85,16 +85,23 @@ exports.handler = async function (event) {
     const response = await callAnthropic({
       system: getAlmaSystemPrompt(day, currentTurn, previousEntries, arrivalMode, essence),
       messages,
-      maxTokens: 220,
+      maxTokens: 200,
       temperature: 0.85,
       plan: plan || "free",
     });
+
+    // Post-procesado: eliminar guiones largos que el modelo sigue usando
+    const cleanResponse = response
+      .replace(/ — /g, ', ')
+      .replace(/— /g, ', ')
+      .replace(/ —/g, ',')
+      .replace(/—/g, ',');
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        response,
+        response: cleanResponse,
         isLastTurn,
         turnsLeft: MAX_TURNS_PER_DAY - currentTurn,
       }),
