@@ -2182,13 +2182,6 @@ function showFinalButtons() {
 }
 
 async function generateDayCard(cardWrap) {
-  const dayImages = {
-    0: window.location.origin + '/images/day-card-1.png',
-    1: window.location.origin + '/images/day-card-2.png',
-    2: window.location.origin + '/images/day-card-3.png',
-  };
-  const imgSrc = dayImages[currentDay] || dayImages[0];
-
   try {
     const res = await fetch('/.netlify/functions/day-card', {
       method: 'POST',
@@ -2203,15 +2196,14 @@ async function generateDayCard(cardWrap) {
 
     const data = await res.json();
     const frase = data.frase || 'Hoy vi a alguien que llegó aunque podría no haberlo hecho.';
+    const canvas = buildDayCardCanvas(frase, currentDay);
+    const dataUrl = canvas.toDataURL('image/png');
 
     cardWrap.innerHTML = `
-      <div class="day-card" id="day-card-img">
-        <img class="day-card-bg" src="${imgSrc}" alt="Tarjeta del día ${currentDay + 1}" crossorigin="anonymous">
-        <div class="day-card-frase-zona">
-          <div class="day-card-frase">${frase}</div>
-        </div>
+      <div class="day-card">
+        <img class="day-card-bg" src="${dataUrl}" alt="Tarjeta del día ${currentDay + 1}" style="width:100%;height:100%;object-fit:cover;display:block;">
       </div>
-      <button class="btn-download-card" onclick="downloadDayCard('${frase.replace(/'/g, "\\'")}', '${imgSrc}')">
+      <button class="btn-download-card" onclick="downloadDayCardCanvas(this, '${frase.replace(/'/g, "\\'")}', ${currentDay})">
         ↓ Guardar imagen
       </button>
     `;
@@ -2219,95 +2211,199 @@ async function generateDayCard(cardWrap) {
   } catch (e) {
     console.error('Error generando tarjeta:', e);
     const frase = 'Hoy vi a alguien que llegó aunque podría no haberlo hecho.';
+    const canvas = buildDayCardCanvas(frase, currentDay);
+    const dataUrl = canvas.toDataURL('image/png');
     cardWrap.innerHTML = `
-      <div class="day-card" id="day-card-img">
-        <img class="day-card-bg" src="${imgSrc}" alt="Tarjeta del día ${currentDay + 1}" crossorigin="anonymous">
-        <div class="day-card-frase-zona">
-          <div class="day-card-frase">${frase}</div>
-        </div>
+      <div class="day-card">
+        <img class="day-card-bg" src="${dataUrl}" alt="Tarjeta del día ${currentDay + 1}" style="width:100%;height:100%;object-fit:cover;display:block;">
       </div>
-      <button class="btn-download-card" onclick="downloadDayCard('${frase}', '${imgSrc}')">
+      <button class="btn-download-card" onclick="downloadDayCardCanvas(this, '${frase.replace(/'/g, "\\'")}', ${currentDay})">
         ↓ Guardar imagen
       </button>
     `;
   }
 }
 
-async function downloadDayCard(frase, imgSrc) {
+// Paletas por día
+const DAY_PALETTES = [
+  { bg: '#1a1208', paper: '#f5eedc', paperShadow: '#c8b99a', ink: '#7a5218', accent: '#c9932a' },
+  { bg: '#0d1a0f', paper: '#f0ede0', paperShadow: '#b8c4a0', ink: '#4a6828', accent: '#8aaa48' },
+  { bg: '#0f0d1a', paper: '#ede8f5', paperShadow: '#b0a8c8', ink: '#4a3878', accent: '#8a70c0' },
+];
+
+function buildDayCardCanvas(frase, day) {
+  const W = 1080, H = 1920;
   const canvas = document.createElement('canvas');
-  // 9:16 a 1080x1920
-  canvas.width = 1080;
-  canvas.height = 1920;
+  canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
+  const p = DAY_PALETTES[day] || DAY_PALETTES[0];
 
-  // Cargar imagen de fondo
-  const img = new Image();
-  img.crossOrigin = 'anonymous';
-  img.src = imgSrc;
+  // Fondo oscuro sólido
+  ctx.fillStyle = p.bg;
+  ctx.fillRect(0, 0, W, H);
 
-  await new Promise((resolve, reject) => {
-    img.onload = resolve;
-    img.onerror = reject;
-  });
+  // Viñeta
+  const vignette = ctx.createRadialGradient(W/2, H/2, H*0.2, W/2, H/2, H*0.8);
+  vignette.addColorStop(0, 'rgba(0,0,0,0)');
+  vignette.addColorStop(1, 'rgba(0,0,0,0.7)');
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, W, H);
 
-  // Dibujar fondo
-  ctx.drawImage(img, 0, 0, 1080, 1920);
+  // Libreta — página derecha (zona principal)
+  const bookX = W * 0.08, bookY = H * 0.18, bookW = W * 0.84, bookH = H * 0.64;
+  const pageX = bookX + bookW * 0.5, pageY = bookY, pageW = bookW * 0.5, pageH = bookH;
 
-  // Zona de la frase — misma proporción que el CSS
-  // top: 33%, left: 28%, width: 52%, height: 38%
-  const zoneX = 1080 * 0.28;
-  const zoneY = 1920 * 0.33;
-  const zoneW = 1080 * 0.52;
-  const zoneH = 1920 * 0.38;
+  // Sombra de la libreta
+  ctx.shadowColor = 'rgba(0,0,0,0.6)';
+  ctx.shadowBlur = 60;
+  ctx.shadowOffsetY = 20;
+  ctx.fillStyle = p.paperShadow;
+  roundRect(ctx, bookX, bookY, bookW, bookH, 8);
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
 
-  // Tipografía manuscrita dorada
-  ctx.fillStyle = '#8a6020';
+  // Página izquierda (más oscura)
+  ctx.fillStyle = p.paperShadow;
+  roundRectLeft(ctx, bookX, bookY, bookW * 0.5, bookH, 8);
+  ctx.fill();
+
+  // Página derecha (clara)
+  ctx.fillStyle = p.paper;
+  roundRectRight(ctx, pageX, pageY, pageW, pageH, 8);
+  ctx.fill();
+
+  // Lomo del libro
+  ctx.fillStyle = p.paperShadow;
+  ctx.fillRect(bookX + bookW * 0.49, bookY, bookW * 0.02, bookH);
+
+  // Líneas sutiles en página derecha
+  ctx.strokeStyle = 'rgba(0,0,0,0.04)';
+  ctx.lineWidth = 1;
+  const lineSpacing = 52;
+  for (let y = pageY + 80; y < pageY + pageH - 40; y += lineSpacing) {
+    ctx.beginPath();
+    ctx.moveTo(pageX + 30, y);
+    ctx.lineTo(pageX + pageW - 30, y);
+    ctx.stroke();
+  }
+
+  // Logo SVG — ojo estilizado en página derecha, zona inferior
+  drawAlmaLogo(ctx, pageX + pageW / 2, pageY + pageH * 0.78, 60, p.ink);
+
+  // Texto "ALMA proyect" debajo del logo
+  ctx.fillStyle = p.ink;
+  ctx.font = `300 28px 'Jost', sans-serif`;
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
+  ctx.letterSpacing = '0.15em';
+  ctx.fillText('ALMA proyect', pageX + pageW / 2, pageY + pageH * 0.78 + 80);
 
-  // Wrap de texto
-  const fontSize = 62;
-  ctx.font = `700 ${fontSize}px 'Dancing Script', cursive`;
-  const lineHeight = fontSize * 1.85;
-  const maxWidth = zoneW - 40;
-  const words = frase.split(' ');
-  const lines = [];
+  // Separador día
+  const dayLabels = ['DÍA 1 · ESCUCHÁNDOTE', 'DÍA 2 · CONOCIÉNDOTE', 'DÍA 3 · ELIGIÉNDOTE'];
+  ctx.fillStyle = p.ink + '88';
+  ctx.font = `300 22px 'Jost', sans-serif`;
+  ctx.fillText(dayLabels[day] || dayLabels[0], pageX + pageW / 2, pageY + pageH - 36);
+
+  // Frase manuscrita dorada — zona superior-centro de página derecha
+  ctx.fillStyle = p.ink;
+  ctx.font = `600 58px 'Dancing Script', cursive`;
+  ctx.textAlign = 'center';
+  const frazeX = pageX + pageW / 2;
+  const frazeY = pageY + pageH * 0.12;
+  const frazeMaxW = pageW - 80;
+  wrapText(ctx, frase, frazeX, frazeY, frazeMaxW, 82);
+
+  return canvas;
+}
+
+function drawAlmaLogo(ctx, cx, cy, r, color) {
+  // Ojo estilizado simple con arco de luna
+  ctx.strokeStyle = color;
+  ctx.fillStyle = 'transparent';
+  ctx.lineWidth = 3;
+  // Arco superior (luna)
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, Math.PI * 1.1, Math.PI * 1.9, false);
+  ctx.stroke();
+  // Ojo
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + r * 0.1, r * 0.55, r * 0.32, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  // Pupila
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(cx, cy + r * 0.1, r * 0.14, 0, Math.PI * 2);
+  ctx.fill();
+  // Destello
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(cx + r * 0.08, cy + r * 0.02, r * 0.05, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function roundRectLeft(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w, y);
+  ctx.lineTo(x + w, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function roundRectRight(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x, y + h);
+  ctx.closePath();
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
   let line = '';
-
-  for (const word of words) {
-    const test = line ? line + ' ' + word : word;
-    if (ctx.measureText(test).width > maxWidth && line) {
-      lines.push(line);
-      line = word;
+  let currentY = y;
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line + words[i] + ' ';
+    if (ctx.measureText(testLine).width > maxWidth && i > 0) {
+      ctx.fillText(line.trim(), x, currentY);
+      line = words[i] + ' ';
+      currentY += lineHeight;
     } else {
-      line = test;
+      line = testLine;
     }
   }
-  if (line) lines.push(line);
+  ctx.fillText(line.trim(), x, currentY);
+}
 
-  // Centrar verticalmente en la zona
-  const totalH = lines.length * lineHeight;
-  let y = zoneY + (zoneH - totalH) / 2;
-  const x = zoneX + zoneW / 2;
-
-  // Ligera rotación
-  ctx.save();
-  ctx.translate(x, zoneY + zoneH / 2);
-  ctx.rotate(-0.008);
-  ctx.translate(-x, -(zoneY + zoneH / 2));
-
-  for (const l of lines) {
-    ctx.fillText(l, x, y);
-    y += lineHeight;
-  }
-  ctx.restore();
-
-  // Descargar
+function downloadDayCardCanvas(btn, frase, day) {
+  btn.textContent = '...';
+  const canvas = buildDayCardCanvas(frase, day);
   const link = document.createElement('a');
-  link.download = `alma-dia-${currentDay + 1}.png`;
+  link.download = `alma-dia-${day + 1}.png`;
   link.href = canvas.toDataURL('image/png');
   link.click();
+  btn.textContent = '↓ Guardar imagen';
 }
+
 
 function showTurnReply() {
   // Ocultar botones fijos móvil para no tapar el campo de respuesta
@@ -2700,7 +2796,7 @@ function init() {
   // Ocultar sidebar si es sesión beta
   if (hasBetaSession) {
     const sidebar = document.querySelector('.sidebar');
-    if (sidebar) sidebar.classList.add('sidebar-hidden');
+    if (sidebar) { sidebar.classList.remove('sidebar-visible'); sidebar.classList.add('sidebar-hidden'); }
     const dayNav = document.getElementById('day-nav');
     if (dayNav) dayNav.style.display = 'none';
     ['btn-next-d', 'btn-next-m'].forEach(id => {
@@ -2714,7 +2810,11 @@ function init() {
   const welcomeScreen = document.getElementById('welcome-screen');
   if (!goToFarewell) {
     if (hasActiveDays) {
-      // Tiene días en curso — ir directo a la welcome-screen de llegada (3 días)
+      // Tiene días en curso de 3 días — restaurar sidebar y mostrar welcome
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar) { sidebar.classList.remove('sidebar-hidden'); sidebar.classList.add('sidebar-visible'); }
+      const dayNav = document.getElementById('day-nav');
+      if (dayNav) dayNav.style.display = '';
       if (welcomeScreen) welcomeScreen.style.display = 'flex';
     } else {
       // Primera vez — mostrar pantalla de elección 1/3 días
@@ -2897,7 +2997,7 @@ function chooseMode(mode) {
   if (mode === 'beta') {
     // Ocultar sidebar y nav — no aplican en experiencia de 1 día
     const sidebar = document.querySelector('.sidebar');
-    if (sidebar) sidebar.classList.add('sidebar-hidden');
+    if (sidebar) { sidebar.classList.remove('sidebar-visible'); sidebar.classList.add('sidebar-hidden'); }
     const dayNav = document.getElementById('day-nav');
     if (dayNav) dayNav.style.display = 'none';
     ['btn-next-d', 'btn-next-m'].forEach(id => {
@@ -2910,7 +3010,7 @@ function chooseMode(mode) {
   } else {
     // Restaurar sidebar y nav para experiencia de 3 días
     const sidebar = document.querySelector('.sidebar');
-    if (sidebar) sidebar.classList.add('sidebar-visible');
+    if (sidebar) { sidebar.classList.remove('sidebar-hidden'); sidebar.classList.add('sidebar-visible'); }
     const dayNav = document.getElementById('day-nav');
     if (dayNav) dayNav.style.display = '';
     ['btn-next-d', 'btn-next-m'].forEach(id => {
@@ -3198,7 +3298,10 @@ async function showBetaFarewell() {
 // Botón CTA — ir a los 3 días completos
 function startFullJourney() {
   isBetaMode = false;
-  try { localStorage.removeItem('alma_beta_farewell'); } catch(e) {}
+  try {
+    localStorage.removeItem('alma_beta_farewell');
+    localStorage.removeItem('alma_beta');
+  } catch(e) {}
 
   // Ocultar pantalla farewell beta
   const betaFarewell = document.getElementById('beta-farewell-screen');
@@ -3218,7 +3321,7 @@ function startFullJourney() {
 
   // Restaurar sidebar y nav de días para la experiencia completa
   const sidebar = document.querySelector('.sidebar');
-  if (sidebar) sidebar.classList.add('sidebar-visible');
+  if (sidebar) { sidebar.classList.remove('sidebar-hidden'); sidebar.classList.add('sidebar-visible'); }
   const dayNav = document.getElementById('day-nav');
   if (dayNav) dayNav.style.display = '';
 
