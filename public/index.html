@@ -808,7 +808,7 @@ body {
 ════════════════════════════════ */
 .mode-screen {
   position: fixed; inset: 0; z-index: 110;
-  background: radial-gradient(ellipse at 50% 0%, #2c1f0a 0%, #120d04 60%, #0a0704 100%);
+  background: #0d0a05;
   display: none; align-items: center; justify-content: center;
   padding: 2rem 1.5rem;
   overflow-y: auto; -webkit-overflow-scrolling: touch;
@@ -816,72 +816,130 @@ body {
 }
 .mode-screen.hidden { animation: fadeOut 0.5s ease both; pointer-events: none; }
 .mode-card {
-  max-width: 380px; width: 100%;
+  max-width: 480px; width: 100%;
   display: flex; flex-direction: column; align-items: center;
-  text-align: center; gap: 1.4rem;
+  text-align: center; gap: 1.8rem;
 }
 .mode-logo {
-  height: 110px; width: auto;
-  filter: drop-shadow(0 0 40px rgba(184,134,11,0.5)) drop-shadow(0 0 80px rgba(184,134,11,0.2));
+  height: 120px; width: auto;
+  filter: drop-shadow(0 0 40px rgba(184,134,11,0.4));
 }
 .mode-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.65rem; font-style: italic; font-weight: 300;
-  color: rgba(245,237,216,0.92); line-height: 1.3;
+  font-size: clamp(1.8rem, 6vw, 2.6rem);
+  font-weight: 300; line-height: 1.2;
+  color: rgba(245,237,216,0.95);
+}
+.mode-title em {
+  font-style: italic;
+  color: rgba(184,134,11,0.9);
+}
+.mode-subtitle {
+  font-size: 0.8rem; font-weight: 300;
+  color: rgba(245,237,216,0.35);
+  letter-spacing: 0.06em;
+  margin-top: -0.8rem;
+}
+.mode-divider {
+  width: 40px; height: 1px;
+  background: rgba(184,134,11,0.3);
+  margin: -0.4rem auto;
 }
 .mode-options {
   width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 0.2rem;
-}
-.mode-btn {
-  aspect-ratio: 1 / 1;
-  min-height: 140px;
-  border-radius: 1.2rem;
-  border: 1px solid rgba(184,134,11,0.2);
-  font-family: 'Jost', sans-serif; cursor: pointer;
-  text-align: center; transition: all 0.22s;
-  -webkit-tap-highlight-color: transparent;
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 0.4rem; padding: 1rem;
+  gap: 0.8rem;
 }
+/* Bloque 1 día */
 .mode-btn-one {
-  background: rgba(184,134,11,0.1);
-  border-color: rgba(184,134,11,0.35);
+  width: 100%;
+  background: rgba(184,134,11,0.08);
+  border: 1px solid rgba(184,134,11,0.4);
+  border-radius: 1rem;
+  padding: 1.8rem 2rem;
+  cursor: pointer; text-align: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.22s;
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
 }
 .mode-btn-one:hover, .mode-btn-one:active {
-  background: rgba(184,134,11,0.18);
-  border-color: rgba(184,134,11,0.6);
+  background: rgba(184,134,11,0.15);
+  border-color: rgba(184,134,11,0.7);
   transform: translateY(-2px);
 }
+.mode-btn-one-label {
+  font-size: 0.58rem; font-weight: 500;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: rgba(184,134,11,0.7);
+}
+.mode-btn-one-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.8rem, 10vw, 4rem);
+  font-style: italic; font-weight: 300; line-height: 1;
+  color: rgba(184,134,11,1);
+}
+.mode-btn-one-desc {
+  font-size: 0.75rem; font-weight: 300;
+  color: rgba(245,237,216,0.4); line-height: 1.6;
+}
+.mode-btn-one-cta {
+  margin-top: 0.4rem;
+  background: linear-gradient(135deg, #b8860b, #d4a017);
+  border: none; border-radius: 0.5rem;
+  padding: 0.7rem 2.5rem;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.62rem; font-weight: 500;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: #0d0a05; cursor: pointer;
+}
+/* Separador */
+.mode-separator {
+  font-size: 0.65rem; color: rgba(184,134,11,0.4);
+  letter-spacing: 0.1em; font-style: italic;
+}
+/* Bloque 3 días */
 .mode-btn-three {
-  background: rgba(255,248,235,0.03);
-  border-color: rgba(184,134,11,0.12);
+  width: 100%;
+  background: rgba(255,248,235,0.02);
+  border: 1px solid rgba(184,134,11,0.15);
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  cursor: pointer; text-align: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.22s;
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
 }
 .mode-btn-three:hover, .mode-btn-three:active {
-  background: rgba(184,134,11,0.07);
+  background: rgba(184,134,11,0.06);
   border-color: rgba(184,134,11,0.3);
   transform: translateY(-2px);
 }
-.mode-btn-num {
+.mode-btn-three-label {
+  font-size: 0.58rem; font-weight: 500;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: rgba(245,237,216,0.3);
+}
+.mode-btn-three-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(3.2rem, 12vw, 4.5rem);
-  font-weight: 400; font-style: italic; line-height: 1;
-  color: rgba(184,134,11,0.9);
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 300; line-height: 1;
+  color: rgba(245,237,216,0.7);
+  letter-spacing: 0.05em;
 }
-.mode-btn-one .mode-btn-num { color: rgba(184,134,11,1); }
-.mode-btn-day {
+.mode-btn-three-desc {
+  font-size: 0.75rem; font-weight: 300;
+  color: rgba(245,237,216,0.3); line-height: 1.6;
+}
+.mode-btn-three-cta {
+  margin-top: 0.4rem;
+  background: none;
+  border: 1px solid rgba(245,237,216,0.2);
+  border-radius: 0.5rem;
+  padding: 0.65rem 2.5rem;
+  font-family: 'Jost', sans-serif;
   font-size: 0.62rem; font-weight: 500;
-  letter-spacing: 0.2em; text-transform: uppercase;
-  color: rgba(245,237,216,0.35);
-}
-.mode-btn-desc {
-  font-size: 0.7rem; font-weight: 300;
-  color: rgba(245,237,216,0.3); line-height: 1.5;
-  max-width: 120px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(245,237,216,0.45); cursor: pointer;
 }
 .mode-note {
   font-size: 0.65rem; color: rgba(245,237,216,0.15);
@@ -1187,21 +1245,25 @@ body {
 <div class="mode-screen" id="mode-screen" style="display:none">
   <div class="mode-card">
     <img class="mode-logo" src="/images/logo-web.png" alt="Alma">
-    <div class="mode-title">¿Cuántos días<br>quieres dedicarte?</div>
-    <div class="welcome-divider"></div>
+    <div class="mode-title">Todo empieza<br><em>con un primer paso.</em></div>
+    <p class="mode-subtitle">Empieza por donde hoy puedas.</p>
+    <div class="mode-divider"></div>
     <div class="mode-options">
-      <button class="mode-btn mode-btn-one" onclick="chooseMode('beta')">
-        <span class="mode-btn-num">1</span>
-        <span class="mode-btn-day">día</span>
-        <span class="mode-btn-desc">Para probar. Una pregunta, cinco intercambios.</span>
+      <button class="mode-btn-one" onclick="chooseMode('beta')">
+        <span class="mode-btn-one-label">Empieza</span>
+        <span class="mode-btn-one-title">UN DÍA</span>
+        <span class="mode-btn-one-desc">Una pregunta.<br>Cuatro intercambios.<br>Sin presión.</span>
+        <span class="mode-btn-one-cta">Empezar hoy</span>
       </button>
-      <button class="mode-btn mode-btn-three" onclick="chooseMode('full')">
-        <span class="mode-btn-num">3</span>
-        <span class="mode-btn-day">días</span>
-        <span class="mode-btn-desc">La experiencia completa. Con reflejo descargable.</span>
+      <p class="mode-separator">O si prefieres profundizar...</p>
+      <button class="mode-btn-three" onclick="chooseMode('full')">
+        <span class="mode-btn-three-label">Profundiza</span>
+        <span class="mode-btn-three-title">TRES DÍAS</span>
+        <span class="mode-btn-three-desc">La experiencia completa.<br>Con reflejo final.</span>
+        <span class="mode-btn-three-cta">Continuar</span>
       </button>
     </div>
-    <p class="mode-note">Sin prisa. Puedes empezar por donde quieras.</p>
+    <p class="mode-note">Sin prisas. Puedes empezar por donde quieras.</p>
   </div>
 </div>
 
@@ -2155,14 +2217,6 @@ function showFinalButtons() {
   const isLastDay = currentDay >= totalDays - 1;
   const nextLabel = isLastDay ? '✦ Ver mi reflejo' : 'Día siguiente →';
 
-  // Tarjeta del día — se muestra antes del botón
-  const cardWrap = document.createElement('div');
-  cardWrap.className = 'day-card-wrap';
-  cardWrap.innerHTML = `<div class="day-card-loading">Alma está escribiendo...</div>`;
-  container.appendChild(cardWrap);
-  setTimeout(() => cardWrap.scrollIntoView({ behavior: 'smooth', block: 'end' }), 300);
-
-  // Botón siguiente
   const closingDiv = document.createElement('div');
   closingDiv.className = 'day-closing-buttons';
   closingDiv.innerHTML = `
@@ -2171,14 +2225,12 @@ function showFinalButtons() {
     </button>
   `;
   container.appendChild(closingDiv);
+  setTimeout(() => closingDiv.scrollIntoView({ behavior: 'smooth', block: 'end' }), 300);
 
   ['btn-next-m','btn-next-d'].forEach(id => {
     const b = document.getElementById(id);
     if (b) b.classList.add('ready');
   });
-
-  // Generar la frase de Alma
-  generateDayCard(cardWrap);
 }
 
 async function generateDayCard(cardWrap) {
