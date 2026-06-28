@@ -915,6 +915,123 @@ body {
 }
 
 /* ════════════════════════════════
+   PANTALLA PALABRA — transición cinematográfica
+════════════════════════════════ */
+.palabra-screen {
+  position: fixed; inset: 0; z-index: 250;
+  background: #0a0704;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  gap: 2rem;
+}
+.palabra-screen.visible {
+  display: flex;
+  animation: fadeIn 0.8s ease both;
+}
+.palabra-screen.fade-out {
+  animation: fadeOut 0.6s ease both;
+}
+
+.palabra-logo {
+  height: 52px; width: auto;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease 0.3s both;
+  filter: drop-shadow(0 0 20px rgba(184,134,11,0.3));
+}
+
+.palabra-intro {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(0.85rem, 3vw, 1rem);
+  font-weight: 300; font-style: italic;
+  color: rgba(245,237,216,0.45);
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease 0.9s both;
+}
+
+.palabra-contenido {
+  opacity: 0;
+  animation: fadeInUp 1s ease 1.5s both;
+}
+
+.palabra-word {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3.5rem, 14vw, 6.5rem);
+  font-weight: 400;
+  color: #f0c040;
+  letter-spacing: 0.18em;
+  line-height: 1.1;
+  text-shadow:
+    0 0 20px rgba(240,192,64,0.9),
+    0 0 60px rgba(240,192,64,0.5),
+    0 0 120px rgba(240,192,64,0.25);
+}
+
+.palabra-emocion {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  font-weight: 300; font-style: italic;
+  color: #f0c040;
+  line-height: 1.4;
+  max-width: 360px;
+  text-shadow:
+    0 0 20px rgba(240,192,64,0.8),
+    0 0 60px rgba(240,192,64,0.4),
+    0 0 100px rgba(240,192,64,0.2);
+}
+
+.palabra-contradiccion {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.3rem, 4.5vw, 2rem);
+  font-weight: 300; font-style: italic;
+  color: #e8b840;
+  line-height: 1.65;
+  max-width: 380px;
+  text-shadow:
+    0 0 20px rgba(232,184,64,0.7),
+    0 0 50px rgba(232,184,64,0.35);
+}
+
+.palabra-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(0.78rem, 2.5vw, 0.9rem);
+  font-weight: 300; font-style: italic;
+  color: rgba(245,237,216,0.28);
+  letter-spacing: 0.03em;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease 2.2s both;
+}
+
+.palabra-btn {
+  background: none;
+  border: 1px solid rgba(184,134,11,0.25);
+  border-radius: 0.5rem;
+  padding: 0.85rem 2.5rem;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.68rem; font-weight: 400;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(184,134,11,0.6); cursor: pointer;
+  transition: all 0.3s; min-height: 48px;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease 3s both;
+}
+.palabra-btn:hover {
+  border-color: rgba(184,134,11,0.6);
+  color: rgba(184,134,11,0.9);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ════════════════════════════════
    PANTALLA FEEDBACK
 ════════════════════════════════ */
 .feedback-screen {
@@ -1236,7 +1353,176 @@ body {
 .btn-farewell:hover  { background: rgba(232,196,180,0.14); color: var(--rose); border-color: rgba(232,196,180,0.45); }
 .btn-farewell:active { transform: scale(0.97); }
 .btn-farewell.copied { background: rgba(122,163,139,0.15); border-color: var(--sage); color: var(--sage); }
-.btn-farewell svg    { width: 15px; height: 15px; flex-shrink: 0; }</style>
+.btn-farewell svg    { width: 15px; height: 15px; flex-shrink: 0; }
+
+/* ════════════════════════════════
+   BOTÓN TU REFUGIO EN TOPBAR
+════════════════════════════════ */
+.refugio-nav-btn {
+  background: none;
+  border: 1px solid rgba(184,134,11,0.25);
+  border-radius: 100px;
+  padding: 0.3rem 0.85rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.78rem; font-style: italic;
+  color: rgba(184,134,11,0.7);
+  cursor: pointer; transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+.refugio-nav-btn:hover { border-color: rgba(184,134,11,0.5); color: rgba(184,134,11,0.95); }
+
+/* ════════════════════════════════
+   PANTALLA TU REFUGIO
+════════════════════════════════ */
+.refugio-screen {
+  position: fixed; inset: 0; z-index: 280;
+  background: #0a0704;
+  display: none; flex-direction: column;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  animation: fadeIn 0.6s ease both;
+}
+.refugio-screen.visible { display: flex; }
+
+.refugio-header {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; padding: 3rem 1.5rem 2rem; gap: 1rem;
+  border-bottom: 1px solid rgba(184,134,11,0.08); position: relative;
+}
+.refugio-back {
+  position: absolute; top: 1.2rem; left: 1.2rem;
+  background: none; border: none;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.82rem; font-style: italic;
+  color: rgba(245,237,216,0.3); cursor: pointer; padding: 0.4rem;
+  -webkit-tap-highlight-color: transparent; transition: color 0.2s;
+}
+.refugio-back:hover { color: rgba(245,237,216,0.6); }
+.refugio-logo { height: 56px; width: auto; filter: drop-shadow(0 0 20px rgba(184,134,11,0.25)); }
+.refugio-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 6vw, 2.5rem); font-weight: 300; font-style: italic;
+  color: rgba(245,237,216,0.9);
+}
+.refugio-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.88rem; font-weight: 300; font-style: italic;
+  color: rgba(245,237,216,0.3); max-width: 320px; line-height: 1.7;
+}
+
+.refugio-body {
+  max-width: 600px; width: 100%; margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+  display: flex; flex-direction: column; gap: 3.5rem;
+}
+
+.refugio-capitulo-label {
+  font-family: 'Jost', sans-serif; font-size: 0.55rem; font-weight: 500;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: rgba(184,134,11,0.5); margin-bottom: 1.2rem;
+}
+.refugio-seccion-titulo {
+  font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 300;
+  color: rgba(245,237,216,0.5); letter-spacing: 0.04em;
+  padding-bottom: 0.8rem; border-bottom: 1px solid rgba(184,134,11,0.08);
+  margin-bottom: 0.5rem;
+}
+
+/* Frases */
+.refugio-frase-card {
+  padding: 1.2rem 0; border-bottom: 1px solid rgba(245,237,216,0.05);
+  transition: padding-left 0.2s; -webkit-tap-highlight-color: transparent;
+}
+.refugio-frase-card:last-child { border-bottom: none; }
+.refugio-frase-texto {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1rem, 3.5vw, 1.2rem); font-style: italic;
+  color: rgba(245,237,216,0.8); line-height: 1.65; margin-bottom: 0.4rem;
+}
+.refugio-frase-fecha {
+  font-family: 'Jost', sans-serif; font-size: 0.58rem;
+  letter-spacing: 0.12em; color: rgba(184,134,11,0.4); text-transform: uppercase;
+}
+
+/* Reflejos */
+.refugio-reflejo-card {
+  padding: 1.4rem 1.2rem; background: rgba(245,237,216,0.02);
+  border: 1px solid rgba(184,134,11,0.1); border-radius: 0.75rem;
+  cursor: pointer; transition: all 0.2s; margin-bottom: 0.6rem;
+  -webkit-tap-highlight-color: transparent;
+}
+.refugio-reflejo-card:hover { background: rgba(245,237,216,0.04); border-color: rgba(184,134,11,0.2); }
+.refugio-reflejo-titulo {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.05rem;
+  font-style: italic; color: rgba(245,237,216,0.85); margin-bottom: 0.3rem;
+}
+.refugio-reflejo-fecha {
+  font-family: 'Jost', sans-serif; font-size: 0.55rem;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(184,134,11,0.4); margin-bottom: 0.7rem;
+}
+.refugio-reflejo-preview {
+  font-family: 'Cormorant Garamond', serif; font-size: 0.9rem;
+  color: rgba(245,237,216,0.35); font-style: italic; line-height: 1.6;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* Camino */
+.refugio-camino-item {
+  display: flex; gap: 1.2rem; align-items: flex-start;
+  padding: 0.8rem 0; border-bottom: 1px solid rgba(245,237,216,0.04);
+}
+.refugio-camino-item:last-child { border-bottom: none; }
+.refugio-camino-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(184,134,11,0.5); flex-shrink: 0; margin-top: 0.4rem;
+}
+.refugio-camino-fecha {
+  font-family: 'Jost', sans-serif; font-size: 0.62rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: rgba(184,134,11,0.5); margin-bottom: 0.2rem;
+}
+.refugio-camino-desc {
+  font-family: 'Cormorant Garamond', serif; font-size: 0.9rem;
+  font-style: italic; color: rgba(245,237,216,0.4);
+}
+
+/* Modal reflejo completo */
+.refugio-modal {
+  position: fixed; inset: 0; z-index: 290;
+  background: rgba(10,7,4,0.97);
+  display: none; flex-direction: column;
+  overflow-y: auto; padding: 2rem 1.5rem 4rem;
+  animation: fadeIn 0.4s ease both;
+}
+.refugio-modal.visible { display: flex; }
+.refugio-modal-inner { max-width: 560px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.4rem; }
+.refugio-modal-back {
+  background: none; border: none;
+  font-family: 'Cormorant Garamond', serif; font-size: 0.82rem; font-style: italic;
+  color: rgba(245,237,216,0.3); cursor: pointer; padding: 0; align-self: flex-start;
+  -webkit-tap-highlight-color: transparent; transition: color 0.2s; margin-bottom: 0.5rem;
+}
+.refugio-modal-back:hover { color: rgba(245,237,216,0.6); }
+.refugio-modal-titulo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.4rem, 5vw, 1.9rem); font-style: italic; font-weight: 300;
+  color: rgba(245,237,216,0.9);
+}
+.refugio-modal-fecha {
+  font-family: 'Jost', sans-serif; font-size: 0.58rem;
+  letter-spacing: 0.15em; text-transform: uppercase; color: rgba(184,134,11,0.5);
+}
+.refugio-modal-texto {
+  font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+  line-height: 2; color: rgba(245,237,216,0.7); white-space: pre-wrap;
+}
+
+/* Empty */
+.refugio-empty {
+  text-align: center; padding: 2rem 0;
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 0.9rem; color: rgba(245,237,216,0.2); line-height: 1.8;
+}</style>
 
   <!-- pdf-lib incrustada (sin depender de CDN ni CSP) -->
   <script>
@@ -1436,6 +1722,7 @@ body {
     <img src="/images/logo-movil.png" alt="Alma Proyect">
   </div>
   <div class="topbar-right">
+    <button class="refugio-nav-btn" onclick="abrirRefugio()">Tu refugio</button>
     <span class="topbar-date" id="today-date"></span>
     <div class="topbar-avatar">M</div>
   </div>
@@ -2228,6 +2515,16 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
     const entryNow = loadFromLocal(currentDay);
     saveToLocal(currentDay, entryNow?.text || text, entryNow?.emotions || [], almaReply, conversationHistory, currentArrivalMode);
 
+    // Detectar y guardar la frase más potente de esta respuesta en Tu refugio
+    // Guardamos la última pregunta de la respuesta si existe, o la última frase
+    const frasesPotentes = almaReply
+      .split(/[.!?\n]/)
+      .map(f => f.trim())
+      .filter(f => f.length > 15 && f.endsWith('?'));
+    if (frasesPotentes.length > 0) {
+      guardarFraseRefugio(frasesPotentes[frasesPotentes.length - 1] + '?');
+    }
+
     if (isFirstTurn) {
       btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
     }
@@ -2775,7 +3072,8 @@ function showNextIfNewDay() {
 
 function nextDay() {
   if (currentDay >= totalDays - 1) {
-    showFarewell();
+    // Mostrar transición de palabra antes del reflejo
+    mostrarPalabraYReflejo(showFarewell, conversationHistory);
     return;
   }
 
@@ -2852,6 +3150,9 @@ async function showFarewell() {
   trackCompletedExperience();
   checkFeedback();
 
+  // Guardar en el camino
+  guardarCaminoRefugio('Experiencia de tres días completada.');
+
   // Mandar historial completo de cada día para que el reflejo sea más profundo
   const d0 = loadFromLocal(0), d1 = loadFromLocal(1), d2 = loadFromLocal(2);
   const entries = {
@@ -2903,6 +3204,8 @@ async function showFarewell() {
     // Guardar para no volver a llamar — junto con el hash de estas entradas
     if (summaryText) {
       try { localStorage.setItem('alma_farewell', JSON.stringify({ summary: summaryText, entriesHash })); } catch(e) {}
+      // Guardar en Tu refugio
+      guardarReflejoRefugio(summaryText);
     }
 
     if (loadingEl) loadingEl.style.display = 'none';
@@ -3409,7 +3712,7 @@ function showBetaFinalButton() {
   const div = document.createElement('div');
   div.className = 'day-closing-buttons';
   div.innerHTML = `
-    <button class="btn-next ready" onclick="showBetaFarewell()" style="flex:1; min-height:50px;">
+    <button class="btn-next ready" onclick="mostrarPalabraYReflejo(showBetaFarewell, betaHistory)" style="flex:1; min-height:50px;">
       ✦ Ver mi reflejo
     </button>
   `;
@@ -3474,6 +3777,9 @@ async function showBetaFarewell() {
 
     if (summaryText) {
       try { localStorage.setItem('alma_beta_farewell', JSON.stringify({ summary: summaryText })); } catch(e) {}
+      // Guardar en Tu refugio
+      guardarReflejoRefugio(summaryText);
+      guardarCaminoRefugio('Día de prueba completado.');
     }
 
     if (loadingEl) loadingEl.style.display = 'none';
@@ -3544,6 +3850,36 @@ function startFullJourney() {
   trackEvent('beta_to_full', { mode: betaMode });
 }
 
+<!-- TU REFUGIO -->
+<div class="refugio-screen" id="refugio-screen">
+  <div class="refugio-header">
+    <button class="refugio-back" onclick="cerrarRefugio()">← Volver</button>
+    <img class="refugio-logo" src="/images/logo-web.png" alt="Alma">
+    <div class="refugio-title">Tu refugio</div>
+    <div class="refugio-sub">Aquí permanecen los momentos que decidiste vivir contigo.</div>
+  </div>
+  <div class="refugio-body" id="refugio-body"></div>
+</div>
+
+<!-- MODAL REFLEJO COMPLETO -->
+<div class="refugio-modal" id="refugio-modal">
+  <div class="refugio-modal-inner">
+    <button class="refugio-modal-back" onclick="cerrarModalReflejo()">← Volver</button>
+    <div class="refugio-modal-titulo" id="refugio-modal-titulo"></div>
+    <div class="refugio-modal-fecha" id="refugio-modal-fecha"></div>
+    <div class="refugio-modal-texto" id="refugio-modal-texto"></div>
+  </div>
+</div>
+
+<!-- PANTALLA PALABRA — transición cinematográfica -->
+<div class="palabra-screen" id="palabra-screen">
+  <img class="palabra-logo" src="/images/logo-web.png" alt="Alma">
+  <div class="palabra-intro" id="palabra-intro">Si tuviera que resumir este momento<br>en una sola palabra...</div>
+  <div class="palabra-contenido" id="palabra-contenido"></div>
+  <div class="palabra-sub">Quizá merezca la pena detenerse<br>un poco más ahí.</div>
+  <button class="palabra-btn" onclick="continuarAlReflejo()">Continuar</button>
+</div>
+
 <!-- PANTALLA FEEDBACK -->
 <div class="feedback-screen" id="feedback-screen">
   <!-- Formulario -->
@@ -3579,6 +3915,266 @@ function startFullJourney() {
 </div>
 
 <script>
+// ── TU REFUGIO ────────────────────────────────────────────
+
+function abrirRefugio() {
+  renderRefugio();
+  document.getElementById('refugio-screen').classList.add('visible');
+  window.scrollTo({ top: 0 });
+}
+
+function cerrarRefugio() {
+  document.getElementById('refugio-screen').classList.remove('visible');
+}
+
+function cerrarModalReflejo() {
+  document.getElementById('refugio-modal').classList.remove('visible');
+}
+
+function abrirModalReflejo(titulo, fecha, texto) {
+  document.getElementById('refugio-modal-titulo').textContent = titulo;
+  document.getElementById('refugio-modal-fecha').textContent = fecha;
+  document.getElementById('refugio-modal-texto').textContent = texto;
+  document.getElementById('refugio-modal').classList.add('visible');
+}
+
+function fmtFechaRefugio(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+}
+
+function etiquetaCapitulo(iso) {
+  if (!iso) return 'Tu camino';
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = (now - d) / (1000 * 60 * 60 * 24);
+  if (diff < 2) return 'Hoy';
+  if (diff < 8) return 'Hace unos días';
+  if (diff < 30) return 'Este mes';
+  if (diff < 90) return 'Hace unas semanas';
+  return 'El principio';
+}
+
+function generarTituloReflejo(texto) {
+  if (!texto) return 'Un reflejo';
+  // Tomar las primeras palabras significativas
+  const primera = texto.split(/[.!?]/)[0] || texto;
+  const palabras = primera.trim().split(' ').slice(0, 5).join(' ');
+  return palabras.length > 3 ? palabras : 'Un reflejo de tu camino';
+}
+
+function renderRefugio() {
+  const body = document.getElementById('refugio-body');
+  body.innerHTML = '';
+
+  // Recoger datos de localStorage
+  const frases = cargarFrasesRefugio();
+  const reflejos = cargarReflejosRefugio();
+  const camino = cargarCaminoRefugio();
+
+  // ── SECCIÓN 1: Frases que hicieron pensar ──
+  const secFrases = document.createElement('div');
+  const labelFrases = document.createElement('div');
+  labelFrases.className = 'refugio-capitulo-label';
+  labelFrases.textContent = 'Las frases que más te hicieron pensar';
+  secFrases.appendChild(labelFrases);
+
+  if (!frases.length) {
+    const empty = document.createElement('div');
+    empty.className = 'refugio-empty';
+    empty.innerHTML = 'Todavía no hay frases guardadas.<br>Aparecerán cuando termines tu primera experiencia.';
+    secFrases.appendChild(empty);
+  } else {
+    // Agrupar por capítulo
+    const grupos = {};
+    frases.forEach(f => {
+      const cap = etiquetaCapitulo(f.fecha);
+      if (!grupos[cap]) grupos[cap] = [];
+      grupos[cap].push(f);
+    });
+    Object.entries(grupos).forEach(([cap, items]) => {
+      const capLabel = document.createElement('div');
+      capLabel.className = 'refugio-seccion-titulo';
+      capLabel.textContent = cap;
+      secFrases.appendChild(capLabel);
+      items.forEach(f => {
+        const card = document.createElement('div');
+        card.className = 'refugio-frase-card';
+        card.innerHTML = `
+          <div class="refugio-frase-texto">${f.texto}</div>
+          <div class="refugio-frase-fecha">${fmtFechaRefugio(f.fecha)}</div>
+        `;
+        secFrases.appendChild(card);
+      });
+    });
+  }
+  body.appendChild(secFrases);
+
+  // ── SECCIÓN 2: Tus reflejos ──
+  const secReflejos = document.createElement('div');
+  const labelReflejos = document.createElement('div');
+  labelReflejos.className = 'refugio-capitulo-label';
+  labelReflejos.textContent = 'Tus reflejos';
+  secReflejos.appendChild(labelReflejos);
+
+  if (!reflejos.length) {
+    const empty = document.createElement('div');
+    empty.className = 'refugio-empty';
+    empty.innerHTML = 'Todavía no hay reflejos.<br>Aparecerán cuando completes tu primera experiencia.';
+    secReflejos.appendChild(empty);
+  } else {
+    reflejos.forEach(r => {
+      const card = document.createElement('div');
+      card.className = 'refugio-reflejo-card';
+      const titulo = generarTituloReflejo(r.texto);
+      const preview = r.texto?.split('\n').find(p => p.trim()) || '';
+      card.innerHTML = `
+        <div class="refugio-reflejo-titulo">${titulo}</div>
+        <div class="refugio-reflejo-fecha">${fmtFechaRefugio(r.fecha)}</div>
+        <div class="refugio-reflejo-preview">${preview}</div>
+      `;
+      card.onclick = () => abrirModalReflejo(titulo, fmtFechaRefugio(r.fecha), r.texto);
+      secReflejos.appendChild(card);
+    });
+  }
+  body.appendChild(secReflejos);
+
+  // ── SECCIÓN 3: Tu camino ──
+  const secCamino = document.createElement('div');
+  const labelCamino = document.createElement('div');
+  labelCamino.className = 'refugio-capitulo-label';
+  labelCamino.textContent = 'Tu camino';
+  secCamino.appendChild(labelCamino);
+
+  if (!camino.length) {
+    const empty = document.createElement('div');
+    empty.className = 'refugio-empty';
+    empty.innerHTML = 'Tu camino empieza con el primer día.';
+    secCamino.appendChild(empty);
+  } else {
+    camino.forEach(c => {
+      const item = document.createElement('div');
+      item.className = 'refugio-camino-item';
+      item.innerHTML = `
+        <div class="refugio-camino-dot"></div>
+        <div>
+          <div class="refugio-camino-fecha">${fmtFechaRefugio(c.fecha)}</div>
+          <div class="refugio-camino-desc">${c.desc}</div>
+        </div>
+      `;
+      secCamino.appendChild(item);
+    });
+  }
+  body.appendChild(secCamino);
+}
+
+// ── Cargar datos del refugio desde localStorage ──
+
+function cargarFrasesRefugio() {
+  try {
+    return JSON.parse(localStorage.getItem('alma_refugio_frases') || '[]');
+  } catch(e) { return []; }
+}
+
+function cargarReflejosRefugio() {
+  try {
+    return JSON.parse(localStorage.getItem('alma_refugio_reflejos') || '[]');
+  } catch(e) { return []; }
+}
+
+function cargarCaminoRefugio() {
+  try {
+    return JSON.parse(localStorage.getItem('alma_refugio_camino') || '[]');
+  } catch(e) { return []; }
+}
+
+// ── Guardar datos en el refugio ──
+
+function guardarFraseRefugio(texto) {
+  if (!texto || !texto.trim()) return;
+  try {
+    const frases = cargarFrasesRefugio();
+    // No duplicar la misma frase
+    if (frases.some(f => f.texto === texto.trim())) return;
+    frases.unshift({ texto: texto.trim(), fecha: new Date().toISOString() });
+    // Máximo 30 frases
+    localStorage.setItem('alma_refugio_frases', JSON.stringify(frases.slice(0, 30)));
+  } catch(e) {}
+}
+
+function guardarReflejoRefugio(texto) {
+  if (!texto || !texto.trim()) return;
+  try {
+    const reflejos = cargarReflejosRefugio();
+    reflejos.unshift({ texto: texto.trim(), fecha: new Date().toISOString() });
+    localStorage.setItem('alma_refugio_reflejos', JSON.stringify(reflejos.slice(0, 20)));
+  } catch(e) {}
+}
+
+function guardarCaminoRefugio(desc) {
+  if (!desc) return;
+  try {
+    const camino = cargarCaminoRefugio();
+    camino.unshift({ desc, fecha: new Date().toISOString() });
+    localStorage.setItem('alma_refugio_camino', JSON.stringify(camino.slice(0, 50)));
+  } catch(e) {}
+}
+
+// ── PANTALLA PALABRA — transición cinematográfica ─────────
+let _pendingFarewellFn = null; // función del reflejo que se ejecuta al pulsar Continuar
+
+async function mostrarPalabraYReflejo(farewellFn, historial) {
+  // Lanzar las dos llamadas en paralelo — palabra y reflejo
+  _pendingFarewellFn = farewellFn;
+
+  // Mostrar pantalla de transición inmediatamente con fundido
+  const screen = document.getElementById('palabra-screen');
+  screen.classList.add('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Llamar a alma-palabra en paralelo con el reflejo
+  try {
+    const res = await fetch('/.netlify/functions/alma-palabra', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversationHistory: historial }),
+    });
+    const data = await res.json();
+    renderPalabra(data);
+  } catch (e) {
+    renderPalabra({ formato: 'palabra', contenido: 'SILENCIO' });
+  }
+}
+
+function renderPalabra(data) {
+  const contenedor = document.getElementById('palabra-contenido');
+  const intro = document.getElementById('palabra-intro');
+
+  if (data.formato === 'palabra') {
+    intro.innerHTML = 'Si tuviera que resumir este momento<br>en una sola palabra...';
+    contenedor.innerHTML = `<div class="palabra-word">${data.contenido}</div>`;
+  } else if (data.formato === 'emocion') {
+    intro.innerHTML = 'Hoy volviste varias veces a...';
+    contenedor.innerHTML = `<div class="palabra-emocion">${data.contenido}</div>`;
+  } else if (data.formato === 'contradiccion') {
+    intro.innerHTML = 'Hubo algo que apareció hoy y no terminó de resolverse.';
+    contenedor.innerHTML = `<div class="palabra-contradiccion">${data.contenido}</div>`;
+  }
+}
+
+function continuarAlReflejo() {
+  const screen = document.getElementById('palabra-screen');
+  screen.classList.add('fade-out');
+  setTimeout(() => {
+    screen.classList.remove('visible', 'fade-out');
+    // Ejecutar el reflejo
+    if (_pendingFarewellFn) {
+      _pendingFarewellFn();
+      _pendingFarewellFn = null;
+    }
+  }, 600);
+}
+
 // ── FEEDBACK ──────────────────────────────────────────────
 function checkFeedback() {
   try {
