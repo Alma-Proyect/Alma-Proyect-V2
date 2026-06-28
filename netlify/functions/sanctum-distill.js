@@ -48,7 +48,7 @@ exports.handler = async function (event) {
     if (data && data[0] && data[0].data) esenciaAnterior = data[0].data;
   } catch (e) {}
 
-  // Últimas 5 entradas ordenadas por fecha — normalizar campo fecha
+  // Últimas 5 entradas escritas ordenadas por fecha
   const ordenadas = [...entries]
     .sort((a, b) => {
       const da = new Date(a.date || a.created_at || 0).getTime();
@@ -60,6 +60,24 @@ exports.handler = async function (event) {
   const entriesText = ordenadas
     .map((e, i) => `E${i + 1}:${e.content.slice(0, 280)}`)
     .join('\n');
+
+  // Últimas conversaciones del chat de Alma — también alimentan la destilación
+  let conversacionesText = '';
+  try {
+    const { data: convData } = await sbFetch(
+      'sanctum_conversations?select=role,content,is_mirror&order=created_at.desc&limit=30'
+    );
+    if (convData && convData.length > 0) {
+      const convs = [...convData].reverse(); // cronológico
+      conversacionesText = '\n\nConversaciones recientes con Alma:\n' +
+        convs
+          .filter(c => !c.is_mirror) // excluir espejos, solo el diálogo
+          .map(c => `${c.role === 'user' ? 'Guardiana' : 'Alma'}: ${(c.content || '').slice(0, 200)}`)
+          .join('\n');
+    }
+  } catch (e) {
+    console.warn('No se pudieron cargar conversaciones:', e.message);
+  }
 
   const contexto = esenciaAnterior
     ? `Previo:tono="${(esenciaAnterior.tono_central || '').slice(0, 40)}",hilo="${(esenciaAnterior.hilo_conductor || '').slice(0, 40)}".`
@@ -84,7 +102,7 @@ exports.handler = async function (event) {
         messages: [
           {
             role: 'user',
-            content: `${contexto}\nEntradas:\n${entriesText}\n\nCompleta:{"tono_central":"...","sostiene_dolor":"...","valores":["...","...","..."],"nunca":["...","..."],"preguntas":["...","..."],"palabra_semana":"...","hilo_conductor":"..."}`
+            content: `${contexto}\nEntradas escritas:\n${entriesText}${conversacionesText}\n\nCompleta:{"tono_central":"...","sostiene_dolor":"...","valores":["...","...","..."],"nunca":["...","..."],"preguntas":["...","..."],"palabra_semana":"...","hilo_conductor":"..."}`
           },
           {
             role: 'assistant',
