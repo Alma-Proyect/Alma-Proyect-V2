@@ -14,8 +14,15 @@ async function sbFetch(path, opts = {}) {
     },
     body: opts.body || undefined,
   });
-  const text = await res.text();
-  return { ok: res.ok, status: res.status, data: text ? JSON.parse(text) : null };
+  // Protección: Supabase puede devolver body vacío o texto no-JSON
+  let data = null;
+  try {
+    const text = await res.text();
+    if (text && text.trim().startsWith('{') || text.trim().startsWith('[')) {
+      data = JSON.parse(text);
+    }
+  } catch (e) {}
+  return { ok: res.ok, status: res.status, data };
 }
 
 exports.handler = async function (event) {
@@ -41,9 +48,13 @@ exports.handler = async function (event) {
     if (data && data[0] && data[0].data) esenciaAnterior = data[0].data;
   } catch (e) {}
 
-  // Últimas 5 entradas, 280 chars cada una — prioriza sustancia sobre cantidad
+  // Últimas 5 entradas ordenadas por fecha — normalizar campo fecha
   const ordenadas = [...entries]
-    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .sort((a, b) => {
+      const da = new Date(a.date || a.created_at || 0).getTime();
+      const db = new Date(b.date || b.created_at || 0).getTime();
+      return da - db;
+    })
     .slice(-5);
 
   const entriesText = ordenadas
@@ -51,7 +62,7 @@ exports.handler = async function (event) {
     .join('\n');
 
   const contexto = esenciaAnterior
-    ? `Previo:tono="${(esenciaAnterior.tono_central||'').slice(0,40)}",hilo="${(esenciaAnterior.hilo_conductor||'').slice(0,40)}".`
+    ? `Previo:tono="${(esenciaAnterior.tono_central || '').slice(0, 40)}",hilo="${(esenciaAnterior.hilo_conductor || '').slice(0, 40)}".`
     : '';
 
   const totalWords = entries.reduce((sum, e) => sum + (e.words || 0), 0);
@@ -92,27 +103,41 @@ exports.handler = async function (event) {
     claudeText = data.content && data.content[0] ? data.content[0].text : '';
   } catch (e) {
     console.error('Claude error:', e.message);
-    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: e.message }) };
+    return {
+      statusCode: 500,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: e.message })
+    };
   }
 
   // Parse blindado — reconstruye el JSON desde el prefill
   let essenceData;
   try {
-    // Reconstruir JSON completo
     const fullJson = '{"tono_central":"' + claudeText;
 
-    // Buscar el último } válido
-    const lastBrace = fullJson.lastIndexOf('}');
-    if (lastBrace === -1) throw new Error('Sin cierre de JSON');
+    // Intentar parsear el JSON completo primero
+    let candidate = fullJson;
+    try {
+      essenceData = JSON.parse(candidate);
+    } catch (e) {
+      // Si falla, buscar el último } válido y truncar ahí
+      const lastBrace = fullJson.lastIndexOf('}');
+      if (lastBrace === -1) throw new Error('Sin cierre de JSON');
+      candidate = fullJson.slice(0, lastBrace + 1);
+      essenceData = JSON.parse(candidate);
+    }
 
-    const candidate = fullJson.slice(0, lastBrace + 1);
-    essenceData = JSON.parse(candidate);
-
-    // Verificar campos mínimos obligatorios
-    const required = ['tono_central', 'sostiene_dolor', 'valores', 'nunca', 'preguntas', 'palabra_semana', 'hilo_conductor'];
-    for (const field of required) {
-      if (!essenceData[field]) {
-        essenceData[field] = field === 'valores' || field === 'nunca' || field === 'preguntas' ? [] : '—';
+    // Verificar y rellenar campos mínimos obligatorios
+    const arrayFields = ['valores', 'nunca', 'preguntas'];
+    const stringFields = ['tono_central', 'sostiene_dolor', 'palabra_semana', 'hilo_conductor'];
+    for (const field of arrayFields) {
+      if (!essenceData[field] || !Array.isArray(essenceData[field])) {
+        essenceData[field] = [];
+      }
+    }
+    for (const field of stringFields) {
+      if (!essenceData[field] || typeof essenceData[field] !== 'string') {
+        essenceData[field] = '—';
       }
     }
   } catch (e) {
@@ -128,17 +153,37 @@ exports.handler = async function (event) {
   essenceData.count = entries.length;
   essenceData.total_words = totalWords;
 
-  // Guardar en Supabase
-  try { await sbFetch('sanctum_essence?created_at=gte.2000-01-01', { method: 'DELETE' }); } catch (e) {}
+  // Guardar en Supabase — borrar anterior e insertar nueva
   try {
-    await sbFetch('sanctum_essence', { method: 'POST', body: JSON.stringify({ data: essenceData }) });
-  } catch (e) { console.warn('No se pudo guardar:', e.message); }
+    await sbFetch('sanctum_essence?created_at=gte.2000-01-01', { method: 'DELETE' });
+  } catch (e) {
+    console.warn('No se pudo borrar esencia anterior:', e.message);
+  }
+  try {
+    await sbFetch('sanctum_essence', {
+      method: 'POST',
+      body: JSON.stringify({ data: essenceData })
+    });
+  } catch (e) {
+    console.warn('No se pudo guardar esencia:', e.message);
+  }
 
   // Marcar todas las entradas como destiladas en una sola llamada
+  // Los IDs pueden ser UUIDs (strings) o números — los convertimos a string entre comillas
   try {
-    const ids = entries.map(e => e.id).join(',');
-    await sbFetch(`sanctum_entries?id=in.(${ids})`, { method: 'PATCH', body: JSON.stringify({ distilled: true }) });
-  } catch (e) { console.warn('No se pudo marcar como destiladas:', e.message); }
+    const ids = entries
+      .map(e => String(e.id))
+      .filter(Boolean)
+      .join(',');
+    if (ids) {
+      await sbFetch(`sanctum_entries?id=in.(${ids})`, {
+        method: 'PATCH',
+        body: JSON.stringify({ distilled: true })
+      });
+    }
+  } catch (e) {
+    console.warn('No se pudo marcar como destiladas:', e.message);
+  }
 
   return {
     statusCode: 200,
