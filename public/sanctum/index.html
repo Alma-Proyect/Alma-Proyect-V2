@@ -146,7 +146,7 @@ body {
 }
 
 /* ── APP ── */
-#app { display: none; flex: 1; flex-direction: column; min-height: 100dvh; }
+#app { display: none; flex: 1; flex-direction: column; min-height: 100dvh; height: 100dvh; }
 
 /* Nav */
 nav {
@@ -196,6 +196,10 @@ nav {
 /* Views */
 .view { display: none; flex: 1; overflow-y: auto; }
 .view.active { display: flex; flex-direction: column; min-height: 0; }
+
+/* Vista Alma — override de overflow para que el scroll sea interno */
+#view-alma { overflow: hidden; }
+#view-alma.active { overflow: hidden; }
 
 /* ── WRITE ── */
 #view-write {
@@ -697,14 +701,12 @@ nav {
 
 /* ── ALMA CHAT ── */
 #view-alma {
-  display: none;
   flex-direction: column;
   flex: 1;
   max-width: 640px;
   width: 100%;
   margin: 0 auto;
-  height: calc(100dvh - 57px);
-  max-height: calc(100dvh - 57px);
+  min-height: 0;
   overflow: hidden;
   position: relative;
 }
@@ -822,6 +824,7 @@ nav {
   display: flex;
   gap: 0.7rem;
   align-items: flex-end;
+  flex-shrink: 0;
 }
 
 .chat-input {
