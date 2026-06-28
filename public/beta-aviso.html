@@ -13,11 +13,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Antes de empezar — Alma Proyect</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&family=Dancing+Script:wght@600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --cream: #f7f3ee; --warm: #ede8e1; --ink: #2a2520;
+      --cream: #e8e0d5; --warm: #d9d0c4; --ink: #2a2520;
       --ink-soft: #5a524a; --ink-faint: #9a9088;
       --accent: #8b6f5e; --accent-light: #c4a898; --border: #ddd6cd;
     }
@@ -32,9 +32,9 @@
     @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
     .header { text-align: center; margin-bottom: 2.8rem; }
     .badge { display: inline-block; font-family: 'DM Sans', sans-serif; font-size: 0.65rem; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent-light); padding: 0.3rem 0.9rem; border-radius: 100px; margin-bottom: 1.4rem; }
-    h1 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.2; color: var(--ink); margin-bottom: 0.6rem; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(1.2rem, 3vw, 1.6rem); line-height: 1.2; color: var(--ink); margin-bottom: 0.6rem; }
     h1 em { font-style: italic; color: var(--accent); }
-    .subtitle { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.6; max-width: 400px; margin: 0 auto; }
+    .subtitle { font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #8a6020; line-height: 1.4; max-width: 400px; margin: 0 auto; }
     .card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 2rem 2.2rem; margin-bottom: 1.6rem; box-shadow: 0 2px 20px rgba(42,37,32,0.06); }
     .section { margin-bottom: 1.6rem; padding-bottom: 1.6rem; border-bottom: 1px solid var(--warm); }
     .section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
@@ -64,38 +64,22 @@
     <div class="header">
       <div class="badge">Versión Beta</div>
       <h1>Antes de <em>empezar</em></h1>
-      <p class="subtitle">Entiende lo que sientes, no lo hagas sola.</p>
+      <p class="subtitle">Bienvenida a tu refugio.</p>
     </div>
     <div class="card">
-      <div class="section">
-        <div class="section-label">Fase de pruebas</div>
-        <p>Estás accediendo a una versión beta en desarrollo. <strong>No introduzcas tu nombre real, datos identificativos ni información sensible sobre otras personas.</strong> Los datos de esta fase no se conservarán de forma permanente.</p>
-      </div>
-      <div class="section">
-        <div class="section-label">Qué es esto — y qué no es</div>
-        <p>Este es un espacio de <strong>acompañamiento emocional y orden de ideas</strong>, guiado por inteligencia artificial. <strong>No es un servicio de psicología, terapia, coaching ni atención sanitaria</strong>, y no sustituye la atención de un profesional de salud mental.</p>
-        <div class="crisis-box">
-          <p>Si estás atravesando una crisis o necesitas ayuda urgente, contacta con un profesional o llama al <a href="tel:717003717"><strong>Teléfono de la Esperanza: 717 003 717</strong></a> (24h, gratuito).</p>
-        </div>
-      </div>
-      <div class="section">
-        <div class="section-label">Tus textos e inteligencia artificial</div>
-        <p>Los textos que escribas serán procesados por sistemas de inteligencia artificial (<strong>Anthropic / Claude</strong>) para ofrecerte respuestas y preguntas de acompañamiento. No introduces datos reales en esta beta.</p>
-      </div>
-      <div class="section">
-        <div class="section-label">Edad mínima</div>
-        <p>Este servicio está dirigido a <strong>personas mayores de 18 años</strong>.</p>
+      <div class="section" style="margin-bottom:0;padding-bottom:0;border-bottom:none;">
+        <p>Alma no es terapia, coaching, ni sustituye la atención de un profesional de salud mental. Si necesitas atención inmediata llama al <a href="tel:717003717" style="color:var(--accent);text-decoration:none;font-weight:400;"><strong>717 003 717</strong></a> (Teléfono de la Esperanza, 24 horas).</p>
       </div>
     </div>
     <div class="checkbox-area">
       <input type="checkbox" id="acepto" />
-      <label for="acepto">He leído y entiendo las condiciones de esta beta. Sé que no es terapia y no introduciré datos personales reales.</label>
+      <label for="acepto">Lo entiendo.</label>
     </div>
     <button class="btn" id="btnEntrar" disabled onclick="entrar()">
       Entrar al espacio →
     </button>
     <p class="foot-note">
-      Beta cerrada <span></span> Solo mayores de 18 años <span></span> No es terapia <span></span> <a href="privacidad.html">Privacidad</a>
+      Solo mayores de 18 años <span></span> No es terapia <span></span> <a href="privacidad.html">Privacidad</a>
     </p>
   </div>
   <script>
