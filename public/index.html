@@ -426,90 +426,58 @@ body {
 .dot-pending { background: var(--warm); color: var(--muted); border: 1.5px dashed rgba(154,136,128,0.4); }
 
 /* Botones de cierre al final de la conversación */
-/* ── TARJETA DEL DÍA ── */
-.day-card-wrap {
+/* ── FRASE DEL DÍA — bloque de texto antes del botón siguiente ── */
+.day-frase-wrap {
   width: 100%;
+  animation: slideUp 0.6s ease both;
+  margin-top: 1.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.day-frase-block {
+  background: var(--surface);
+  border: 1px solid rgba(168,107,80,0.15);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 1rem 1rem 0;
+  padding: 1.4rem 1.6rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.9rem;
-  margin-top: 1.2rem;
-  margin-bottom: 0.5rem;
-  animation: slideUp 0.5s ease both;
+  gap: 0.6rem;
 }
 
-.day-card {
-  position: relative;
-  width: 100%;
-  max-width: 320px;
-  aspect-ratio: 9/16;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-}
-
-.day-card img.day-card-bg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.day-card-frase-zona {
-  position: absolute;
-  top: 33%;
-  left: 28%;
-  width: 52%;
-  height: 38%;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 0.5rem;
-}
-
-.day-card-frase {
-  font-family: 'Dancing Script', 'Brush Script MT', cursive;
-  font-size: clamp(0.95rem, 2.8vw, 1.2rem);
-  font-weight: 700;
-  color: #8a6020;
-  line-height: 1.85;
-  text-align: center;
-  transform: rotate(-0.5deg);
-}
-
-.day-card-loading {
-  width: 100%;
-  max-width: 320px;
-  aspect-ratio: 9/16;
-  border-radius: 12px;
-  background: rgba(0,0,0,0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 0.88rem;
-  color: var(--muted);
-}
-
-.btn-download-card {
-  background: none;
-  border: 1.5px solid var(--clay);
-  color: var(--clay);
-  border-radius: 8px;
-  padding: 0.7rem 1.4rem;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 0.88rem;
-  letter-spacing: 0.06em;
-  cursor: pointer;
+.day-frase-label {
+  font-size: 0.52rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.2s;
-  -webkit-tap-highlight-color: transparent;
 }
-.btn-download-card:hover { background: var(--clay); color: #fff; }
-.btn-download-card:active { transform: scale(0.97); }
+
+.day-frase-label::before {
+  content: '✦';
+  font-size: 0.5rem;
+}
+
+.day-frase-texto {
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(1.15rem, 4vw, 1.4rem);
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.7;
+}
+
+.day-frase-loading {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--muted);
+  padding: 1rem 0;
+}
+
+
 
 .day-closing-buttons {
   display: flex;
@@ -1252,14 +1220,14 @@ body {
       <button class="mode-btn-one" onclick="chooseMode('beta')">
         <span class="mode-btn-one-label">Empieza</span>
         <span class="mode-btn-one-title">UN DÍA</span>
-        <span class="mode-btn-one-desc">Una pregunta.<br>Cuatro intercambios.<br>Sin presión.</span>
+        <span class="mode-btn-one-desc">Una pregunta.<br>Cuatro intercambios.<br>Empieza a escucharte.</span>
         <span class="mode-btn-one-cta">Empezar hoy</span>
       </button>
       <p class="mode-separator">O si prefieres profundizar...</p>
       <button class="mode-btn-three" onclick="chooseMode('full')">
-        <span class="mode-btn-three-label">Profundiza</span>
+        <span class="mode-btn-three-label">Continúa</span>
         <span class="mode-btn-three-title">TRES DÍAS</span>
-        <span class="mode-btn-three-desc">La experiencia completa.<br>Con reflejo final.</span>
+        <span class="mode-btn-three-desc">Más tiempo. Más preguntas.<br>Empieza a poner orden en el caos.</span>
         <span class="mode-btn-three-cta">Continuar</span>
       </button>
     </div>
@@ -2217,6 +2185,19 @@ function showFinalButtons() {
   const isLastDay = currentDay >= totalDays - 1;
   const nextLabel = isLastDay ? '✦ Ver mi reflejo' : 'Día siguiente →';
 
+  // Bloque de frase de Alma
+  const fraseWrap = document.createElement('div');
+  fraseWrap.className = 'day-frase-wrap';
+  fraseWrap.innerHTML = `
+    <div class="day-frase-block">
+      <div class="day-frase-label">Lo que Alma vio hoy en ti</div>
+      <div class="day-frase-loading">Alma está escribiendo...</div>
+    </div>
+  `;
+  container.appendChild(fraseWrap);
+  setTimeout(() => fraseWrap.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+
+  // Botón siguiente
   const closingDiv = document.createElement('div');
   closingDiv.className = 'day-closing-buttons';
   closingDiv.innerHTML = `
@@ -2225,12 +2206,43 @@ function showFinalButtons() {
     </button>
   `;
   container.appendChild(closingDiv);
-  setTimeout(() => closingDiv.scrollIntoView({ behavior: 'smooth', block: 'end' }), 300);
 
   ['btn-next-m','btn-next-d'].forEach(id => {
     const b = document.getElementById(id);
     if (b) b.classList.add('ready');
   });
+
+  // Generar la frase
+  generarFraseDia(fraseWrap);
+}
+
+async function generarFraseDia(fraseWrap) {
+  try {
+    const res = await fetch('/.netlify/functions/day-card', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        conversationHistory,
+        day: currentDay + 1,
+        arrivalMode: currentArrivalMode,
+        plan: 'free',
+      }),
+    });
+
+    const data = await res.json();
+    const frase = data.frase || 'Hoy vi a alguien que llegó aunque podría no haberlo hecho.';
+
+    fraseWrap.querySelector('.day-frase-block').innerHTML = `
+      <div class="day-frase-label">Lo que Alma vio hoy en ti</div>
+      <div class="day-frase-texto">${frase}</div>
+    `;
+
+  } catch (e) {
+    fraseWrap.querySelector('.day-frase-block').innerHTML = `
+      <div class="day-frase-label">Lo que Alma vio hoy en ti</div>
+      <div class="day-frase-texto">Hoy vi a alguien que llegó aunque podría no haberlo hecho.</div>
+    `;
+  }
 }
 
 async function generateDayCard(cardWrap) {
