@@ -915,6 +915,137 @@ body {
 }
 
 /* ════════════════════════════════
+   PANTALLA FEEDBACK
+════════════════════════════════ */
+.feedback-screen {
+  position: fixed; inset: 0; z-index: 300;
+  background: #0d0a05;
+  display: none; align-items: center; justify-content: center;
+  padding: 2rem 1.5rem;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  animation: fadeIn 0.8s ease both;
+}
+.feedback-screen.visible { display: flex; }
+
+.feedback-card {
+  max-width: 420px; width: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; gap: 1.8rem;
+  padding-bottom: 2rem;
+}
+
+.feedback-logo {
+  height: 56px; width: auto;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 20px rgba(184,134,11,0.3));
+}
+
+.feedback-pre {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 300; font-style: italic;
+  color: rgba(245,237,216,0.9);
+  line-height: 1.3;
+}
+
+.feedback-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem; font-weight: 300;
+  color: #938979; line-height: 1.9;
+  max-width: 340px;
+}
+
+.feedback-question {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.1rem, 4vw, 1.35rem);
+  font-style: italic; font-weight: 400;
+  color: rgba(184,134,11,0.9);
+  line-height: 1.5;
+  padding: 0 1rem;
+  border-left: 2px solid rgba(184,134,11,0.3);
+  text-align: left;
+  width: 100%;
+}
+
+.feedback-textarea {
+  width: 100%;
+  min-height: 110px;
+  background: rgba(245,237,216,0.04);
+  border: 1px solid rgba(184,134,11,0.15);
+  border-radius: 0.5rem;
+  padding: 1rem 1.2rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem; line-height: 1.7;
+  color: rgba(245,237,216,0.85);
+  resize: none; outline: none;
+  -webkit-appearance: none;
+  transition: border-color 0.2s;
+}
+.feedback-textarea:focus { border-color: rgba(184,134,11,0.35); }
+.feedback-textarea::placeholder { color: #938979; font-style: italic; }
+
+.feedback-actions {
+  width: 100%;
+  display: flex; flex-direction: column; gap: 0.75rem;
+}
+
+.feedback-btn-send {
+  width: 100%;
+  background: rgba(184,134,11,0.1);
+  border: 1px solid rgba(184,134,11,0.4);
+  border-radius: 0.5rem;
+  padding: 0.95rem;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.75rem; font-weight: 500;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(184,134,11,0.9); cursor: pointer;
+  transition: all 0.2s;
+  min-height: 48px;
+  -webkit-tap-highlight-color: transparent;
+}
+.feedback-btn-send:hover { background: rgba(184,134,11,0.18); }
+.feedback-btn-send:active { transform: scale(0.98); }
+
+.feedback-btn-skip {
+  width: 100%;
+  background: none; border: none;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.88rem; font-style: italic;
+  color: #938979; cursor: pointer;
+  padding: 0.5rem;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s;
+}
+.feedback-btn-skip:hover { color: rgba(245,237,216,0.5); }
+
+/* Pantalla de gracias */
+.feedback-thanks {
+  display: none;
+  flex-direction: column; align-items: center;
+  text-align: center; gap: 1.6rem;
+  max-width: 380px; width: 100%;
+}
+.feedback-thanks.visible { display: flex; }
+.feedback-thanks-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem; font-weight: 300;
+  color: rgba(245,237,216,0.7); line-height: 1.9;
+}
+.feedback-btn-back {
+  background: none;
+  border: 1px solid rgba(184,134,11,0.25);
+  border-radius: 0.5rem;
+  padding: 0.85rem 2rem;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.7rem; font-weight: 400;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(184,134,11,0.7); cursor: pointer;
+  transition: all 0.2s; min-height: 48px;
+  -webkit-tap-highlight-color: transparent;
+}
+.feedback-btn-back:hover { border-color: rgba(184,134,11,0.5); color: rgba(184,134,11,0.9); }
+
+/* ════════════════════════════════
    PANTALLA LLEGADA BETA
 ════════════════════════════════ */
 .beta-arrival-screen {
@@ -2717,6 +2848,10 @@ function nextDay() {
 // =======================
 
 async function showFarewell() {
+  // Registrar experiencia completada y comprobar si mostrar feedback
+  trackCompletedExperience();
+  checkFeedback();
+
   // Mandar historial completo de cada día para que el reflejo sea más profundo
   const d0 = loadFromLocal(0), d1 = loadFromLocal(1), d2 = loadFromLocal(2);
   const entries = {
@@ -3010,6 +3145,9 @@ function init() {
     setMobileButtons(false);
   }
 
+  // Registrar día de uso
+  trackUsageDay();
+
   // Todo configurado — hacer visible el body ahora sin flash
   document.body.style.visibility = 'visible';
 
@@ -3281,6 +3419,10 @@ function showBetaFinalButton() {
 
 // Pantalla de cierre beta
 async function showBetaFarewell() {
+  // Registrar experiencia completada y comprobar si mostrar feedback
+  trackCompletedExperience();
+  checkFeedback();
+
   const screen = document.getElementById('beta-farewell-screen');
   if (screen) screen.classList.add('visible');
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3400,6 +3542,130 @@ function startFullJourney() {
   if (welcomeScreen) welcomeScreen.style.display = 'flex';
 
   trackEvent('beta_to_full', { mode: betaMode });
+}
+
+<!-- PANTALLA FEEDBACK -->
+<div class="feedback-screen" id="feedback-screen">
+  <!-- Formulario -->
+  <div class="feedback-card" id="feedback-form">
+    <img class="feedback-logo" src="/images/logo-web.png" alt="Alma">
+    <div class="feedback-pre">Antes de irte...</div>
+    <p class="feedback-body">
+      Llevamos unos días caminando juntas.<br>
+      Me gustaría hacerte una pregunta.<br>
+      No para valorar Alma.<br>
+      Sino para seguir construyendo un espacio<br>que realmente te acompañe.
+    </p>
+    <div class="feedback-question">
+      ¿Qué es lo que más te está aportando Alma?
+    </div>
+    <textarea class="feedback-textarea" id="feedback-text"
+      placeholder="Escribe solo si te apetece..."
+      rows="4"></textarea>
+    <div class="feedback-actions">
+      <button class="feedback-btn-send" onclick="sendFeedback()">Enviar</button>
+      <button class="feedback-btn-skip" onclick="skipFeedback()">Ahora no</button>
+    </div>
+  </div>
+  <!-- Gracias -->
+  <div class="feedback-thanks" id="feedback-thanks">
+    <img class="feedback-logo" src="/images/logo-web.png" alt="Alma">
+    <p class="feedback-thanks-text">
+      Gracias por confiar en este espacio.<br><br>
+      Cada palabra que compartís nos ayuda a cuidar mejor este refugio.
+    </p>
+    <button class="feedback-btn-back" onclick="closeFeedback()">Volver a Alma</button>
+  </div>
+</div>
+
+<script>
+// ── FEEDBACK ──────────────────────────────────────────────
+function checkFeedback() {
+  try {
+    // Ver si ya la mostró recientemente
+    const fb = JSON.parse(localStorage.getItem('alma_feedback') || '{}');
+    const now = Date.now();
+
+    if (fb.sentAt && now - fb.sentAt < 30 * 24 * 60 * 60 * 1000) return; // 30 días tras enviar
+    if (fb.skippedAt && now - fb.skippedAt < 7 * 24 * 60 * 60 * 1000) return;  // 7 días tras saltar
+
+    // Contar experiencias completadas
+    const completedExperiences = parseInt(localStorage.getItem('alma_completed_count') || '0');
+
+    // Contar días únicos de uso
+    const usageDays = JSON.parse(localStorage.getItem('alma_usage_days') || '[]');
+
+    const conditionMet = completedExperiences >= 3 || usageDays.length >= 7;
+    if (!conditionMet) return;
+
+    // Mostrar con pequeño delay para no interrumpir
+    setTimeout(() => {
+      document.getElementById('feedback-screen').classList.add('visible');
+    }, 1200);
+
+  } catch(e) {}
+}
+
+function trackUsageDay() {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const days = JSON.parse(localStorage.getItem('alma_usage_days') || '[]');
+    if (!days.includes(today)) {
+      days.push(today);
+      localStorage.setItem('alma_usage_days', JSON.stringify(days));
+    }
+  } catch(e) {}
+}
+
+function trackCompletedExperience() {
+  try {
+    const count = parseInt(localStorage.getItem('alma_completed_count') || '0');
+    localStorage.setItem('alma_completed_count', String(count + 1));
+  } catch(e) {}
+}
+
+async function sendFeedback() {
+  const text = document.getElementById('feedback-text').value.trim();
+
+  if (text) {
+    try {
+      await fetch('/.netlify/functions/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text }),
+      });
+    } catch(e) {
+      console.warn('Error enviando feedback:', e);
+    }
+    try {
+      localStorage.setItem('alma_feedback', JSON.stringify({ sentAt: Date.now() }));
+    } catch(e) {}
+  } else {
+    // Sin texto — tratar como skip
+    skipFeedback();
+    return;
+  }
+
+  // Mostrar gracias
+  document.getElementById('feedback-form').style.display = 'none';
+  document.getElementById('feedback-thanks').classList.add('visible');
+}
+
+function skipFeedback() {
+  try {
+    localStorage.setItem('alma_feedback', JSON.stringify({ skippedAt: Date.now() }));
+  } catch(e) {}
+  closeFeedback();
+}
+
+function closeFeedback() {
+  document.getElementById('feedback-screen').classList.remove('visible');
+  // Resetear el formulario para próximas veces
+  setTimeout(() => {
+    document.getElementById('feedback-form').style.display = '';
+    document.getElementById('feedback-thanks').classList.remove('visible');
+    document.getElementById('feedback-text').value = '';
+  }, 400);
 }
 
 document.addEventListener('DOMContentLoaded', init);
