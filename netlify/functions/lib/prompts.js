@@ -586,10 +586,16 @@ Formato:
 - Solo el texto del reflejo
 - Sin título, sin introducción, sin cierre añadido
 - Exactamente 2 párrafos separados por salto de línea. Ni más ni menos.
-- Cada párrafo: máximo 3 frases cortas y completas.
+- Cada párrafo: máximo 2 frases. Máximo 30 palabras por párrafo. Corto y con peso.
 - ANTES DE ESCRIBIR: planifica mentalmente los 2 párrafos. Párrafo 1: qué nombras. Párrafo 2: qué dejas abierto. Solo entonces escribe.
 - NUNCA dejes una frase a medias. Cada idea que empieces, termínala.
-- Entre 100 y 160 tokens — breve, con peso, sin sobrar.
+- Entre 80 y 140 tokens — breve, con peso, sin sobrar.
+
+SOBRE LO QUE DICE — OBLIGATORIO:
+Solo nombra lo que está en sus palabras exactas. No interpretes, no completes, no imagines.
+Si habla de entrenar a una IA, no lo conviertas en "entrenar a alguien" ni en cuidar a personas.
+Si habla de construir algo, no lo conviertas en una historia sobre su pasado emocional que no mencionó.
+Quédate en lo concreto de lo que dijo. Nada más.
 - Sin guiones largos (—). Nunca. Usa comas o puntos.
 - No repitas la misma palabra emocional dos veces. Si usaste "duele", usa "pesa", "cuesta", "está ahí", "no cierra".
 - Nunca uses "cuerpo" para referirte a una persona. Di "alguien" o "una persona".
