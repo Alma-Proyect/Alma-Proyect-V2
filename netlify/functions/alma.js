@@ -69,7 +69,7 @@ exports.handler = async function (event) {
     let essence = null;
     try {
       const essController = new AbortController();
-      const essTimeout = setTimeout(() => essController.abort(), 1200);
+      const essTimeout = setTimeout(() => essController.abort(), 800);
       const essRes = await fetch(`${process.env.URL}/.netlify/functions/sanctum-essence`, {
         signal: essController.signal,
       });
@@ -90,18 +90,11 @@ exports.handler = async function (event) {
       plan: plan || "free",
     });
 
-    // Post-procesado: eliminar guiones largos que el modelo sigue usando
-    const cleanResponse = response
-      .replace(/ — /g, ', ')
-      .replace(/— /g, ', ')
-      .replace(/ —/g, ',')
-      .replace(/—/g, ',');
-
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        response: cleanResponse,
+        response,
         isLastTurn,
         turnsLeft: MAX_TURNS_PER_DAY - currentTurn,
       }),
