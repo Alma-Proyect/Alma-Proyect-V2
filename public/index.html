@@ -2645,6 +2645,17 @@ function showFinalButtons() {
 }
 
 async function generarFraseDia(fraseWrap) {
+  const fallback = 'Hoy vi a alguien que llegó aunque podría no haberlo hecho.';
+
+  const mostrarFrase = (frase) => {
+    const block = fraseWrap.querySelector('.day-frase-block');
+    if (!block) return;
+    block.innerHTML = `
+      <div class="day-frase-label">Lo que Alma vio hoy en ti</div>
+      <div class="day-frase-texto">${frase}</div>
+    `;
+  };
+
   try {
     const res = await fetch('/.netlify/functions/day-card', {
       method: 'POST',
@@ -2658,18 +2669,10 @@ async function generarFraseDia(fraseWrap) {
     });
 
     const data = await res.json();
-    const frase = data.frase || 'Hoy vi a alguien que llegó aunque podría no haberlo hecho.';
-
-    fraseWrap.querySelector('.day-frase-block').innerHTML = `
-      <div class="day-frase-label">Lo que Alma vio hoy en ti</div>
-      <div class="day-frase-texto">${frase}</div>
-    `;
+    mostrarFrase(data.frase || fallback);
 
   } catch (e) {
-    fraseWrap.querySelector('.day-frase-block').innerHTML = `
-      <div class="day-frase-label">Lo que Alma vio hoy en ti</div>
-      <div class="day-frase-texto">Hoy vi a alguien que llegó aunque podría no haberlo hecho.</div>
-    `;
+    mostrarFrase(fallback);
   }
 }
 
