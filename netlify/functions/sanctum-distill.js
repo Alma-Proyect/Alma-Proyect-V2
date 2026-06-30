@@ -88,8 +88,17 @@ exports.handler = async function (event) {
     console.warn('No se pudieron cargar conversaciones:', e.message);
   }
 
+  const etapasPrevias = (esenciaAnterior && Array.isArray(esenciaAnterior.etapas))
+    ? esenciaAnterior.etapas
+    : [];
+
+  const etapasTexto = etapasPrevias.length
+    ? `\n\nEtapas vitales ya registradas (memoria acumulada, no las borres ni las repitas si siguen vigentes):\n` +
+      etapasPrevias.map((et, i) => `${i + 1}. ${et.nombre}: ${et.aprendizaje}`).join('\n')
+    : '';
+
   const contexto = esenciaAnterior
-    ? `Previo:tono="${(esenciaAnterior.tono_central || '').slice(0, 40)}",hilo="${(esenciaAnterior.hilo_conductor || '').slice(0, 40)}".`
+    ? `Retrato anterior (núcleo a integrar, no a descartar): tono="${(esenciaAnterior.tono_central || '').slice(0, 40)}", hilo="${(esenciaAnterior.hilo_conductor || '').slice(0, 40)}".`
     : '';
 
   const totalWords = entries.reduce((sum, e) => sum + (e.words || 0), 0);
@@ -115,12 +124,12 @@ exports.handler = async function (event) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 280,
-        system: 'Destilador de voz. Completa el JSON. Valores de 5 palabras máximo. Solo JSON, sin markdown.',
+        max_tokens: 480,
+        system: 'Destilador de voz emocional acumulativa. Tu trabajo tiene dos partes. PARTE 1, el núcleo (tono_central, sostiene_dolor, hilo_conductor): integra lo nuevo con el retrato anterior, no lo sustituyas ni lo repitas igual, fusiona ambos en una síntesis más completa que ninguno de los dos por separado. PARTE 2, las etapas: es una lista que SOLO CRECE. Copia tal cual cada etapa ya registrada que recibas. Si lo nuevo que escribió o habló corresponde a un momento vital o emocional ya registrado, deja esa etapa igual o ligeramente más precisa, pero no la borres. Si lo nuevo es un momento vital genuinamente distinto a todos los registrados, añade una etapa nueva al final del array, nunca elimines ni sustituyas etapas previas. Cada etapa: nombre corto (3-6 palabras) y aprendizaje (una frase, qué responde Alma bien en ese momento vital). Máximo 6 etapas en total — si ya hay 6, funde la más antigua con la más parecida a la nueva en vez de superar el límite. Completa el JSON. Solo JSON, sin markdown.',
         messages: [
           {
             role: 'user',
-            content: `${contexto}\nEntradas escritas:\n${entriesText}${conversacionesText}\n\nCompleta:{"tono_central":"...","sostiene_dolor":"...","valores":["...","...","..."],"nunca":["...","..."],"preguntas":["...","..."],"palabra_semana":"...","hilo_conductor":"..."}`
+            content: `${contexto}${etapasTexto}\n\nLO QUE ESCRIBIÓ Y HABLÓ AHORA:\n${entriesText}${conversacionesText}\n\nCompleta:{"tono_central":"...","sostiene_dolor":"...","valores":["...","...","..."],"nunca":["...","..."],"preguntas":["...","..."],"palabra_semana":"...","hilo_conductor":"...","etapas":[{"nombre":"...","aprendizaje":"..."}]}`
           },
           {
             role: 'assistant',
@@ -177,6 +186,19 @@ exports.handler = async function (event) {
       if (!essenceData[field] || typeof essenceData[field] !== 'string') {
         essenceData[field] = '—';
       }
+    }
+
+    // Etapas: si el modelo no devolvió un array válido (por ejemplo si se
+    // truncó antes de llegar a ese campo), nunca perdemos las que ya había.
+    // La memoria acumulada es justo lo que no se puede permitir perder.
+    if (!Array.isArray(essenceData.etapas) || essenceData.etapas.length === 0) {
+      essenceData.etapas = etapasPrevias;
+    } else {
+      // Filtrar entradas mal formadas dentro del array, sin descartar el resto
+      essenceData.etapas = essenceData.etapas.filter(
+        et => et && typeof et.nombre === 'string' && typeof et.aprendizaje === 'string'
+      );
+      if (essenceData.etapas.length === 0) essenceData.etapas = etapasPrevias;
     }
   } catch (e) {
     console.error('JSON parse error:', e.message, '| Raw:', claudeText.slice(0, 200));

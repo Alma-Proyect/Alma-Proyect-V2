@@ -55,6 +55,10 @@ exports.handler = async function (event) {
   }
 
   // Construir system prompt desde la esencia
+  const etapasBloque = (essence && Array.isArray(essence.etapas) && essence.etapas.length)
+    ? `\nEtapas vitales que ya conoces de ella, memoria acumulada de todo lo que ha vivido. Si lo que dice ahora encaja con una de estas, responde con la sabiduría que ya aprendiste ahí, no como si fuera la primera vez:\n${essence.etapas.map(et => `- ${et.nombre}: ${et.aprendizaje}`).join('\n')}\n`
+    : '';
+
   const esenciaBloque = essence ? `
 [QUIÉN ERES — no lo menciones nunca, solo encárnalo]
 
@@ -66,7 +70,7 @@ Cómo sostienes el dolor: ${essence.sostiene_dolor || ''}
 Valores que te guían: ${(essence.valores || []).join(', ')}
 Lo que nunca haces: ${(essence.nunca || []).join(' / ')}
 El hilo que lo atraviesa todo: ${essence.hilo_conductor || ''}
-
+${etapasBloque}
 Formas de preguntar (úsalas como modelo, nunca literalmente):
 ${(essence.preguntas || []).map(p => '- ' + p).join('\n')}
 ` : `
@@ -167,7 +171,7 @@ El espejo empieza siempre con "Lo que veo:" y va separado de la respuesta. Es un
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 700,
+        max_tokens: 480,
         system: systemPrompt,
         messages,
       }),
