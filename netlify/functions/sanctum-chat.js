@@ -6,21 +6,30 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
 async function sbFetch(path, opts = {}) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    method: opts.method || 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Prefer': opts.prefer || 'return=minimal',
-    },
-    body: opts.body || undefined,
-  });
-  const text = await res.text();
-  return { ok: res.ok, status: res.status, data: text ? JSON.parse(text) : null };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 2500);
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      method: opts.method || 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': opts.prefer || 'return=minimal',
+      },
+      body: opts.body || undefined,
+      signal: controller.signal,
+    });
+    const text = await res.text();
+    return { ok: res.ok, status: res.status, data: text ? JSON.parse(text) : null };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 exports.handler = async function (event) {
+  const startTime = Date.now();
+
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
@@ -137,11 +146,17 @@ El espejo empieza siempre con "Lo que veo:" y va separado de la respuesta. Es un
   ];
 
   // Llamada a Claude
+  // Presupuesto total: Netlify mata la función a los 10s. Reservamos margen
+  // para parsear y devolver, y restamos lo que ya se gastó cargando la esencia.
   let claudeText = '';
   let truncated = false;
   try {
+    const elapsed = Date.now() - startTime;
+    const remaining = 9300 - elapsed; // colchón de 700ms para el resto del proceso
+    const claudeTimeout = Math.max(remaining, 3000); // nunca menos de 3s, aunque vaya muy justo
+
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 9000);
+    const timeout = setTimeout(() => controller.abort(), claudeTimeout);
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
