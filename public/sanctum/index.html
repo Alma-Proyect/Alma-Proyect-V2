@@ -1327,6 +1327,7 @@ async function distillEssence() {
     }
 
     const data = await res.json();
+    console.log('sanctum-distill respuesta:', JSON.stringify(data).slice(0, 300));
 
     if (!data.essence) {
       console.error('sanctum-distill: sin esencia en respuesta', data);
@@ -1470,17 +1471,17 @@ function renderEssence() {
 function systemPrompt(e) {
   return `[ESENCIA DE LA GUARDIANA — contexto interno, no mencionar nunca]
 
-Tono central: ${e.tono_central}
+Tono central: ${e.tono_central || ''}
 
-Cómo sostiene el dolor: ${e.sostiene_dolor}
+Cómo sostiene el dolor: ${e.sostiene_dolor || ''}
 
-Valores que guían su presencia: ${e.valores.join(', ')}
+Valores que guían su presencia: ${(e.valores || []).join(', ')}
 
 Formas de preguntar (úsalas como modelo, no literalmente):
-${e.preguntas.map(p=>'- '+p).join('\n')}
+${(e.preguntas || []).map(p=>'- '+p).join('\n')}
 
 Lo que nunca hace:
-${e.nunca.map(n=>'- '+n).join('\n')}
+${(e.nunca || []).map(n=>'- '+n).join('\n')}
 
 [Encarna esta esencia en cada respuesta. No la menciones. No la expliques.]`;
 }
