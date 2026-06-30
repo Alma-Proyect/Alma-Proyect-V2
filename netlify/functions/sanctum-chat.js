@@ -138,6 +138,7 @@ El espejo empieza siempre con "Lo que veo:" y va separado de la respuesta. Es un
 
   // Llamada a Claude
   let claudeText = '';
+  let truncated = false;
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 9000);
@@ -151,7 +152,7 @@ El espejo empieza siempre con "Lo que veo:" y va separado de la respuesta. Es un
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 600,
+        max_tokens: 700,
         system: systemPrompt,
         messages,
       }),
@@ -166,6 +167,10 @@ El espejo empieza siempre con "Lo que veo:" y va separado de la respuesta. Es un
 
     const data = await res.json();
     claudeText = data.content && data.content[0] ? data.content[0].text : '';
+    truncated = data.stop_reason === 'max_tokens';
+    if (truncated) {
+      console.warn('sanctum-chat: respuesta truncada por max_tokens. Final:', claudeText.slice(-80));
+    }
   } catch (e) {
     console.error('Claude error:', e.message);
     return {
@@ -175,29 +180,60 @@ El espejo empieza siempre con "Lo que veo:" y va separado de la respuesta. Es un
     };
   }
 
+  // Recorta un texto rescatado hasta el último signo de cierre de frase,
+  // para no dejar una palabra a medias cuando la respuesta venía truncada.
+  function trimToLastSentence(text) {
+    if (!text) return text;
+    const lastPunct = Math.max(
+      text.lastIndexOf('.'),
+      text.lastIndexOf('?'),
+      text.lastIndexOf('!')
+    );
+    if (lastPunct === -1) return text;
+    return text.slice(0, lastPunct + 1);
+  }
+
   // Parse del JSON de respuesta
   let parsed;
   try {
     const clean = claudeText.replace(/```json|```/g, '').trim();
     parsed = JSON.parse(clean);
   } catch (e) {
-    // Intentar extraer respuesta del JSON mal formado
-    try {
-      const match = claudeText.match(/"respuesta"\s*:\s*"([\s\S]*?)"\s*,?\s*"espejo"/);
-      if (match) {
-        const respuestaRaw = match[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
-        parsed = { respuesta: respuestaRaw, espejo: null };
-      } else {
-        // Último recurso: devolver texto limpio sin el JSON
-        const textoLimpio = claudeText
-          .replace(/\{[\s\S]*"respuesta"[\s\S]*\}/g, '')
-          .replace(/^\s*[\{\}]\s*$/gm, '')
-          .trim();
-        parsed = { respuesta: textoLimpio || claudeText, espejo: null };
-      }
-    } catch (e2) {
-      parsed = { respuesta: claudeText, espejo: null };
+    // JSON incompleto o mal formado. Intentamos rescatar el contenido de "respuesta"
+    // tanto si el cierre ("espejo", llave final) está presente como si no.
+    let respuestaRaw = null;
+
+    // Caso 1: el JSON se cerró bien hasta "espejo" pero algo más falló arriba
+    const withClose = claudeText.match(/"respuesta"\s*:\s*"([\s\S]*?)"\s*,?\s*"espejo"/);
+    if (withClose) {
+      respuestaRaw = withClose[1];
+    } else {
+      // Caso 2: se cortó a media frase, dentro del valor de "respuesta", sin llegar a "espejo"
+      const open = claudeText.match(/"respuesta"\s*:\s*"([\s\S]*)$/);
+      if (open) respuestaRaw = open[1];
     }
+
+    if (respuestaRaw !== null) {
+      respuestaRaw = respuestaRaw.replace(/\\n/g, '\n').replace(/\\"/g, '"');
+      if (!withClose) respuestaRaw = trimToLastSentence(respuestaRaw);
+      parsed = { respuesta: respuestaRaw, espejo: null };
+    } else {
+      // Último recurso: devolver texto limpio sin restos de JSON
+      const textoLimpio = claudeText
+        .replace(/\{[\s\S]*"respuesta"[\s\S]*\}/g, '')
+        .replace(/^\s*[\{\}]\s*$/gm, '')
+        .replace(/\\n/g, '\n')
+        .replace(/\\"/g, '"')
+        .trim();
+      parsed = { respuesta: trimToLastSentence(textoLimpio || claudeText), espejo: null };
+    }
+  }
+
+  // Si el parseo fue limpio pero la API marcó la respuesta como truncada,
+  // el JSON puede estar técnicamente bien formado y aun así cortar la frase
+  // final a medias (p.ej. si el corte cayó justo en el cierre de comillas).
+  if (truncated && parsed.respuesta) {
+    parsed.respuesta = trimToLastSentence(parsed.respuesta);
   }
 
   // Post-procesado: eliminar asteriscos, guiones y comillas tipográficas
