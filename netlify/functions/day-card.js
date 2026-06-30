@@ -55,16 +55,16 @@ exports.handler = async function (event) {
   const userMessage = `Día ${day || 1}. Esto es lo que escribió hoy:\n\n${userTurns}\n\nEscribe la frase para su libreta.`;
 
   try {
-    const frase = await callAnthropic({
+    const result = await callAnthropic({
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: userMessage }],
-      maxTokens: 60,
+      maxTokens: 90,
       temperature: 0.8,
       plan: plan || "free",
     });
 
     // Limpiar por si Claude añade comillas o puntuación extra
-    const clean = frase
+    const clean = result.text
       .replace(/^["«»""]|["«»""]$/g, "")
       .replace(/\.$/, "")
       .trim();

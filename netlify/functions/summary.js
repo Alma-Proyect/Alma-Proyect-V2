@@ -6,6 +6,19 @@ const { callAnthropic } = require("./lib/anthropic");
 const { SUMMARY_SYSTEM_PROMPT, getSummaryUserMessage } = require("./lib/prompts");
 const { getQuestion } = require("./lib/questions");
 
+// Si la respuesta llegó truncada por tope de tokens, recorta hasta el último
+// signo de puntuación de cierre de frase para no dejar una palabra a medias.
+function cleanIfTruncated(text, truncated) {
+  if (!truncated) return text;
+  const lastPunct = Math.max(
+    text.lastIndexOf("."),
+    text.lastIndexOf("?"),
+    text.lastIndexOf("!")
+  );
+  if (lastPunct === -1) return text;
+  return text.slice(0, lastPunct + 1);
+}
+
 const FALLBACKS = [
   "Algo cambió esta semana. No sé si tú lo notaste, pero estaba en tus palabras.\n\nHay una honestidad en lo que escribiste que no todo el mundo se permite.\n\nEso no es pequeño.",
   "Escribiste sobre cosas que normalmente se quedan dentro.\n\nEso ya es un acto.\n\nNo sé qué vas a hacer con todo esto, pero me alegra que lo hayas puesto en palabras.",
@@ -27,13 +40,15 @@ exports.handler = async function (event) {
   }
 
   try {
-    const summary = await callAnthropic({
+    const result = await callAnthropic({
       system: SUMMARY_SYSTEM_PROMPT,
       messages: [{ role: "user", content: getSummaryUserMessage(entries, arrivalMode, questionSet) }],
-      maxTokens: 300,
+      maxTokens: 360,
       temperature: 0.75,
       plan: plan || "free",
     });
+
+    const summary = cleanIfTruncated(result.text, result.truncated);
 
     // Generamos también el texto listo para descargar
     const downloadText = buildDownloadText(entries, summary, arrivalMode, questionSet);

@@ -139,6 +139,9 @@ El espejo empieza siempre con "Lo que veo:" y va separado de la respuesta. Es un
   // Llamada a Claude
   let claudeText = '';
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 9000);
+
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -152,7 +155,9 @@ El espejo empieza siempre con "Lo que veo:" y va separado de la respuesta. Es un
         system: systemPrompt,
         messages,
       }),
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
@@ -176,8 +181,23 @@ El espejo empieza siempre con "Lo que veo:" y va separado de la respuesta. Es un
     const clean = claudeText.replace(/```json|```/g, '').trim();
     parsed = JSON.parse(clean);
   } catch (e) {
-    // Si falla el parse, devolver el texto como respuesta directa
-    parsed = { respuesta: claudeText, espejo: null };
+    // Intentar extraer respuesta del JSON mal formado
+    try {
+      const match = claudeText.match(/"respuesta"\s*:\s*"([\s\S]*?)"\s*,?\s*"espejo"/);
+      if (match) {
+        const respuestaRaw = match[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
+        parsed = { respuesta: respuestaRaw, espejo: null };
+      } else {
+        // Último recurso: devolver texto limpio sin el JSON
+        const textoLimpio = claudeText
+          .replace(/\{[\s\S]*"respuesta"[\s\S]*\}/g, '')
+          .replace(/^\s*[\{\}]\s*$/gm, '')
+          .trim();
+        parsed = { respuesta: textoLimpio || claudeText, espejo: null };
+      }
+    } catch (e2) {
+      parsed = { respuesta: claudeText, espejo: null };
+    }
   }
 
   // Post-procesado: eliminar asteriscos, guiones y comillas tipográficas

@@ -6,6 +6,19 @@ const { getAlmaSystemPrompt } = require("./lib/prompts");
 const { getQuestion, MAX_TURNS_PER_DAY } = require("./lib/questions");
 const { callAnthropic } = require("./lib/anthropic");
 
+// Si la respuesta llegó truncada por tope de tokens, recorta hasta el último
+// signo de puntuación de cierre de frase para no dejar una palabra a medias.
+function cleanIfTruncated(text, truncated) {
+  if (!truncated) return text;
+  const lastPunct = Math.max(
+    text.lastIndexOf("."),
+    text.lastIndexOf("?"),
+    text.lastIndexOf("!")
+  );
+  if (lastPunct === -1) return text; // no hay donde cortar limpio, se deja igual
+  return text.slice(0, lastPunct + 1);
+}
+
 const FALLBACKS = [
   "Algo en lo que escribiste me hizo pararme.\n\nNecesito un momento para estar con esto contigo.\n\nEstoy aquí.",
   "Lo que acabas de escribir tiene peso.\n\nNo quiero responder deprisa.\n\nEstoy aquí.",
@@ -82,13 +95,15 @@ exports.handler = async function (event) {
       // Si no hay esencia disponible o tarda demasiado, Alma funciona igual sin ella
     }
 
-    const response = await callAnthropic({
+    const result = await callAnthropic({
       system: getAlmaSystemPrompt(day, currentTurn, previousEntries, arrivalMode, essence),
       messages,
-      maxTokens: 200,
+      maxTokens: 320,
       temperature: 0.85,
       plan: plan || "free",
     });
+
+    const response = cleanIfTruncated(result.text, result.truncated);
 
     return {
       statusCode: 200,

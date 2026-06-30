@@ -53,6 +53,9 @@ Nunca inventes algo que no esté en la conversación.
 Español de España siempre.`;
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 9000);
+
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -75,7 +78,9 @@ Español de España siempre.`;
           }
         ],
       }),
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
 
     if (!res.ok) throw new Error(`API error ${res.status}`);
 

@@ -5,6 +5,19 @@
 const { callAnthropic } = require("./lib/anthropic");
 const { BETA_SUMMARY_SYSTEM_PROMPT, getBetaSummaryUserMessage } = require("./lib/prompts");
 
+// Si la respuesta llegó truncada por tope de tokens, recorta hasta el último
+// signo de puntuación de cierre de frase para no dejar una palabra a medias.
+function cleanIfTruncated(text, truncated) {
+  if (!truncated) return text;
+  const lastPunct = Math.max(
+    text.lastIndexOf("."),
+    text.lastIndexOf("?"),
+    text.lastIndexOf("!")
+  );
+  if (lastPunct === -1) return text;
+  return text.slice(0, lastPunct + 1);
+}
+
 const FALLBACKS = [
   "Hay algo en lo que trajiste hoy que todavía no has terminado de mirar.\n\nY eso tiene más de lo que parece a primera vista.",
   "Lo que contaste hoy es solo la superficie de algo más grande.\n\nHay una capa debajo que merece más tiempo del que tuvimos.",
@@ -28,13 +41,15 @@ exports.handler = async function (event) {
   }
 
   try {
-    const summary = await callAnthropic({
+    const result = await callAnthropic({
       system: BETA_SUMMARY_SYSTEM_PROMPT,
       messages: [{ role: "user", content: getBetaSummaryUserMessage(betaEntries, arrivalMode) }],
-      maxTokens: 160,
+      maxTokens: 200,
       temperature: 0.75,
       plan: plan || "free",
     });
+
+    const summary = cleanIfTruncated(result.text, result.truncated);
 
     return {
       statusCode: 200,
