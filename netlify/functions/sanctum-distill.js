@@ -4,28 +4,37 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
 async function sbFetch(path, opts = {}) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    method: opts.method || 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Prefer': 'return=minimal',
-    },
-    body: opts.body || undefined,
-  });
-  // Protección: Supabase puede devolver body vacío o texto no-JSON
-  let data = null;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 1500);
   try {
-    const text = await res.text();
-    if (text && text.trim().startsWith('{') || text.trim().startsWith('[')) {
-      data = JSON.parse(text);
-    }
-  } catch (e) {}
-  return { ok: res.ok, status: res.status, data };
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      method: opts.method || 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal',
+      },
+      body: opts.body || undefined,
+      signal: controller.signal,
+    });
+    // Protección: Supabase puede devolver body vacío o texto no-JSON
+    let data = null;
+    try {
+      const text = await res.text();
+      if (text && text.trim().startsWith('{') || text.trim().startsWith('[')) {
+        data = JSON.parse(text);
+      }
+    } catch (e) {}
+    return { ok: res.ok, status: res.status, data };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 exports.handler = async function (event) {
+  const startTime = Date.now();
+
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
@@ -58,21 +67,21 @@ exports.handler = async function (event) {
     .slice(-5);
 
   const entriesText = ordenadas
-    .map((e, i) => `E${i + 1}:${e.content.slice(0, 280)}`)
+    .map((e, i) => `E${i + 1}:${e.content.slice(0, 400)}`)
     .join('\n');
 
   // Últimas conversaciones del chat de Alma — también alimentan la destilación
   let conversacionesText = '';
   try {
     const { data: convData } = await sbFetch(
-      'sanctum_conversations?select=role,content,is_mirror&order=created_at.desc&limit=30'
+      'sanctum_conversations?select=role,content,is_mirror&order=created_at.desc&limit=40'
     );
     if (convData && convData.length > 0) {
       const convs = [...convData].reverse(); // cronológico
       conversacionesText = '\n\nConversaciones recientes con Alma:\n' +
         convs
           .filter(c => !c.is_mirror) // excluir espejos, solo el diálogo
-          .map(c => `${c.role === 'user' ? 'Guardiana' : 'Alma'}: ${(c.content || '').slice(0, 200)}`)
+          .map(c => `${c.role === 'user' ? 'Guardiana' : 'Alma'}: ${(c.content || '').slice(0, 350)}`)
           .join('\n');
     }
   } catch (e) {
@@ -86,8 +95,17 @@ exports.handler = async function (event) {
   const totalWords = entries.reduce((sum, e) => sum + (e.words || 0), 0);
 
   // Prefill — Claude solo completa, mucho más rápido
+  // Presupuesto total: Netlify mata la función a los 10s. Calculamos lo que
+  // queda tras las llamadas a Supabase ya hechas, con colchón para el resto.
   let claudeText = '';
   try {
+    const elapsed = Date.now() - startTime;
+    const remaining = 8000 - elapsed; // deja margen para las 3 llamadas a Supabase posteriores
+    const claudeTimeout = Math.max(remaining, 3000);
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), claudeTimeout);
+
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -110,7 +128,9 @@ exports.handler = async function (event) {
           }
         ],
       }),
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
