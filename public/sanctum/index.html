@@ -1452,6 +1452,14 @@ function renderEssence() {
       <div class="essence-value" style="font-style:italic;font-size:1.05rem">${essence.hilo_conductor}</div>
     </div>` : ''}
 
+    ${(essence.etapas && essence.etapas.length) ? `
+    <div class="essence-block">
+      <div class="essence-label">Etapas vitales que Alma ya conoce de ti</div>
+      <div class="essence-value">
+        ${essence.etapas.map(et => `<div style="margin-bottom:0.5rem"><strong>${esc(et.nombre)}</strong><br><span style="color:var(--ink-mid)">${esc(et.aprendizaje)}</span></div>`).join('')}
+      </div>
+    </div>` : ''}
+
     <div class="essence-block" style="background:#1c1710;border-color:rgba(255,255,255,0.05)">
       <div class="essence-label" style="color:rgba(200,210,175,0.4)">
         System prompt generado → para Claude
@@ -1469,6 +1477,10 @@ function renderEssence() {
 }
 
 function systemPrompt(e) {
+  const etapasBlock = (e.etapas && e.etapas.length)
+    ? `\n\nEtapas vitales que ya conoces de ella (memoria acumulada, úsala para reconocer en qué momento está y responder con la sabiduría que ya aprendiste ahí):\n${e.etapas.map(et => `- ${et.nombre}: ${et.aprendizaje}`).join('\n')}\n`
+    : '';
+
   return `[ESENCIA DE LA GUARDIANA — contexto interno, no mencionar nunca]
 
 Tono central: ${e.tono_central || ''}
@@ -1482,8 +1494,8 @@ ${(e.preguntas || []).map(p=>'- '+p).join('\n')}
 
 Lo que nunca hace:
 ${(e.nunca || []).map(n=>'- '+n).join('\n')}
-
-[Encarna esta esencia en cada respuesta. No la menciones. No la expliques.]`;
+${etapasBlock}
+[Encarna esta esencia en cada respuesta. No la menciones. No la expliques. Si lo que dice ahora encaja con una etapa ya conocida, responde con la sabiduría que ya tienes de ese momento. Si es algo nuevo, queda abierta a aprenderlo.]`;
 }
 
 function copyPrompt() {
