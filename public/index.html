@@ -882,7 +882,7 @@ body {
   text-align: center; gap: 1.6rem;
 }
 .mode-logo {
-  height: clamp(90px, 16vw, 130px); width: auto;
+  height: clamp(100px, 18vw, 160px); width: auto;
   filter: drop-shadow(0 0 30px rgba(212,168,40,0.4));
 }
 .mode-title {
@@ -1695,22 +1695,6 @@ body {
 </div>
 
 <!-- PANTALLA LLEGADA BETA -->
-<div class="beta-arrival-screen" id="beta-arrival-screen" style="display:none">
-  <div class="welcome-card">
-    <img class="welcome-logo" src="/images/logo-web.png" alt="Alma">
-    <div class="welcome-title">Antes de empezar.<br><em>¿Cómo llegas?</em></div>
-    <div class="welcome-divider"></div>
-    <div class="arrival-options">
-      <button class="arrival-btn" onclick="selectBetaArrival(this,'beta_pain')">Cargando algo que necesito contar</button>
-      <button class="arrival-btn" onclick="selectBetaArrival(this,'beta_search')">Buscando permiso para ser yo misma</button>
-      <button class="arrival-btn" onclick="selectBetaArrival(this,'beta_self')">Con algo que me está pidiendo atención</button>
-      <button class="arrival-btn" onclick="selectBetaArrival(this,'beta_unclear')">Sin saber muy bien qué me trajo aquí</button>
-    </div>
-    <button class="welcome-btn" id="beta-arrival-btn" onclick="startBeta()" style="margin-top:0.6rem">Entrar →</button>
-    <p class="welcome-note">Sin prisa. Sin juicio. Solo tú.</p>
-  </div>
-</div>
-
 <!-- PANTALLA CIERRE BETA -->
 <div class="beta-farewell-screen" id="beta-farewell-screen">
   <div class="beta-farewell-card">
@@ -1835,7 +1819,19 @@ body {
       </div>
     </div>
 
-    <!-- Selector de llegada integrado -->
+    <!-- Selector de llegada BETA integrado -->
+    <div class="arrival-selector-wrap" id="beta-arrival-selector-wrap" style="display:none">
+      <div class="arrival-selector-title">¿En qué momento llegas?</div>
+      <div class="arrival-selector-sub">Elige una opción</div>
+      <div class="arrival-selector-options">
+        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_pain')">Cargando algo que necesito contar</button>
+        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_search')">Buscando permiso para ser yo misma</button>
+        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_self')">Con algo que me está pidiendo atención</button>
+        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_unclear')">Sin saber muy bien qué me trajo aquí</button>
+      </div>
+    </div>
+
+    <!-- Selector de llegada 3 DÍAS integrado -->
     <div class="arrival-selector-wrap" id="arrival-selector-wrap">
       <div class="arrival-selector-title">¿En qué momento llegas?</div>
       <div class="arrival-selector-sub">Elige una opción</div>
@@ -3618,9 +3614,17 @@ function chooseMode(mode) {
       const btn = document.getElementById(id);
       if (btn) btn.style.display = 'none';
     });
-    // Mostrar pantalla de llegada beta
-    const betaArrival = document.getElementById('beta-arrival-screen');
-    betaArrival.style.display = 'flex';
+    // Mostrar selector beta integrado, ocultar el de 3 días
+    const betaWrap = document.getElementById('beta-arrival-selector-wrap');
+    if (betaWrap) betaWrap.style.display = 'block';
+    const wrap = document.getElementById('arrival-selector-wrap');
+    if (wrap) wrap.style.display = 'none';
+    const qCard = document.getElementById('question-card');
+    if (qCard) {
+      qCard.classList.add('question-card-hidden');
+      qCard.classList.remove('question-card-visible');
+    }
+    hideOpener();
   } else {
     // Restaurar sidebar y nav para experiencia de 3 días
     const sidebar = document.querySelector('.sidebar');
@@ -3645,47 +3649,64 @@ function chooseMode(mode) {
 
 // Selección de estado de llegada en beta
 function selectBetaArrival(btn, mode) {
-  document.querySelectorAll('#beta-arrival-screen .arrival-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('#beta-arrival-selector-wrap .arrival-selector-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   betaMode = mode;
-  const startBtn = document.getElementById('beta-arrival-btn');
-  if (startBtn) startBtn.classList.add('ready');
-  trackEvent('beta_arrival_selected', { mode });
-}
 
-// Arrancar la beta
-function startBeta() {
   // Limpiar datos de sesión beta anterior
   try {
     localStorage.removeItem('alma_beta');
     localStorage.removeItem('alma_beta_farewell');
   } catch(e) {}
 
-  const betaArrival = document.getElementById('beta-arrival-screen');
-  betaArrival.classList.add('hidden');
-  setTimeout(() => { betaArrival.style.display = 'none'; }, 500);
-
   betaTurn = 1;
   betaHistory = [];
   isBetaMode = true;
 
-  // Poner la pregunta beta en el día
+  // Poner la pregunta beta y mostrar con animación
   const questionEl = document.getElementById('question-text');
   if (questionEl) {
     questionEl.innerHTML = `
       <p class="question-intro">No hace falta que esté bien explicado, solo exprésalo, como salga…</p>
-      <p class="question-main">${BETA_QUESTIONS[betaMode] || BETA_QUESTIONS.beta_unclear}</p>
+      <p class="question-main">${BETA_QUESTIONS[mode] || BETA_QUESTIONS.beta_unclear}</p>
     `;
   }
 
-  // Ocultar elementos de progreso de 3 días que no aplican
+  // Pill y título beta
   const pill = document.getElementById('day-pill');
   if (pill) pill.textContent = 'Día de prueba';
   const title = document.getElementById('day-title');
   if (title) title.innerHTML = 'Para <em>conocerte</em>';
 
-  renderOpener(betaMode);
-  trackEvent('beta_started', { mode: betaMode });
+  // Mostrar pregunta con animación
+  const qCard = document.getElementById('question-card');
+  if (qCard) {
+    qCard.classList.remove('question-card-visible');
+    setTimeout(() => {
+      renderOpener(mode);
+      qCard.classList.add('question-card-visible');
+      const rowD = document.getElementById('actions-row-d');
+      if (rowD) rowD.style.display = 'flex';
+      setMobileButtons(false);
+    }, 200);
+  }
+
+  trackEvent('beta_arrival_selected', { mode });
+  trackEvent('beta_started', { mode });
+}
+
+// startBeta — ahora la selección ocurre directamente en selectBetaArrival
+// Esta función queda como fallback por si se llama desde otro sitio
+function startBeta() {
+  if (!isBetaMode) {
+    // Si aún no se eligió modo, usar el último seleccionado
+    isBetaMode = true;
+    betaTurn = 1;
+    betaHistory = [];
+    renderOpener(betaMode);
+    const qCard = document.getElementById('question-card');
+    if (qCard) qCard.classList.add('question-card-visible');
+  }
 }
 
 // Guardar entrada beta (sustituye a saveEntry para la beta)
