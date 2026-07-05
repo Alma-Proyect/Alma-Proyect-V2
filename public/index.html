@@ -530,15 +530,16 @@ body {
   margin-bottom: 0.8rem;
 }
 .history-alma {
-  background: var(--surface);
+  background: #567556;
   border-radius: 1.2rem;
-  border: 1px solid rgba(184,134,11,0.15);
+  border: 1px solid rgba(74,107,74,0.3);
+  border-left: 3px solid #3D5C3D;
   padding: 1.2rem 1.4rem;
-  box-shadow: 0 4px 20px rgba(44,26,8,0.15);
+  box-shadow: 0 4px 20px rgba(61,92,61,0.2);
 }
 .history-alma-label {
   font-size: 0.5rem; letter-spacing: 0.22em;
-  text-transform: uppercase; color: rgba(184,134,11,0.55);
+  text-transform: uppercase; color: rgba(245,237,216,0.65);
   margin-bottom: 0.6rem;
   display: flex; align-items: center; gap: 0.35rem;
 }
@@ -546,7 +547,7 @@ body {
 .history-alma p {
   font-family: 'Cormorant Garamond', serif;
   font-size: 0.93rem; line-height: 1.9;
-  color: rgba(253,250,245,0.82); margin-bottom: 0.5rem; font-weight: 300;
+  color: #F5EDD8; margin-bottom: 0.5rem; font-weight: 300;
 }
 .history-alma p:last-child { margin-bottom: 0; }
 
@@ -836,11 +837,12 @@ body {
   transition: all 0.2s; flex-shrink: 0;
 }
 .arrival-selector-btn:hover {
-  background: #567556;
-  border-color: rgba(212,168,40,0.5);
+  background: #3D5C3D;
+  border-color: #D4A828;
   color: #FDF0D2;
+  transform: translateX(4px);
 }
-.arrival-selector-btn:hover::before { color: #D4A828; }
+.arrival-selector-btn:hover::before { color: #D4A828; content: '✦'; font-size: 0.65rem; }
 .arrival-selector-btn.selected {
   background: #3D5C3D;
   border: 1.5px solid #D4A828;
@@ -1207,19 +1209,6 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 .feedback-btn-back:hover { border-color: rgba(184,134,11,0.5); color: rgba(184,134,11,0.9); }
-
-/* ════════════════════════════════
-   PANTALLA LLEGADA BETA
-════════════════════════════════ */
-.beta-arrival-screen {
-  position: fixed; inset: 0; z-index: 105;
-  background: radial-gradient(ellipse at 50% 0%, #2c1f0a 0%, #120d04 60%, #0a0704 100%);
-  display: none; align-items: flex-start; justify-content: center;
-  padding: 2.5rem 1.5rem 3rem;
-  overflow-y: auto; -webkit-overflow-scrolling: touch;
-  animation: fadeIn 0.8s ease both;
-}
-.beta-arrival-screen.hidden { animation: fadeOut 0.5s ease both; pointer-events: none; }
 
 /* ════════════════════════════════
    PANTALLA CIERRE BETA
@@ -2397,7 +2386,6 @@ function jumpToDay(index) {
   resetTurnState();
   document.getElementById('alma-response-text').innerHTML = '';
   document.getElementById('typing').classList.remove('visible');
-  document.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
 
   const cc = document.getElementById('char-count');
   if (cc) {
@@ -2472,7 +2460,7 @@ async function saveEntry() {
   const text = document.getElementById("journal-text").value.trim();
   if (!text) return;
 
-  const emotions = [...document.querySelectorAll(".emotion-chip.selected")].map(e => e.textContent);
+  const emotions = [];
   saveToLocal(currentDay, text, emotions, undefined, undefined, currentArrivalMode);
 
   const previousEntries = {};
@@ -3184,7 +3172,6 @@ function nextDay() {
   const tr2 = document.getElementById('turn-reply'); if (tr2) tr2.style.display = 'none';
   document.getElementById('alma-response-text').innerHTML = '';
   document.getElementById('typing').classList.remove('visible');
-  document.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
 
   // Actualizar pill y título
   const meta = [
@@ -3306,7 +3293,7 @@ async function showFarewell() {
 // =======================
 
 function selectArrival(btn, mode) {
-  document.querySelectorAll('.arrival-selector-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('#arrival-selector-wrap .arrival-selector-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   currentArrivalMode = mode;
   try { localStorage.setItem('alma_arrival_mode', mode); } catch(e) {}
@@ -3403,8 +3390,19 @@ function init() {
   // Mostrar pantalla de elección solo si no hay días en curso ni farewell
   const modeScreen = document.getElementById('mode-screen');
   if (!goToFarewell) {
-    if (hasActiveDays) {
-      // Tiene días en curso — ir directo a la app, ocultar selector de llegada
+    if (hasBetaSession) {
+      // Sesión beta activa — mostrar selector beta, ocultar el de 3 días
+      const betaWrap = document.getElementById('beta-arrival-selector-wrap');
+      if (betaWrap) betaWrap.style.display = 'none'; // ya eligió, no mostrar de nuevo
+      const wrap = document.getElementById('arrival-selector-wrap');
+      if (wrap) wrap.style.display = 'none';
+      const qCard = document.getElementById('question-card');
+      if (qCard) {
+        qCard.classList.remove('question-card-hidden');
+        qCard.classList.add('question-card-visible');
+      }
+    } else if (hasActiveDays) {
+      // Tiene días de 3 días en curso — ir directo a la app, ocultar selector de llegada
       const wrap = document.getElementById('arrival-selector-wrap');
       if (wrap) wrap.style.display = 'none';
       const qCard = document.getElementById('question-card');
@@ -3467,8 +3465,11 @@ function init() {
 
   renderQuestion(currentDay);
   renderNav();
-  // Opener: mostrar solo si el día está vacío (sin texto guardado)
+
   const savedForOpener = loadFromLocal(currentDay);
+  const savedArrivalMode = (() => { try { return localStorage.getItem('alma_arrival_mode') || currentArrivalMode; } catch(e) { return currentArrivalMode; } })();
+  if (savedArrivalMode && savedArrivalMode !== 'pain') currentArrivalMode = savedArrivalMode;
+
   if (savedForOpener?.text || savedForOpener?.almaReply) {
     hideOpener();
   } else {
@@ -3493,7 +3494,6 @@ function init() {
   const tr = document.getElementById('turn-reply');
   if (tr) tr.style.display = 'none';
   document.getElementById('typing')?.classList.remove('visible');
-  document.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
 
   // Restaurar textarea con el texto del día activo si existe
   const ta = document.getElementById('journal-text');
@@ -3566,6 +3566,7 @@ function init() {
 
 function startJourney() {
   const screen = document.getElementById('welcome-screen');
+  if (!screen) return;
   screen.classList.add('hidden');
   setTimeout(() => screen.style.display = 'none', 500);
 }
@@ -3614,6 +3615,11 @@ function chooseMode(mode) {
       const btn = document.getElementById(id);
       if (btn) btn.style.display = 'none';
     });
+    // Ocultar pill y título — no aplican en 1 día
+    const pill = document.getElementById('day-pill');
+    if (pill) pill.style.display = 'none';
+    const titleEl = document.getElementById('day-title');
+    if (titleEl) titleEl.style.display = 'none';
     // Mostrar selector beta integrado, ocultar el de 3 días
     const betaWrap = document.getElementById('beta-arrival-selector-wrap');
     if (betaWrap) betaWrap.style.display = 'block';
@@ -3635,6 +3641,11 @@ function chooseMode(mode) {
       const btn = document.getElementById(id);
       if (btn) btn.style.display = '';
     });
+    // Restaurar pill y título
+    const pill = document.getElementById('day-pill');
+    if (pill) pill.style.display = '';
+    const titleEl = document.getElementById('day-title');
+    if (titleEl) titleEl.style.display = '';
     // Ir directo a la app — el selector de llegada está integrado
     const wrap = document.getElementById('arrival-selector-wrap');
     if (wrap) wrap.style.display = 'block';
@@ -3966,7 +3977,6 @@ function startFullJourney() {
   if (tr) tr.style.display = 'none';
   const ta = document.getElementById('journal-text');
   if (ta) ta.value = '';
-  document.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
 
   // Restaurar sidebar y nav de días para la experiencia completa
   const sidebar = document.querySelector('.sidebar');
