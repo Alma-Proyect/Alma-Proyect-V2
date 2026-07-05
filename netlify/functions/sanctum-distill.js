@@ -125,11 +125,11 @@ exports.handler = async function (event) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 480,
-        system: 'Destilador de voz emocional acumulativa. Tu trabajo tiene dos partes. PARTE 1, el núcleo (tono_central, sostiene_dolor, hilo_conductor): integra lo nuevo con el retrato anterior, no lo sustituyas ni lo repitas igual, fusiona ambos en una síntesis más completa que ninguno de los dos por separado. PARTE 2, las etapas: es una lista que SOLO CRECE. Copia tal cual cada etapa ya registrada que recibas. Si lo nuevo que escribió o habló corresponde a un momento vital o emocional ya registrado, deja esa etapa igual o ligeramente más precisa, pero no la borres. Si lo nuevo es un momento vital genuinamente distinto a todos los registrados, añade una etapa nueva al final del array, nunca elimines ni sustituyas etapas previas. Cada etapa: nombre corto (3-6 palabras) y aprendizaje (una frase, qué responde Alma bien en ese momento vital). Máximo 6 etapas en total — si ya hay 6, funde la más antigua con la más parecida a la nueva en vez de superar el límite. Completa el JSON. Solo JSON, sin markdown.',
+        system: 'JSON puro, sin markdown. Valores de máximo 5 palabras cada uno — nunca frases largas, nunca comas dentro de un valor de string. Las etapas solo crecen: copia las anteriores exactas y añade una nueva si el momento vital es distinto. Si ya hay 6 etapas, fusiona la más antigua con la más similar. Completa el objeto JSON.',
         messages: [
           {
             role: 'user',
-            content: `${contexto}${etapasTexto}\n\nLO QUE ESCRIBIÓ Y HABLÓ AHORA:\n${entriesText}${conversacionesText}\n\nCompleta:{"tono_central":"...","sostiene_dolor":"...","valores":["...","...","..."],"nunca":["...","..."],"preguntas":["...","..."],"palabra_semana":"...","hilo_conductor":"...","etapas":[{"nombre":"...","aprendizaje":"..."}]}`
+            content: `${contexto}${etapasTexto}\n\nLO QUE ESCRIBIÓ Y HABLÓ AHORA:\n${entriesText}${conversacionesText}\n\nCompleta este JSON con valores MUY CORTOS (máximo 5 palabras por valor de string, sin comas dentro de los strings):\n{"tono_central":"[3-5 palabras]","sostiene_dolor":"[3-5 palabras]","valores":["[3 palabras]","[3 palabras]","[3 palabras]"],"nunca":["[3 palabras]","[3 palabras]"],"preguntas":["[pregunta corta]","[pregunta corta]"],"palabra_semana":"[1 palabra]","hilo_conductor":"[4-5 palabras]","etapas":[{"nombre":"[3-5 palabras]","aprendizaje":"[5-8 palabras]"}]}`
           },
           {
             role: 'assistant',
