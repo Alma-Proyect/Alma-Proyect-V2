@@ -547,8 +547,8 @@ body {
 .history-alma-label::before { content: '◉'; font-size: 0.38rem; }
 .history-alma p {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 0.93rem; line-height: 1.9;
-  color: #F5EDD8; margin-bottom: 0.5rem; font-weight: 300;
+  font-size: 1rem; line-height: 1.9;
+  color: #F5EDD8; margin-bottom: 0.5rem; font-weight: 400;
 }
 .history-alma p:last-child { margin-bottom: 0; }
 
@@ -1613,7 +1613,7 @@ body {
       </p>
       <p>
         Lo que has escrito aquí no es poco. Es el comienzo de una relación
-        más honesta contigo misma — con lo que sientes, con lo que necesitas,
+        más honesta contigo misma: con lo que sientes, con lo que necesitas,
         con lo que mereces recibir de la vida y de ti.
       </p>
 
@@ -1720,7 +1720,7 @@ body {
       Tres preguntas. Tres días. Un acompañamiento que escucha de verdad.
     </p>
     <div class="welcome-divider"></div>
-    <p class="arrival-question">Antes de empezar — ¿cómo llegas?</p>
+    <p class="arrival-question">Antes de empezar. ¿Cómo llegas?</p>
     <div class="arrival-options">
       <button class="arrival-btn" onclick="selectArrival(this,'pain')">Con algo que pesa</button>
       <button class="arrival-btn" onclick="selectArrival(this,'curiosity')">Con ganas de conocerme</button>
@@ -2080,50 +2080,50 @@ const QUESTION_BANK = {
   pain: [
     "¿Cuándo fue la última vez que sentiste que alguien podía sostener lo que te pasaba… y tú dejaste de fingir que estabas bien?",
     "¿Cuándo aprendiste a hacerte pequeña para que los demás estuvieran cómodos?",
-    "Si alguien a quien amas sintiera lo que tú sientes ahora — ¿qué le dirías que nunca te dices a ti?",
+    "Si alguien a quien amas sintiera lo que tú sientes ahora, ¿qué le dirías que nunca te dices a ti?",
     "¿Qué es lo que más te cuesta soltar?",
-    "¿Cuándo fue la última vez que estuviste mal y lo dejaste estar — sin hacer nada con ello?",
+    "¿Cuándo fue la última vez que estuviste mal y lo dejaste estar, sin hacer nada con ello?",
     "¿Qué parte de lo que sientes ahora llevas tiempo sin contárselo a nadie?",
-    "¿Qué emoción estás cargando que no es tuya — y sigues cargando igual?",
-    "¿Qué es lo que hoy no quieres mirar — aunque sabes que está ahí?",
+    "¿Qué emoción estás cargando que no es tuya, y sigues cargando igual?",
+    "¿Qué es lo que hoy no quieres mirar, aunque sabes que está ahí?",
     "¿Qué pasaría si dejaras de vigilar lo que sientes?",
     "¿Qué es lo que nadie sabe que necesitas ahora mismo?",
   ],
   curiosity: [
     "¿Qué parte de ti lleva tiempo sin tener espacio para existir?",
-    "¿Qué has asumido de ti misma sin cuestionarlo nunca — solo porque siempre ha sido así?",
+    "¿Qué has asumido de ti misma sin cuestionarlo nunca, solo porque siempre ha sido así?",
     "¿Qué sientes cuando no tienes que interpretar ningún papel?",
     "¿Qué versión de ti misma aparece cuando nadie te está mirando?",
-    "¿Qué deseo tuyo llevas tiempo dejando para después — sin una razón clara?",
-    "¿Qué te sorprendió de ti misma esta semana — aunque fuera algo pequeño?",
+    "¿Qué deseo tuyo llevas tiempo dejando para después, sin una razón clara?",
+    "¿Qué te sorprendió de ti misma esta semana, aunque fuera algo pequeño?",
     "¿Qué sabes de ti que todavía no te has dicho a ti misma en voz alta?",
-    "¿Qué necesitas sentir — no dar, no resolver, no sostener — solo sentir tú?",
+    "¿Qué necesitas sentir, no dar, no resolver, no sostener... solo sentir tú?",
     "¿Qué parte de ti aparece cuando bajas la guardia?",
     "¿Qué relación tienes con la mujer que eras hace dos años?",
   ],
   open: [
-    "¿Cómo estás de verdad — no la respuesta de siempre, sino la real?",
+    "¿Cómo estás de verdad, no la respuesta de siempre, sino la real?",
     "¿Qué emoción hay debajo de ese 'no sé muy bien'?",
     "¿Qué es lo primero que te vino a la mente cuando decidiste abrir esto hoy?",
     "¿Hay algo que llevas tiempo sintiendo pero que todavía no has podido ponerle nombre?",
-    "¿Si tuvieras que ponerle una palabra a lo que sientes ahora mismo — solo una — cuál sería?",
+    "¿Si tuvieras que ponerle una palabra a lo que sientes ahora mismo, solo una, cuál sería?",
     "¿Hay algo que estás sosteniendo hoy que todavía no sabes si merece espacio?",
     "¿Qué hay detrás del 'estoy bien' que te dices antes de atreverte a quedarte en silencio?",
-    "Si pudieras hablar de cualquier cosa hoy — ¿de qué hablarías?",
-    "¿Qué es lo que hoy te hizo parar — aunque sea un momento — y escucharte?",
+    "Si pudieras hablar de cualquier cosa hoy, ¿de qué hablarías?",
+    "¿Qué es lo que hoy te hizo parar, aunque sea un momento, y escucharte?",
     "¿Qué necesitas hoy que no has pedido?",
   ],
   depth: [
     "¿Qué sientes cuando la vida está tranquila y aun así algo en ti no termina de estarlo?",
     "¿Cuándo fue la última vez que confundiste estar bien con estar perdida?",
     "¿Cuando todo se siente plano, qué es lo primero que te dices?",
-    "¿Qué pasa cuando el silencio llega y no se siente paz — se siente vacío?",
+    "¿Qué pasa cuando el silencio llega y no se siente paz... se siente vacío?",
     "¿Qué estás esperando que ocurra para saber que ya estás bien?",
-    "¿Qué hay en ti que ya no duele como antes — pero que todavía no te atreves a tocar?",
-    "¿Y si lo que no entiendes de lo que sientes no es confusión — sino que aún no tiene nombre?",
+    "¿Qué hay en ti que ya no duele como antes, pero que todavía no te atreves a tocar?",
+    "¿Y si lo que no entiendes de lo que sientes no es confusión, sino que aún no tiene nombre?",
     "¿Cuándo empezaste a leer la calma como señal de alarma?",
     "¿Qué parte de ti espera que esto se rompa?",
-    "¿Qué pregunta sobre ti misma llevas tiempo evitando — y todavía te da vértigo enfrentarla?",
+    "¿Qué pregunta sobre ti misma llevas tiempo evitando, y todavía te da vértigo enfrentarla?",
   ],
 };
 
@@ -3978,7 +3978,17 @@ function startFullJourney() {
   const ta = document.getElementById('journal-text');
   if (ta) ta.value = '';
 
-  // Restaurar sidebar y nav de días para la experiencia completa
+  // Ocultar selector beta — crítico para evitar duplicado
+  const betaWrap = document.getElementById('beta-arrival-selector-wrap');
+  if (betaWrap) betaWrap.style.display = 'none';
+
+  // Restaurar pill y título para los 3 días — evita el flash
+  const pill = document.getElementById('day-pill');
+  if (pill) { pill.textContent = `Día 1 de 3`; pill.style.display = ''; }
+  const titleEl = document.getElementById('day-title');
+  if (titleEl) { titleEl.innerHTML = 'Para <em>llegar aquí</em>'; titleEl.style.display = ''; }
+
+  // Restaurar sidebar y nav
   const sidebar = document.querySelector('.sidebar');
   if (sidebar) { sidebar.classList.remove('sidebar-hidden'); sidebar.classList.add('sidebar-visible'); }
   const dayNav = document.getElementById('day-nav');
@@ -3990,7 +4000,7 @@ function startFullJourney() {
     if (btn) btn.style.display = '';
   });
 
-  // Ir directo a la app — el selector de llegada está integrado
+  // Mostrar selector de llegada de 3 días, ocultar question-card
   const wrap = document.getElementById('arrival-selector-wrap');
   if (wrap) wrap.style.display = 'block';
   const qCard = document.getElementById('question-card');
@@ -3998,8 +4008,13 @@ function startFullJourney() {
     qCard.classList.add('question-card-hidden');
     qCard.classList.remove('question-card-visible');
   }
-  document.querySelectorAll('.arrival-selector-btn').forEach(b => b.classList.remove('selected'));
+  // Desmarcar todas las opciones de ambos selectores
+  document.querySelectorAll('#arrival-selector-wrap .arrival-selector-btn').forEach(b => b.classList.remove('selected'));
   hideOpener();
+
+  // Reset día a 1
+  currentDay = 0;
+  renderNav();
 
   trackEvent('beta_to_full', { mode: betaMode });
 }
