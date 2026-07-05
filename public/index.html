@@ -388,6 +388,29 @@ body {
 .btn-next.ready:hover { background: var(--clay); color: #fff; border-color: var(--clay); }
 .btn-next.ready:active { background: var(--clay2); color: #fff; border-color: var(--clay2); }
 
+/* Frase de Alma antes del textarea — rompe el hielo */
+.alma-opener {
+  background: #2c1a08;
+  border-radius: 1rem;
+  border: 1px solid rgba(180,120,40,0.15);
+  padding: 1rem 1.3rem;
+  margin-bottom: 0.85rem;
+  animation: slideUp 0.5s ease both;
+  display: none;
+}
+.alma-opener-label {
+  font-size: 0.5rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(200,155,70,0.5); font-weight: 600; margin-bottom: 0.45rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.alma-opener-label::before { content: '◉'; font-size: 0.38rem; }
+.alma-opener p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem; line-height: 1.85;
+  color: rgba(240,220,185,0.78); font-weight: 300; font-style: italic;
+  margin: 0;
+}
+
 /* Alma response */
 .alma-response {
   background: #2c1a08;
@@ -776,7 +799,7 @@ body {
 ════════════════════════════════ */
 .mode-screen {
   position: fixed; inset: 0; z-index: 110;
-  background: #0d0a05;
+  background: #3D5C3D;
   display: none; align-items: center; justify-content: center;
   padding: 2rem 1.5rem;
   overflow-y: auto; -webkit-overflow-scrolling: touch;
@@ -784,134 +807,87 @@ body {
 }
 .mode-screen.hidden { animation: fadeOut 0.5s ease both; pointer-events: none; }
 .mode-card {
-  max-width: 480px; width: 100%;
+  max-width: 360px; width: 100%;
   display: flex; flex-direction: column; align-items: center;
-  text-align: center; gap: 1.8rem;
+  text-align: center; gap: 1.3rem;
 }
 .mode-logo {
-  height: 120px; width: auto;
-  filter: drop-shadow(0 0 40px rgba(184,134,11,0.4));
+  height: 60px; width: auto;
+  filter: drop-shadow(0 0 30px rgba(212,168,40,0.4));
 }
 .mode-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(1.8rem, 6vw, 2.6rem);
-  font-weight: 300; line-height: 1.2;
-  color: rgba(245,237,216,0.95);
-}
-.mode-title em {
-  font-style: italic;
-  color: rgba(184,134,11,0.9);
-}
-.mode-subtitle {
-  font-size: 0.8rem; font-weight: 300;
-  color: #938979;
-  letter-spacing: 0.06em;
-  margin-top: -0.8rem;
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  font-style: italic; font-weight: 600;
+  color: #F5EDD8; line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 .mode-divider {
-  width: 40px; height: 1px;
-  background: rgba(184,134,11,0.3);
-  margin: -0.4rem auto;
+  width: 32px; height: 1px;
+  background: rgba(212,168,40,0.4);
+  border-radius: 99px;
 }
 .mode-options {
   width: 100%;
-  display: flex; flex-direction: column;
-  gap: 0.8rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
 }
-/* Bloque 1 día */
-.mode-btn-one {
-  width: 100%;
-  background: rgba(184,134,11,0.08);
-  border: 1px solid rgba(184,134,11,0.4);
-  border-radius: 1rem;
-  padding: 1.8rem 2rem;
-  cursor: pointer; text-align: center;
+.mode-btn {
+  background: #F5EDD8;
+  border: 1.5px solid rgba(44,26,8,0.1);
+  border-radius: 1.2rem;
+  padding: 1.2rem 0.8rem;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0.35rem; cursor: pointer;
+  min-height: 145px;
   -webkit-tap-highlight-color: transparent;
-  transition: all 0.22s;
-  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+.mode-btn:hover, .mode-btn:active {
+  background: #C8DDB8;
+  border-color: rgba(74,107,74,0.6);
+}
+.mode-btn-one {
+  background: #D4A828;
+  border-color: rgba(44,26,8,0.08);
 }
 .mode-btn-one:hover, .mode-btn-one:active {
-  background: rgba(184,134,11,0.15);
-  border-color: rgba(184,134,11,0.7);
-  transform: translateY(-2px);
+  background: #F0C020;
+  border-color: rgba(44,26,8,0.2);
 }
-.mode-btn-one-label {
-  font-size: 0.58rem; font-weight: 500;
-  letter-spacing: 0.28em; text-transform: uppercase;
-  color: rgba(184,134,11,0.7);
-}
-.mode-btn-one-title {
+.mode-btn-num {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2.8rem, 10vw, 4rem);
-  font-style: italic; font-weight: 300; line-height: 1;
-  color: rgba(184,134,11,1);
+  font-size: clamp(2.4rem, 8vw, 3rem);
+  font-style: italic; font-weight: 400;
+  line-height: 1; color: #3D5C3D;
+  display: inline-block;
+  transition: transform 0.25s ease;
 }
-.mode-btn-one-desc {
-  font-size: 0.75rem; font-weight: 300;
-  color: #938979; line-height: 1.68;
+.mode-btn:hover .mode-btn-num, .mode-btn:active .mode-btn-num {
+  transform: scale(1.22);
 }
-.mode-btn-one-cta {
-  margin-top: 0.4rem;
-  background: linear-gradient(135deg, #b8860b, #d4a017);
-  border: none; border-radius: 0.5rem;
-  padding: 0.7rem 2.5rem;
-  font-family: 'Jost', sans-serif;
-  font-size: 0.62rem; font-weight: 500;
+.mode-btn-one .mode-btn-num {
+  font-size: clamp(3.2rem, 11vw, 4.2rem);
+  color: #2C1A08;
+}
+.mode-btn-day {
+  font-size: 0.62rem; font-weight: 700;
   letter-spacing: 0.22em; text-transform: uppercase;
-  color: #0d0a05; cursor: pointer;
+  color: #3D5C3D;
 }
-/* Separador */
-.mode-separator {
-  font-size: 0.65rem; color: #938979;
-  letter-spacing: 0.1em; font-style: italic;
+.mode-btn-one .mode-btn-day { color: #2C1A08; }
+.mode-btn-desc {
+  font-size: 0.75rem; font-weight: 600;
+  color: #3D5C3D; line-height: 1.55;
+  max-width: 110px; margin-top: 0.1rem;
 }
-/* Bloque 3 días */
-.mode-btn-three {
-  width: 100%;
-  background: rgba(255,248,235,0.02);
-  border: 1px solid rgba(184,134,11,0.15);
-  border-radius: 1rem;
-  padding: 1.5rem 2rem;
-  cursor: pointer; text-align: center;
-  -webkit-tap-highlight-color: transparent;
-  transition: all 0.22s;
-  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
-}
-.mode-btn-three:hover, .mode-btn-three:active {
-  background: rgba(184,134,11,0.06);
-  border-color: rgba(184,134,11,0.3);
-  transform: translateY(-2px);
-}
-.mode-btn-three-label {
-  font-size: 0.58rem; font-weight: 500;
-  letter-spacing: 0.28em; text-transform: uppercase;
-  color: rgba(245,237,216,0.3);
-}
-.mode-btn-three-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2rem, 8vw, 3rem);
-  font-weight: 300; line-height: 1;
-  color: rgba(245,237,216,0.7);
-  letter-spacing: 0.05em;
-}
-.mode-btn-three-desc {
-  font-size: 0.75rem; font-weight: 300;
-  color: #938979; line-height: 1.68;
-}
-.mode-btn-three-cta {
-  margin-top: 0.4rem;
-  background: none;
-  border: 1px solid rgba(245,237,216,0.2);
-  border-radius: 0.5rem;
-  padding: 0.65rem 2.5rem;
-  font-family: 'Jost', sans-serif;
-  font-size: 0.62rem; font-weight: 500;
-  letter-spacing: 0.22em; text-transform: uppercase;
-  color: rgba(245,237,216,0.45); cursor: pointer;
-}
+.mode-btn-one .mode-btn-desc { color: #2C1A08; }
 .mode-note {
-  font-size: 0.65rem; color: #938979;
-  line-height: 1.5; letter-spacing: 0.04em;
+  font-size: 0.73rem; font-weight: 500;
+  color: rgba(245,237,216,0.72);
+  letter-spacing: 0.03em; line-height: 1.6;
 }
 
 /* ════════════════════════════════
@@ -1630,25 +1606,21 @@ body {
 <div class="mode-screen" id="mode-screen" style="display:none">
   <div class="mode-card">
     <img class="mode-logo" src="/images/logo-web.png" alt="Alma">
-    <div class="mode-title">Todo empieza<br><em>con un primer paso.</em></div>
-    <p class="mode-subtitle">Empieza por donde hoy puedas.</p>
+    <div class="mode-title">Ya estás aquí.<br>Este es tu momento.</div>
     <div class="mode-divider"></div>
     <div class="mode-options">
-      <button class="mode-btn-one" onclick="chooseMode('beta')">
-        <span class="mode-btn-one-label">Empieza</span>
-        <span class="mode-btn-one-title">UN DÍA</span>
-        <span class="mode-btn-one-desc">Solo un día.<br>Solo para ti.<br>Empieza a escucharte.</span>
-        <span class="mode-btn-one-cta">Empezar hoy</span>
+      <button class="mode-btn mode-btn-one" onclick="chooseMode('beta')">
+        <span class="mode-btn-num">1</span>
+        <span class="mode-btn-day">día</span>
+        <span class="mode-btn-desc">Solo hoy. A ver qué pasa.</span>
       </button>
-      <p class="mode-separator">O si prefieres profundizar...</p>
-      <button class="mode-btn-three" onclick="chooseMode('full')">
-        <span class="mode-btn-three-label">Continúa</span>
-        <span class="mode-btn-three-title">TRES DÍAS</span>
-        <span class="mode-btn-three-desc">Más tiempo. Más preguntas.<br>Empieza a dar sentido<br>a lo que hoy sientes.</span>
-        <span class="mode-btn-three-cta">Continuar</span>
+      <button class="mode-btn" onclick="chooseMode('full')">
+        <span class="mode-btn-num">3</span>
+        <span class="mode-btn-day">días</span>
+        <span class="mode-btn-desc">¿Te atreves?</span>
       </button>
     </div>
-    <p class="mode-note">Sin prisas. Puedes empezar por donde quieras.</p>
+    <p class="mode-note">Sin prisa. Puedes empezar por donde quieras.</p>
   </div>
 </div>
 
@@ -1800,6 +1772,13 @@ body {
         <p class="question-intro">No hace falta que esté bien explicado, solo exprésalo, como salga…</p>
         <p class="question-main">¿Hay algo que llevas dentro y que casi nunca dices en voz alta?</p>
       </div>
+
+      <!-- Frase de Alma antes del textarea — rompe el hielo -->
+      <div class="alma-opener" id="alma-opener">
+        <div class="alma-opener-label">· Alma</div>
+        <p id="alma-opener-text">La pregunta es solo una guía. Lo que importa es soltar, empieza por lo que salga aunque sea desordenado.</p>
+      </div>
+
       <textarea class="journal-textarea" id="journal-text"
         aria-label="Escribe tu entrada del diario"
         placeholder="Escribe lo que sea… no hay respuesta correcta ni incorrecta."
@@ -2181,6 +2160,35 @@ function setMobileButtons(show) {
   rowM.style.display = show ? 'flex' : 'none';
 }
 
+// =======================
+// ALMA OPENER — frase de bienvenida antes del textarea
+// =======================
+
+const ALMA_OPENERS = {
+  pain:      "La pregunta es solo una guía. Lo que importa es soltar, empieza por lo que salga aunque sea desordenado.",
+  curiosity: "La pregunta es solo una guía. Dime qué te preocupa, qué necesitas, te acompaño mientras lo descubres.",
+  open:      "Si la pregunta no te resuena, no importa. Cuéntame lo que sea, el orden lo encontramos juntas.",
+  depth:     "La pregunta es solo una guía, pásala por alto si no va contigo. Cuéntame qué necesitas encontrar, ordenar o soltar, te escucho mientras lo descubres.",
+  // Beta
+  beta_pain:    "La pregunta es solo una guía. Lo que importa es soltar, empieza por lo que salga aunque sea desordenado.",
+  beta_search:  "La pregunta es solo una guía. Dime qué te preocupa, qué necesitas, te acompaño mientras lo descubres.",
+  beta_self:    "La pregunta es solo una guía, pásala por alto si no va contigo. Cuéntame qué necesitas encontrar, ordenar o soltar, te escucho mientras lo descubres.",
+  beta_unclear: "Si la pregunta no te resuena, no importa. Cuéntame lo que sea, el orden lo encontramos juntas.",
+};
+
+function renderOpener(mode) {
+  const opener = document.getElementById('alma-opener');
+  const el     = document.getElementById('alma-opener-text');
+  if (!opener || !el) return;
+  el.textContent = ALMA_OPENERS[mode] || ALMA_OPENERS.pain;
+  opener.style.display = 'block';
+}
+
+function hideOpener() {
+  const opener = document.getElementById('alma-opener');
+  if (opener) opener.style.display = 'none';
+}
+
 function toggleEmotion(el) {
   el.classList.toggle('selected');
   el.setAttribute('aria-checked', el.classList.contains('selected') ? 'true' : 'false');
@@ -2191,6 +2199,9 @@ let countTimer = null;
 
 function onType() {
   const text = document.getElementById('journal-text').value;
+
+  // Ocultar el opener de Alma en cuanto empieza a escribir
+  if (text.trim().length > 0) hideOpener();
 
   clearTimeout(countTimer);
   countTimer = setTimeout(() => {
@@ -3240,6 +3251,7 @@ function selectArrival(btn, mode) {
   try { localStorage.setItem('alma_arrival_mode', mode); } catch(e) {}
   const welcomeBtn = document.getElementById('welcome-btn');
   if (welcomeBtn) welcomeBtn.classList.add('ready');
+  renderOpener(mode);
   trackEvent('arrival_mode_selected', { mode });
 }
 
@@ -3372,6 +3384,13 @@ function init() {
 
   renderQuestion(currentDay);
   renderNav();
+  // Opener: mostrar solo si el día está vacío (sin texto guardado)
+  const savedForOpener = loadFromLocal(currentDay);
+  if (savedForOpener?.text || savedForOpener?.almaReply) {
+    hideOpener();
+  } else {
+    renderOpener(currentArrivalMode);
+  }
 
   // Si ya escribió hoy y es otro día, mostrar botón de siguiente
   showNextIfNewDay();
@@ -3572,6 +3591,7 @@ function startBeta() {
   const title = document.getElementById('day-title');
   if (title) title.innerHTML = 'Para <em>conocerte</em>';
 
+  renderOpener(betaMode);
   trackEvent('beta_started', { mode: betaMode });
 }
 
