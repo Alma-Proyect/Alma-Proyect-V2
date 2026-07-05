@@ -1,27 +1,13 @@
 // netlify/functions/beta-summary.js
-// Genera el reflejo de la experiencia de 1 día (beta)
-// Usa el prompt y el mensaje definidos en lib/prompts.js
+// Genera el reflejo del día beta — breve, sin PDF, diseñado para enganchar
 
 const { callAnthropic } = require("./lib/anthropic");
 const { BETA_SUMMARY_SYSTEM_PROMPT, getBetaSummaryUserMessage } = require("./lib/prompts");
 
-// Si la respuesta llegó truncada por tope de tokens, recorta hasta el último
-// signo de puntuación de cierre de frase para no dejar una palabra a medias.
-function cleanIfTruncated(text, truncated) {
-  if (!truncated) return text;
-  const lastPunct = Math.max(
-    text.lastIndexOf("."),
-    text.lastIndexOf("?"),
-    text.lastIndexOf("!")
-  );
-  if (lastPunct === -1) return text;
-  return text.slice(0, lastPunct + 1);
-}
-
 const FALLBACKS = [
-  "Hay algo en lo que trajiste hoy que todavía no has terminado de mirar.\n\nY eso tiene más de lo que parece a primera vista.",
-  "Lo que contaste hoy es solo la superficie de algo más grande.\n\nHay una capa debajo que merece más tiempo del que tuvimos.",
-  "Llegaste con una pregunta sin hacerla del todo.\n\nEso es exactamente por donde habría que seguir.",
+  "Hay algo en lo que escribiste que no suena a queja ni a miedo.\nSuena a algo que llevas tiempo sabiendo y que hoy, por fin, dejaste salir un poco.\nEso no es pequeño.",
+  "Lo que dijiste hoy no es fácil de decir.\nNo porque sea dramático, sino porque es tuyo de verdad.\nY eso que es tuyo de verdad merece más que un día.",
+  "Escribiste desde un sitio real.\nNo desde lo que creías que había que decir, sino desde lo que hay.\nEso es lo más difícil, y lo hiciste.",
 ];
 
 exports.handler = async function (event) {
@@ -29,34 +15,29 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  let betaEntries, arrivalMode, plan;
-  try {
-    ({ betaEntries, arrivalMode, plan } = JSON.parse(event.body || "{}"));
-  } catch (e) {
-    return { statusCode: 400, body: JSON.stringify({ error: "JSON inválido" }) };
-  }
+  const { betaEntries, arrivalMode, plan } = JSON.parse(event.body || "{}");
 
-  if (!betaEntries || !betaEntries.length) {
-    return { statusCode: 400, body: JSON.stringify({ error: "Sin entradas." }) };
+  if (!betaEntries || betaEntries.length === 0) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "No se recibieron entradas." }),
+    };
   }
 
   try {
-    const result = await callAnthropic({
+    const summary = await callAnthropic({
       system: BETA_SUMMARY_SYSTEM_PROMPT,
       messages: [{ role: "user", content: getBetaSummaryUserMessage(betaEntries, arrivalMode) }],
-      maxTokens: 200,
-      temperature: 0.75,
+      maxTokens: 180,
+      temperature: 0.8,
       plan: plan || "free",
     });
-
-    const summary = cleanIfTruncated(result.text, result.truncated);
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ summary }),
     };
-
   } catch (error) {
     console.error("Error en beta-summary.js:", error);
     const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
