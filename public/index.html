@@ -1729,6 +1729,14 @@ body {
   </div>
 </div>
 
+<!-- Formulario fantasma — solo para detección de Netlify Forms en deploy -->
+<form name="alma-feedback" data-netlify="true" netlify-honeypot="bot-field" style="display:none" aria-hidden="true">
+  <input type="hidden" name="form-name" value="alma-feedback">
+  <input name="bot-field">
+  <textarea name="feedback"></textarea>
+  <button type="submit">Enviar</button>
+</form>
+
 <!-- PANTALLA ELECCIÓN 1 o 3 DÍAS — eliminada del flujo, todas entran al día 1 -->
 <div class="mode-screen" id="mode-screen" style="display:none!important; visibility:hidden; pointer-events:none">
   <div class="mode-card">
