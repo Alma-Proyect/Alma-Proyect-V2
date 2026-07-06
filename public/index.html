@@ -1299,8 +1299,51 @@ body {
   display: flex;
 }
 
-/* Mensaje de transición al pasar a los 3 días */
-.beta-transition-msg {
+/* Formulario de feedback día 1 */
+.beta-feedback-form {
+  display: flex; flex-direction: column; gap: 0.6rem;
+  width: 100%; margin-bottom: 0.5rem;
+}
+.beta-feedback-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem; font-style: italic;
+  color: rgba(245,237,216,0.7); line-height: 1.5;
+}
+.beta-feedback-textarea {
+  width: 100%; padding: 0.75rem 1rem;
+  background: rgba(255,248,235,0.06);
+  border: 1px solid rgba(184,134,11,0.25);
+  border-radius: 0.75rem;
+  font-family: 'Jost', sans-serif; font-size: 0.85rem;
+  color: rgba(245,237,216,0.85);
+  resize: none; outline: none;
+  line-height: 1.6;
+  transition: border-color 0.2s;
+}
+.beta-feedback-textarea::placeholder { color: rgba(245,237,216,0.25); font-style: italic; }
+.beta-feedback-textarea:focus { border-color: rgba(184,134,11,0.5); }
+.beta-feedback-btn {
+  align-self: flex-end;
+  background: transparent;
+  border: 1px solid rgba(184,134,11,0.35);
+  border-radius: 100px;
+  padding: 0.4rem 1.1rem;
+  font-family: 'Jost', sans-serif; font-size: 0.78rem;
+  color: rgba(184,134,11,0.75); cursor: pointer;
+  transition: all 0.2s; letter-spacing: 0.05em;
+}
+.beta-feedback-btn:hover {
+  border-color: rgba(184,134,11,0.7);
+  color: rgba(184,134,11,1);
+  background: rgba(184,134,11,0.06);
+}
+.beta-feedback-thanks {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem; font-style: italic;
+  color: rgba(245,237,216,0.55);
+  text-align: center; padding: 0.5rem 0;
+  animation: fadeIn 0.5s ease both;
+}
   text-align: center; padding: 1.5rem 0 0.5rem;
   animation: fadeIn 0.6s ease both;
 }
@@ -1725,6 +1768,20 @@ body {
     <div class="beta-farewell-alma" id="beta-farewell-alma" style="display:none"></div>
 
     <div class="beta-farewell-actions-wrap" id="beta-farewell-actions">
+
+      <!-- Formulario de feedback — Netlify lo captura y manda email -->
+      <form name="alma-feedback" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="beta-feedback-form" id="beta-feedback-form">
+        <input type="hidden" name="form-name" value="alma-feedback">
+        <input type="hidden" name="bot-field" style="display:none">
+        <p class="beta-feedback-label">¿Cómo te has sentido con Alma hoy?</p>
+        <textarea name="feedback" class="beta-feedback-textarea" placeholder="Cuéntanos lo que sea..." rows="3"></textarea>
+        <button type="submit" class="beta-feedback-btn">Enviar →</button>
+      </form>
+
+      <div class="beta-feedback-thanks" id="beta-feedback-thanks" style="display:none">
+        <p>Gracias. Tu voz nos ayuda a que Alma crezca.</p>
+      </div>
+
       <button class="beta-cta" onclick="startFullJourney()">
         Quiero hacer los tres días →
       </button>
@@ -3992,21 +4049,24 @@ async function showBetaFarewell() {
 
 // Botón CTA — ir a los 3 días completos
 function startFullJourney() {
-  // 1. Migrar la sesión beta a alma_0 para que el día 1 quede reconocido
+  // 1. Migrar la sesión beta a alma_0 con fecha de AYER
+  // para que el sistema reconozca que el día 1 ya pasó
+  // y no permita hacer el día 2 hasta mañana
   try {
     const betaData = JSON.parse(localStorage.getItem('alma_beta') || '{}');
     if (betaData.history && betaData.history.length > 0) {
-      // Guardar como día 0 de la experiencia de 3 días
+      // Fecha de ayer — fuerza que isSameCalendarDay devuelva false
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
       const day0 = {
         history: betaData.history,
         almaReply: betaData.almaReply || '',
         text: betaData.history.filter(t => t.role === 'user').map(t => t.text).join('\n\n'),
-        date: betaData.date || new Date().toISOString(),
+        date: yesterday.toISOString(),
         arrivalMode: betaData.arrivalMode || 'pain',
         migratedFromBeta: true
       };
       localStorage.setItem('alma_0', JSON.stringify(day0));
-      // Guardar el modo de llegada para que lo usen los días siguientes
       localStorage.setItem('alma_arrival_mode', betaData.arrivalMode || 'pain');
     }
     localStorage.removeItem('alma_beta');
@@ -4026,73 +4086,85 @@ function startFullJourney() {
 
   trackEvent('beta_to_full', { mode: betaMode });
 
-  // 3. Después de 4 segundos, cerrar la pantalla y preparar la app para el día 2
+  // 3. Después de 4 segundos, hacer transición suave sin flash
   setTimeout(() => {
-    isBetaMode = false;
+    // Ocultar body durante la transición para evitar el flash
+    document.body.style.opacity = '0';
+    document.body.style.transition = 'opacity 0.3s ease';
 
-    // Ocultar pantalla farewell beta
-    const betaFarewell = document.getElementById('beta-farewell-screen');
-    if (betaFarewell) betaFarewell.classList.remove('visible');
+    setTimeout(() => {
+      isBetaMode = false;
 
-    // Limpiar DOM
-    const histContainer = document.getElementById('conversation-history');
-    if (histContainer) histContainer.innerHTML = '';
-    const responseEl = document.getElementById('alma-response');
-    if (responseEl) responseEl.classList.remove('visible');
-    const responseText = document.getElementById('alma-response-text');
-    if (responseText) responseText.innerHTML = '';
-    const tr = document.getElementById('turn-reply');
-    if (tr) tr.style.display = 'none';
-    const ta = document.getElementById('journal-text');
-    if (ta) ta.value = '';
+      // Ocultar pantalla farewell beta
+      const betaFarewell = document.getElementById('beta-farewell-screen');
+      if (betaFarewell) betaFarewell.classList.remove('visible');
 
-    // Ocultar selector beta
-    const betaWrap = document.getElementById('beta-arrival-selector-wrap');
-    if (betaWrap) betaWrap.style.display = 'none';
+      // Limpiar DOM
+      const histContainer = document.getElementById('conversation-history');
+      if (histContainer) histContainer.innerHTML = '';
+      const responseEl = document.getElementById('alma-response');
+      if (responseEl) responseEl.classList.remove('visible');
+      const responseText = document.getElementById('alma-response-text');
+      if (responseText) responseText.innerHTML = '';
+      const tr = document.getElementById('turn-reply');
+      if (tr) tr.style.display = 'none';
+      const ta = document.getElementById('journal-text');
+      if (ta) ta.value = '';
 
-    // Restaurar sidebar y nav
-    const sidebar = document.querySelector('.sidebar');
-    if (sidebar) { sidebar.classList.remove('sidebar-hidden'); sidebar.classList.add('sidebar-visible'); }
-    const dayNav = document.getElementById('day-nav');
-    if (dayNav) dayNav.style.display = '';
-    ['btn-next-d', 'btn-next-m'].forEach(id => {
-      const btn = document.getElementById(id);
-      if (btn) btn.style.display = '';
-    });
+      // Ocultar selector beta
+      const betaWrap = document.getElementById('beta-arrival-selector-wrap');
+      if (betaWrap) betaWrap.style.display = 'none';
 
-    // Ocultar botones y selector de llegada — ya tiene día 1 hecho
-    const wrap = document.getElementById('arrival-selector-wrap');
-    if (wrap) wrap.style.display = 'none';
-    const qCard = document.getElementById('question-card');
-    if (qCard) {
-      qCard.classList.remove('question-card-hidden');
-      qCard.classList.add('question-card-visible');
-    }
+      // Restaurar sidebar y nav
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar) { sidebar.classList.remove('sidebar-hidden'); sidebar.classList.add('sidebar-visible'); }
+      const dayNav = document.getElementById('day-nav');
+      if (dayNav) dayNav.style.display = '';
+      ['btn-next-d', 'btn-next-m'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.style.display = '';
+      });
 
-    // Saltar al día 2 — el día 1 ya está hecho
-    currentDay = 1;
+      // Ocultar selector de llegada — ya tiene día 1 hecho
+      const wrap = document.getElementById('arrival-selector-wrap');
+      if (wrap) wrap.style.display = 'none';
 
-    // Actualizar pill y título al día 2
-    const pill = document.getElementById('day-pill');
-    if (pill) { pill.textContent = `Día 2 de 3`; pill.style.display = ''; }
-    const titleEl = document.getElementById('day-title');
-    if (titleEl) { titleEl.innerHTML = 'Para <em>mirarse</em>'; titleEl.style.display = ''; }
+      // Ocultar question-card — no puede escribir hasta mañana
+      const qCard = document.getElementById('question-card');
+      if (qCard) {
+        qCard.classList.add('question-card-hidden');
+        qCard.classList.remove('question-card-visible');
+      }
 
-    // Ocultar botones hasta mañana — el día 2 no es hoy
-    const rowD = document.getElementById('actions-row-d');
-    if (rowD) rowD.style.display = 'none';
-    setMobileButtons(false);
+      // Posicionar en día 2
+      currentDay = 1;
 
-    // Mostrar mensaje de que el día 2 empieza mañana
-    if (histContainer) {
-      histContainer.innerHTML = `
-        <div style="text-align:center; padding: 2rem 1rem; color: var(--muted); font-family: 'Cormorant Garamond', serif; font-style:italic; font-size:1.05rem; line-height:1.8;">
-          El día 2 te espera mañana.<br>
-          <span style="font-size:0.85rem; opacity:0.6; font-style:normal; font-family:'Jost',sans-serif;">Vuelve cuando estés lista.</span>
-        </div>`;
-    }
+      // Actualizar pill y título al día 2
+      const pill = document.getElementById('day-pill');
+      if (pill) { pill.textContent = `Día 2 de 3`; pill.style.display = ''; }
+      const titleEl = document.getElementById('day-title');
+      if (titleEl) { titleEl.innerHTML = 'Para <em>mirarse</em>'; titleEl.style.display = ''; }
 
-    renderNav();
+      // Ocultar todos los botones — no puede hacer nada hasta mañana
+      const rowD = document.getElementById('actions-row-d');
+      if (rowD) rowD.style.display = 'none';
+      setMobileButtons(false);
+
+      // Mostrar mensaje de que el día 2 empieza mañana
+      if (histContainer) {
+        histContainer.innerHTML = `
+          <div style="text-align:center; padding: 3rem 1rem 2rem; color: var(--muted); font-family: 'Cormorant Garamond', serif; font-style:italic; font-size:1.1rem; line-height:2;">
+            El día 2 te espera mañana.<br>
+            <span style="font-size:0.85rem; opacity:0.55; font-style:normal; font-family:'Jost',sans-serif; letter-spacing:0.03em;">Vuelve cuando estés lista.</span>
+          </div>`;
+      }
+
+      renderNav();
+
+      // Aparecer suavemente — sin flash
+      document.body.style.opacity = '1';
+
+    }, 300);
   }, 4000);
 }
 
@@ -4514,6 +4586,23 @@ function closeFeedback() {
     document.getElementById('feedback-text').value = '';
   }, 400);
 }
+
+// Formulario de feedback — envío AJAX sin recargar la página
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('beta-feedback-form');
+  if (!form) return;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    try {
+      await fetch('/', { method: 'POST', body: data });
+    } catch(err) {}
+    form.style.display = 'none';
+    const thanks = document.getElementById('beta-feedback-thanks');
+    if (thanks) thanks.style.display = 'block';
+    trackEvent('feedback_submitted');
+  });
+});
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
