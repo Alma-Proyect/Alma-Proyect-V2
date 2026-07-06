@@ -1670,8 +1670,8 @@ body {
   </div>
 </div>
 
-<!-- PANTALLA ELECCIÓN 1 o 3 DÍAS -->
-<div class="mode-screen" id="mode-screen" style="display:none">
+<!-- PANTALLA ELECCIÓN 1 o 3 DÍAS — eliminada del flujo, todas entran al día 1 -->
+<div class="mode-screen" id="mode-screen" style="display:none!important; visibility:hidden; pointer-events:none">
   <div class="mode-card">
     <img class="mode-logo" src="/images/logo-web.png" alt="Alma">
     <div class="mode-title">Ya estás aquí.<br>Este es tu momento.</div>
@@ -3423,8 +3423,9 @@ function init() {
       const dayNav = document.getElementById('day-nav');
       if (dayNav) dayNav.style.display = '';
     } else {
-      // Primera vez — mostrar pantalla de elección 1/3 días
-      if (modeScreen) modeScreen.style.display = 'flex';
+      // Primera vez — entrar directamente al día 1 (beta)
+      // Ya no hay pantalla de elección — todas empiezan por el día 1
+      chooseMode('beta');
     }
   }
 
