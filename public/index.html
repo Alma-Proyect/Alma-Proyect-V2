@@ -4182,9 +4182,17 @@ function startFullJourney() {
       // Mostrar mensaje de que el día 2 empieza mañana
       if (histContainer) {
         histContainer.innerHTML = `
-          <div style="text-align:center; padding: 3rem 1rem 2rem; color: var(--muted); font-family: 'Cormorant Garamond', serif; font-style:italic; font-size:1.1rem; line-height:2;">
-            El día 2 te espera mañana.<br>
-            <span style="font-size:0.85rem; opacity:0.55; font-style:normal; font-family:'Jost',sans-serif; letter-spacing:0.03em;">Vuelve cuando estés lista.</span>
+          <div style="text-align:center; padding: 2rem 2rem 3rem; display:flex; flex-direction:column; align-items:center; gap:1.1rem; margin-top:0;">
+            <div style="color:rgba(184,134,11,0.5); font-size:1.2rem; letter-spacing:0.2em;">✦</div>
+            <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.3rem; color:var(--ink); line-height:1.6; font-weight:400; max-width:280px;">
+              Ya diste el primer paso.
+            </p>
+            <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.1rem; color:var(--muted); line-height:1.7; max-width:300px;">
+              El día 2 es otra afirmación<br>de tu compromiso.
+            </p>
+            <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1rem; color:var(--muted); opacity:0.7; line-height:1.6;">
+              Solo necesitas cinco minutos contigo.
+            </p>
           </div>`;
       }
 
