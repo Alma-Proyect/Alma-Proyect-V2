@@ -796,61 +796,78 @@ body {
    SELECTOR DE LLEGADA INTEGRADO
 ════════════════════════════════ */
 .arrival-selector-wrap {
-  background: #FDFAF5;
-  border-radius: 12px;
-  border: 1px solid rgba(74,107,74,0.15);
-  padding: 0.9rem 1.2rem;
+  background: transparent;
+  padding: 0.5rem 0;
   margin-bottom: 0.85rem;
 }
 .arrival-selector-title {
-  font-size: 11px; letter-spacing: 0.15em;
-  text-transform: uppercase; color: #2C2010;
-  font-weight: 600; margin-bottom: 0.3rem;
-}
-.arrival-selector-sub {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 0.78rem; font-style: italic;
-  color: rgba(44,32,16,0.45);
-  margin-bottom: 0.75rem;
+  font-size: 1.05rem; font-style: italic; font-weight: 400;
+  color: var(--ink); opacity: 0.7;
+  text-align: center;
+  margin-bottom: 1rem;
+  letter-spacing: 0.01em;
+  animation: fadeUp 0.5s ease both;
 }
+.arrival-selector-sub { display: none; }
 .arrival-selector-options {
-  display: flex; flex-direction: column; gap: 0.45rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
 }
 .arrival-selector-btn {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1rem; font-style: italic; font-weight: 500;
-  color: #F5EDD8;
+  font-size: 1rem; font-style: italic; font-weight: 400;
+  color: var(--ink);
   cursor: pointer;
-  transition: all 0.2s;
-  padding: 0.6rem 0.9rem;
-  background: #6E8F6E;
-  border: 1.5px solid rgba(255,255,255,0.15);
-  border-radius: 0.6rem;
-  text-align: left;
+  transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+  padding: 0.85rem 0.75rem;
+  background: #FDFAF5;
+  border: 1.5px solid rgba(184,134,11,0.25);
+  border-radius: 1rem;
+  text-align: center;
   width: 100%;
-  display: flex; align-items: center; gap: 0.6rem;
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; line-height: 1.35;
+  box-shadow: 0 2px 8px rgba(44,32,16,0.06);
   -webkit-tap-highlight-color: transparent;
+  animation: fadeUp 0.5s ease both;
 }
-.arrival-selector-btn::before {
-  content: '→'; font-style: normal;
-  font-size: 0.75rem;
-  color: rgba(245,237,216,0.5);
-  transition: all 0.2s; flex-shrink: 0;
-}
+.arrival-selector-btn:nth-child(1) { animation-delay: 0.05s; }
+.arrival-selector-btn:nth-child(2) { animation-delay: 0.1s; }
+.arrival-selector-btn:nth-child(3) { animation-delay: 0.15s; }
+.arrival-selector-btn:nth-child(4) { animation-delay: 0.2s; }
+.arrival-selector-btn::before { display: none; }
 .arrival-selector-btn:hover {
-  background: #3D5C3D;
-  border-color: #D4A828;
-  color: #FDF0D2;
-  transform: translateX(4px);
+  background: rgba(184,134,11,0.08);
+  border-color: rgba(184,134,11,0.55);
+  color: var(--ink);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(184,134,11,0.12);
 }
-.arrival-selector-btn:hover::before { color: #D4A828; content: '✦'; font-size: 0.65rem; }
+.arrival-selector-btn:active {
+  transform: scale(0.97);
+  background: rgba(184,134,11,0.15);
+}
 .arrival-selector-btn.selected {
-  background: #3D5C3D;
-  border: 1.5px solid #D4A828;
-  color: #FDF0D2; font-weight: 600;
+  background: rgba(184,134,11,0.1);
+  border: 1.5px solid #B8860B;
+  color: var(--ink); font-weight: 500;
+  box-shadow: 0 4px 14px rgba(184,134,11,0.18);
+  transform: translateY(-1px);
 }
-.arrival-selector-btn.selected::before {
-  content: '✦'; color: #D4A828; font-size: 0.65rem;
+.arrival-selector-btn.selected::before { display: none; }
+
+/* Nota debajo de los botones */
+.arrival-selector-note {
+  text-align: center;
+  font-size: 0.72rem;
+  color: rgba(44,32,16,0.35);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  margin-top: 0.75rem;
+  animation: fadeUp 0.5s 0.3s ease both;
 }
 
 /* Question card oculta hasta elegir modo */
@@ -1816,15 +1833,15 @@ body {
       Tres preguntas. Tres días. Un acompañamiento que escucha de verdad.
     </p>
     <div class="welcome-divider"></div>
-    <p class="arrival-question">Antes de empezar. ¿Cómo llegas?</p>
+    <p class="arrival-question">Alma se ajusta a cómo llegas hoy.</p>
     <div class="arrival-options">
       <button class="arrival-btn" onclick="selectArrival(this,'pain')">Con algo que pesa</button>
-      <button class="arrival-btn" onclick="selectArrival(this,'curiosity')">Con ganas de conocerme</button>
-      <button class="arrival-btn" onclick="selectArrival(this,'open')">Sin saber muy bien</button>
-      <button class="arrival-btn" onclick="selectArrival(this,'depth')">Profundizar en mí</button>
+      <button class="arrival-btn" onclick="selectArrival(this,'curiosity')">Buscándome</button>
+      <button class="arrival-btn" onclick="selectArrival(this,'open')">Con una inquietud</button>
+      <button class="arrival-btn" onclick="selectArrival(this,'depth')">Sin saber por qué</button>
     </div>
     <button class="welcome-btn" id="welcome-btn" onclick="startJourney()">Entrar →</button>
-    <p class="welcome-note">Sin prisa. Sin juicio. Solo tú.</p>
+    <p class="welcome-note">No hay respuesta correcta.</p>
   </div>
 </div>
 
@@ -1907,26 +1924,26 @@ body {
 
     <!-- Selector de llegada BETA integrado -->
     <div class="arrival-selector-wrap" id="beta-arrival-selector-wrap" style="display:none">
-      <div class="arrival-selector-title">¿En qué momento llegas?</div>
-      <div class="arrival-selector-sub">Elige una opción</div>
+      <div class="arrival-selector-title">Alma se ajusta a cómo llegas hoy.</div>
       <div class="arrival-selector-options">
-        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_pain')">Cargando algo que necesito contar</button>
-        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_search')">Buscando permiso para ser yo misma</button>
-        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_self')">Con algo que me está pidiendo atención</button>
-        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_unclear')">Sin saber muy bien qué me trajo aquí</button>
+        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_pain')">Con algo que pesa</button>
+        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_search')">Buscándome</button>
+        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_self')">Con una inquietud</button>
+        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_unclear')">Sin saber por qué</button>
       </div>
+      <div class="arrival-selector-note">No hay respuesta correcta.</div>
     </div>
 
     <!-- Selector de llegada 3 DÍAS integrado -->
     <div class="arrival-selector-wrap" id="arrival-selector-wrap">
-      <div class="arrival-selector-title">¿En qué momento llegas?</div>
-      <div class="arrival-selector-sub">Elige una opción</div>
+      <div class="arrival-selector-title">Alma se ajusta a cómo llegas hoy.</div>
       <div class="arrival-selector-options">
         <button class="arrival-selector-btn" onclick="selectArrival(this,'pain')">Con algo que pesa</button>
-        <button class="arrival-selector-btn" onclick="selectArrival(this,'curiosity')">Con ganas de conocerme</button>
-        <button class="arrival-selector-btn" onclick="selectArrival(this,'open')">Sin saber muy bien</button>
-        <button class="arrival-selector-btn" onclick="selectArrival(this,'depth')">Queriendo ir más adentro</button>
+        <button class="arrival-selector-btn" onclick="selectArrival(this,'curiosity')">Buscándome</button>
+        <button class="arrival-selector-btn" onclick="selectArrival(this,'open')">Con una inquietud</button>
+        <button class="arrival-selector-btn" onclick="selectArrival(this,'depth')">Sin saber por qué</button>
       </div>
+      <div class="arrival-selector-note">No hay respuesta correcta.</div>
     </div>
 
     <!-- Pregunta -->
