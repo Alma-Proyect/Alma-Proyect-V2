@@ -44,15 +44,12 @@
     .crisis-box { background: var(--warm); border-left: 2px solid var(--accent-light); border-radius: 8px; padding: 0.8rem 1rem; margin-top: 0.6rem; }
     .crisis-box p { font-size: 0.82rem !important; color: var(--ink-soft) !important; }
     .crisis-box a { color: var(--accent); text-decoration: none; font-weight: 400; }
-    .checkbox-area { display: flex; align-items: flex-start; gap: 0.8rem; margin-bottom: 1.4rem; cursor: pointer; }
-    .checkbox-area input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; min-width: 18px; border: 1.5px solid var(--accent-light); border-radius: 4px; background: #fff; cursor: pointer; position: relative; top: 1px; transition: all 0.2s; }
-    .checkbox-area input[type="checkbox"]:checked { background: var(--accent); border-color: var(--accent); }
-    .checkbox-area input[type="checkbox"]:checked::after { content: ''; position: absolute; left: 4px; top: 1px; width: 5px; height: 9px; border: 2px solid #fff; border-top: none; border-left: none; transform: rotate(45deg); }
-    .checkbox-area label { font-size: 0.85rem; color: var(--ink-soft); line-height: 1.6; cursor: pointer; }
-    .btn { width: 100%; padding: 0.95rem; background: var(--ink); color: var(--cream); border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 300; letter-spacing: 0.06em; cursor: pointer; transition: all 0.25s ease; opacity: 0.35; pointer-events: none; }
-    .btn.active { opacity: 1; pointer-events: all; }
-    .btn.active:hover { background: var(--accent); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(139,111,94,0.25); }
-    .btn.active:active { transform: translateY(0); }
+    .btn { width: 100%; padding: 0.95rem; background: var(--ink); color: var(--cream); border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 300; letter-spacing: 0.06em; cursor: pointer; transition: all 0.25s ease; }
+    .btn:hover { background: var(--accent); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(139,111,94,0.25); }
+    .btn:active { transform: translateY(0); }
+    .guide-link { text-align: center; font-size: 0.8rem; color: var(--ink-faint); line-height: 1.6; margin-top: 1.6rem; }
+    .guide-link a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-light); transition: opacity 0.2s; }
+    .guide-link a:hover { opacity: 0.7; }
     .foot-note { text-align: center; font-size: 0.75rem; color: var(--ink-faint); line-height: 1.6; margin-top: 1.4rem; }
     .foot-note span { display: inline-block; width: 3px; height: 3px; background: var(--ink-faint); border-radius: 50%; vertical-align: middle; margin: 0 0.4rem; position: relative; top: -1px; }
     .foot-note a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-light); transition: opacity 0.2s; }
@@ -68,18 +65,19 @@
     </div>
     <div class="card">
       <div class="section" style="margin-bottom:0;padding-bottom:0;border-bottom:none;">
-        <p>Alma no es terapia, coaching, ni sustituye la atención de un profesional de salud mental. Si necesitas atención inmediata llama al <a href="tel:717003717" style="color:var(--accent);text-decoration:none;font-weight:400;"><strong>717 003 717</strong></a> (Teléfono de la Esperanza, 24 horas).</p>
+        <p>Alma no es terapia ni sustituye a un profesional. Ayuda inmediata: <a href="tel:717003717" style="color:var(--accent);text-decoration:none;font-weight:400;"><strong>717 003 717</strong></a> (Teléfono de la Esperanza, 24h).</p>
+        <p style="margin-top:0.7rem;">Al entrar, confirmas que eres mayor de 18 años.</p>
       </div>
     </div>
-    <div class="checkbox-area">
-      <input type="checkbox" id="acepto" />
-      <label for="acepto">He leído esta información y deseo continuar.</label>
-    </div>
-    <button class="btn" id="btnEntrar" disabled onclick="entrar()">
+    <button class="btn" id="btnEntrar" onclick="entrar()">
       Entrar en mi refugio →
     </button>
+    <p class="guide-link">
+      Antes de elegir tu puerta, puedes leer de dónde viene Alma.<br />
+      <a href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener">Descargar la guía →</a>
+    </p>
     <p class="foot-note">
-      Solo mayores de 18 años <span></span> No es terapia <span></span> <a href="privacidad.html">Privacidad</a>
+      <a href="privacidad.html">Privacidad</a>
     </p>
   </div>
   <script>
@@ -92,18 +90,11 @@
       if (c.accepted) window.location.replace('/tu-espacio');
     } catch(e) {}
 
-    // ── Activar botón al marcar checkbox ──────────────────────────────────
-    const checkbox = document.getElementById('acepto');
-    const btn      = document.getElementById('btnEntrar');
-
-    checkbox.addEventListener('change', () => {
-      btn.classList.toggle('active', checkbox.checked);
-      btn.disabled = !checkbox.checked;
-    });
-
     // ── Guardar consentimiento con clave correcta y redirigir ─────────────
+    // El propio clic en "Entrar en mi refugio" es el acto afirmativo de
+    // consentimiento: el texto de condiciones está inmediatamente encima
+    // del botón y es imposible pulsarlo sin haberlo visto.
     function entrar() {
-      if (!checkbox.checked) return;
       try {
         // CLAVE: alma_consent — la misma que lee init() en index.html
         localStorage.setItem('alma_consent', JSON.stringify({
