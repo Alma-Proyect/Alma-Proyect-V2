@@ -66,6 +66,7 @@
     <div class="card">
       <div class="section" style="margin-bottom:0;padding-bottom:0;border-bottom:none;">
         <p>Alma no es terapia ni sustituye a un profesional. Ayuda inmediata: <a href="tel:717003717" style="color:var(--accent);text-decoration:none;font-weight:400;"><strong>717 003 717</strong></a> (Teléfono de la Esperanza, 24h).</p>
+        <p style="margin-top:0.7rem;">Mientras dura tu recorrido, tus palabras se guardan de forma segura para que no se pierdan. Si al terminar decides no quedarte, se borran solas a los catorce días.</p>
         <p style="margin-top:0.7rem;">Al entrar, confirmas que eres mayor de 18 años.</p>
       </div>
     </div>
@@ -87,7 +88,10 @@
     // ── Si ya aceptó antes, entrar directamente sin mostrar la pantalla ──
     try {
       const c = JSON.parse(localStorage.getItem('alma_consent') || '{}');
-      if (c.accepted) window.location.replace('/tu-espacio');
+      // Solo salta el aviso quien aceptó esta misma versión de las condiciones.
+      // Si las condiciones cambian (como ahora, con el guardado temporal),
+      // el aviso se muestra de nuevo y el consentimiento se renueva.
+      if (c.accepted && c.version === 'beta-julio-2026') window.location.replace('/tu-espacio');
     } catch(e) {}
 
     // ── Guardar consentimiento con clave correcta y redirigir ─────────────
@@ -100,7 +104,7 @@
         localStorage.setItem('alma_consent', JSON.stringify({
           accepted: true,
           date: new Date().toISOString(),
-          version: 'beta-abril-2026'
+          version: 'beta-julio-2026'
         }));
       } catch(e) {}
       // Ruta de Netlify — no index.html directamente
