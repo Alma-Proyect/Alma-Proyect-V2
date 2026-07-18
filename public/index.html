@@ -2146,17 +2146,49 @@ let isBetaMode = false; // true cuando la usuaria eligió el día beta
 // STORAGE
 // =======================
 
+// ── Identificador anónimo y espejo en el servidor ──
+// Cada usuaria recibe un identificador anónimo la primera vez que se
+// guarda algo. Sus palabras se espejan en el servidor mientras dura el
+// recorrido, tal y como cuenta el aviso: si no reclama su sitio al
+// terminar, se borran solas a los catorce días.
+function anonId() {
+  try {
+    let id = localStorage.getItem('alma_anon_id');
+    if (!id) {
+      id = (crypto.randomUUID && crypto.randomUUID()) || null;
+      if (id) localStorage.setItem('alma_anon_id', id);
+    }
+    return id;
+  } catch(e) { return null; }
+}
+
+// Disparo y olvido: si el servidor no responde, la experiencia sigue
+// intacta con el guardado local de siempre. Nunca bloquea ni avisa.
+function guardarEnServidor(day, data, arrivalMode) {
+  try {
+    const id = anonId();
+    if (!id) return;
+    fetch('/.netlify/functions/journey-save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ anonId: id, day: String(day), data, arrivalMode })
+    }).catch(() => {});
+  } catch(e) {}
+}
+
 function saveToLocal(day, text, emotions, almaReply, history, arrivalMode) {
   try {
     const existing = loadFromLocal(day) || {};
-    localStorage.setItem(`alma_${day}`, JSON.stringify({
+    const payload = {
       text,
       emotions,
       date: existing.date || new Date().toISOString(),
       almaReply: almaReply !== undefined ? almaReply : (existing.almaReply || null),
       history: history || existing.history || [],
       arrivalMode: arrivalMode || existing.arrivalMode || 'pain',
-    }));
+    };
+    localStorage.setItem(`alma_${day}`, JSON.stringify(payload));
+    guardarEnServidor(day, payload, payload.arrivalMode);
   } catch(e) {
     console.warn('localStorage no disponible:', e);
   }
@@ -3708,12 +3740,14 @@ let betaHistory = []; // [{role, text}]
 function saveBetaToLocal(history, almaReply) {
   try {
     const existing = JSON.parse(localStorage.getItem('alma_beta') || '{}');
-    localStorage.setItem('alma_beta', JSON.stringify({
+    const payload = {
       history: history || existing.history || [],
       almaReply: almaReply !== undefined ? almaReply : (existing.almaReply || null),
       arrivalMode: betaMode,
       date: existing.date || new Date().toISOString(),
-    }));
+    };
+    localStorage.setItem('alma_beta', JSON.stringify(payload));
+    guardarEnServidor('beta', payload, betaMode);
   } catch(e) {}
 }
 
