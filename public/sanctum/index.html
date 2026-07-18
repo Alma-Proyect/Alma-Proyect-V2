@@ -1088,45 +1088,65 @@ async function init() {
 
 // ── BACKEND API — toda comunicación con Supabase va por el servidor ──
 
-// Clave del Sanctum: vive solo en las variables de Netlify y en este navegador.
-// Se pide una vez y queda guardada. Nunca se escribe en el código.
+// Clave del Sanctum: vive solo en las variables de Netlify y, mientras el
+// navegador esté abierto, en sessionStorage. Al cerrar el navegador se borra
+// y se vuelve a pedir. Nunca queda guardada de forma permanente.
 function claveSanctum() {
-  let k = localStorage.getItem('sanctum_key');
+  let k = sessionStorage.getItem('sanctum_key');
   if (!k) {
     k = (prompt('Tu clave del Sanctum') || '').trim();
-    if (k) localStorage.setItem('sanctum_key', k);
+    if (k) sessionStorage.setItem('sanctum_key', k);
   }
   return k || '';
 }
 
+// Limpieza única: elimina de este navegador cualquier copia antigua del
+// Sanctum y de la clave que versiones anteriores guardaron en localStorage.
+(function limpiarCopiasLocales() {
+  try {
+    localStorage.removeItem('sanctum_v1_entries');
+    localStorage.removeItem('sanctum_v1_essence');
+    localStorage.removeItem('sanctum_key');
+  } catch(e) {}
+})();
+
 async function loadData() {
+  // Sin clave no hay Sanctum: si cancela o la deja vacía, la página se queda fuera.
+  const clave = claveSanctum();
+  if (!clave) {
+    entries = [];
+    essence = null;
+    alert('Sin la clave, el Sanctum permanece cerrado. Recarga la página para introducirla.');
+    return;
+  }
   try {
     const res = await fetch('/.netlify/functions/sanctum-load', {
-      headers: { 'x-sanctum-key': claveSanctum() }
+      headers: { 'x-sanctum-key': clave }
     });
     if (res.status === 401) {
-      localStorage.removeItem('sanctum_key');
-      throw new Error('Clave del Sanctum incorrecta. Recarga la página para volver a introducirla.');
+      // Clave incorrecta: se descarta y la página se queda fuera.
+      sessionStorage.removeItem('sanctum_key');
+      entries = [];
+      essence = null;
+      alert('Clave del Sanctum incorrecta. Recarga la página para volver a introducirla.');
+      return;
     }
     if (!res.ok) throw new Error(`sanctum-load error: ${res.status}`);
     const data = await res.json();
     entries = data.entries || [];
     essence = data.essence || null;
   } catch(e) {
-    console.warn('Backend no disponible, usando localStorage:', e);
-    try {
-      entries = JSON.parse(localStorage.getItem('sanctum_v1_entries') || '[]');
-      essence = JSON.parse(localStorage.getItem('sanctum_v1_essence') || 'null');
-    } catch(e2) { entries = []; essence = null; }
+    // Sin conexión no hay Sanctum: no existe copia local.
+    console.warn('Backend no disponible:', e);
+    entries = [];
+    essence = null;
+    alert('No hay conexión con el servidor. El Sanctum queda cerrado hasta que vuelva.');
   }
 }
 
 async function persist() {
-  // Fallback a localStorage siempre
-  try {
-    localStorage.setItem('sanctum_v1_entries', JSON.stringify(entries));
-    if (essence) localStorage.setItem('sanctum_v1_essence', JSON.stringify(essence));
-  } catch(e) {}
+  // El Sanctum vive solo en el servidor, tras la clave.
+  // No se guarda ninguna copia en el navegador.
 }
 
 function setDate() {
@@ -1361,7 +1381,7 @@ async function distillEssence() {
     document.getElementById('distill-note').textContent =
       `Retrato actualizado · ${entries.length} entrada${entries.length !== 1 ? 's' : ''} · ${new Date().toLocaleDateString('es-ES')}`;
 
-    // Guardar en localStorage en segundo plano — no bloqueante
+    // persist() ya no guarda nada localmente; se mantiene la llamada por compatibilidad
     persist().catch(e => console.warn('persist error:', e));
 
   } catch(e) {
