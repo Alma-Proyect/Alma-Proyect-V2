@@ -1087,9 +1087,27 @@ async function init() {
 }
 
 // ── BACKEND API — toda comunicación con Supabase va por el servidor ──
+
+// Clave del Sanctum: vive solo en las variables de Netlify y en este navegador.
+// Se pide una vez y queda guardada. Nunca se escribe en el código.
+function claveSanctum() {
+  let k = localStorage.getItem('sanctum_key');
+  if (!k) {
+    k = (prompt('Tu clave del Sanctum') || '').trim();
+    if (k) localStorage.setItem('sanctum_key', k);
+  }
+  return k || '';
+}
+
 async function loadData() {
   try {
-    const res = await fetch('/.netlify/functions/sanctum-load');
+    const res = await fetch('/.netlify/functions/sanctum-load', {
+      headers: { 'x-sanctum-key': claveSanctum() }
+    });
+    if (res.status === 401) {
+      localStorage.removeItem('sanctum_key');
+      throw new Error('Clave del Sanctum incorrecta. Recarga la página para volver a introducirla.');
+    }
     if (!res.ok) throw new Error(`sanctum-load error: ${res.status}`);
     const data = await res.json();
     entries = data.entries || [];
@@ -1176,7 +1194,7 @@ async function saveEntry() {
   try {
     const res = await fetch('/.netlify/functions/sanctum-save', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-sanctum-key': claveSanctum() },
       body: JSON.stringify({ entry })
     });
     if (res.ok) {
@@ -1276,7 +1294,7 @@ async function resetDistilled(event, id) {
   try {
     await fetch('/.netlify/functions/sanctum-reset-distilled', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-sanctum-key': claveSanctum() },
       body: JSON.stringify({ id: e.id })
     });
   } catch(err) {
@@ -1296,7 +1314,7 @@ function delEntry(event, id) {
   // Borrar en backend (sin bloquear UI)
   fetch('/.netlify/functions/sanctum-delete', {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-sanctum-key': claveSanctum() },
     body: JSON.stringify({ id })
   }).catch(e => console.warn('No se pudo borrar en backend:', e));
 }
@@ -1316,7 +1334,7 @@ async function distillEssence() {
   try {
     const res = await fetch('/.netlify/functions/sanctum-distill', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-sanctum-key': claveSanctum() },
       body: JSON.stringify({ entries })
     });
 
@@ -1613,7 +1631,7 @@ async function sendMessage() {
   try {
     const res = await fetch('/.netlify/functions/sanctum-chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-sanctum-key': claveSanctum() },
       body: JSON.stringify({
         message: text,
         history: chatHistory.slice(0, -1) // historial sin el último (ya está en message)
