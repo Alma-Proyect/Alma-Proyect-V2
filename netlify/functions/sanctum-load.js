@@ -1,9 +1,16 @@
 // netlify/functions/sanctum-load.js
 // Carga entradas y esencia del Sanctum desde Supabase.
 // La clave de Supabase nunca sale del servidor.
+// Protegido: solo responde si la petición trae la clave del Sanctum.
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const SANCTUM_SECRET = process.env.SANCTUM_SECRET;
+
+function autorizada(event) {
+  const clave = event.headers['x-sanctum-key'] || event.headers['X-Sanctum-Key'];
+  return SANCTUM_SECRET && clave === SANCTUM_SECRET;
+}
 
 async function sbFetch(path) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -20,6 +27,10 @@ async function sbFetch(path) {
 }
 
 exports.handler = async function (event) {
+  if (!autorizada(event)) {
+    return { statusCode: 401, body: JSON.stringify({ error: 'No autorizado' }) };
+  }
+
   if (event.httpMethod !== 'GET') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }

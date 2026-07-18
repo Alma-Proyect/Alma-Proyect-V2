@@ -1,11 +1,22 @@
 // netlify/functions/sanctum-save.js
 // Guarda una entrada del Sanctum en Supabase.
 // La clave de Supabase nunca sale del servidor.
+// Protegido: solo responde si la petición trae la clave del Sanctum.
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const SANCTUM_SECRET = process.env.SANCTUM_SECRET;
+
+function autorizada(event) {
+  const clave = event.headers['x-sanctum-key'] || event.headers['X-Sanctum-Key'];
+  return SANCTUM_SECRET && clave === SANCTUM_SECRET;
+}
 
 exports.handler = async function (event) {
+  if (!autorizada(event)) {
+    return { statusCode: 401, body: JSON.stringify({ error: 'No autorizado' }) };
+  }
+
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }

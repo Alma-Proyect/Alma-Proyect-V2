@@ -84,6 +84,7 @@ exports.handler = async function (event) {
       const essController = new AbortController();
       const essTimeout = setTimeout(() => essController.abort(), 800);
       const essRes = await fetch(`${process.env.URL}/.netlify/functions/sanctum-essence`, {
+        headers: { 'x-sanctum-key': process.env.SANCTUM_SECRET },
         signal: essController.signal,
       });
       clearTimeout(essTimeout);

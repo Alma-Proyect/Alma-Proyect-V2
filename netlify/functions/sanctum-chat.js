@@ -4,6 +4,12 @@
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const SANCTUM_SECRET = process.env.SANCTUM_SECRET;
+
+function autorizada(event) {
+  const clave = event.headers['x-sanctum-key'] || event.headers['X-Sanctum-Key'];
+  return SANCTUM_SECRET && clave === SANCTUM_SECRET;
+}
 
 async function sbFetch(path, opts = {}) {
   const controller = new AbortController();
@@ -28,6 +34,10 @@ async function sbFetch(path, opts = {}) {
 }
 
 exports.handler = async function (event) {
+  if (!autorizada(event)) {
+    return { statusCode: 401, body: JSON.stringify({ error: 'No autorizado' }) };
+  }
+
   const startTime = Date.now();
 
   if (event.httpMethod !== 'POST') {
