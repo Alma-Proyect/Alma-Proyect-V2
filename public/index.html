@@ -3471,9 +3471,12 @@ function selectArrival(btn, mode) {
 
 function init() {
   // ── GUARDIA DE CONSENTIMIENTO ──────────────────────────
+  // Debe haber aceptado ESTA versión de las condiciones. Si aceptó una
+  // anterior (cuando nada se guardaba), vuelve a pasar por el aviso para
+  // renovar el consentimiento con las condiciones nuevas.
   try {
     const consent = JSON.parse(localStorage.getItem('alma_consent') || '{}');
-    if (!consent.accepted) {
+    if (!consent.accepted || consent.version !== 'beta-julio-2026') {
       window.location.replace('/beta-aviso.html');
       return; // body sigue invisible — la usuaria no ve nada antes de la redirección
     }
