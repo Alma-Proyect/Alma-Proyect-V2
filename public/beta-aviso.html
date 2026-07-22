@@ -54,20 +54,34 @@
     .foot-note span { display: inline-block; width: 3px; height: 3px; background: var(--ink-faint); border-radius: 50%; vertical-align: middle; margin: 0 0.4rem; position: relative; top: -1px; }
     .foot-note a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-light); transition: opacity 0.2s; }
     .foot-note a:hover { opacity: 0.7; }
+    /* Promesa — lo primero que se lee, cálido y con aire */
+    .promesa p { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 300; line-height: 1.75; color: var(--ink); }
+    .promesa p + p { margin-top: 0.9rem; }
+    .promesa em { font-style: italic; color: var(--accent); }
+    /* Nota — lo obligatorio, completo pero sin peso visual de barrera */
+    .nota { margin-top: 1.5rem; padding-top: 1.2rem; border-top: 1px solid var(--warm); }
+    .nota p { font-size: 0.7rem; color: var(--ink-faint); line-height: 1.6; }
+    .nota p + p { margin-top: 0.5rem; }
+    .nota a { color: var(--accent); text-decoration: none; }
+    .nota .tel { font-size: 0.8rem; background: var(--warm); border-left: 2px solid var(--accent-light); border-radius: 6px; padding: 0.6rem 0.8rem; color: var(--ink-soft); }
+    .nota .tel a { font-weight: 400; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <div class="badge">Versión Beta</div>
       <h1>Antes de <em>entrar...</em></h1>
       <p class="subtitle">Bienvenida a tu refugio.</p>
     </div>
     <div class="card">
-      <div class="section" style="margin-bottom:0;padding-bottom:0;border-bottom:none;">
-        <p>Alma no es terapia ni sustituye a un profesional. Ayuda inmediata: <a href="tel:717003717" style="color:var(--accent);text-decoration:none;font-weight:400;"><strong>717 003 717</strong></a> (Teléfono de la Esperanza, 24h).</p>
-        <p style="margin-top:0.7rem;">Mientras dura tu recorrido, tus palabras se guardan de forma segura para que no se pierdan. Si al terminar decides no quedarte, se borran solas a los catorce días.</p>
-        <p style="margin-top:0.7rem;">Al entrar, confirmas que eres mayor de 18 años.</p>
+      <div class="promesa">
+        <p>Una pregunta al día. El tiempo que quieras para responderla.</p>
+        <p>Nadie te va a <em>evaluar</em>, ni aconsejar, ni pedirte nada.</p>
+      </div>
+      <div class="nota">
+        <p class="tel">Alma no es terapia ni sustituye a un profesional. Si necesitas ayuda ahora: <a href="tel:717003717"><strong>717 003 717</strong></a> (Teléfono de la Esperanza, 24h).</p>
+        <p>Mientras dura tu recorrido, tus palabras se guardan de forma segura para que no se pierdan. Si al terminar decides no quedarte, se borran solas a los catorce días.</p>
+        <p>Al entrar, confirmas que eres mayor de 18 años.</p>
       </div>
     </div>
     <button class="btn" id="btnEntrar" onclick="entrar()">
@@ -78,7 +92,7 @@
       <a href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener" onclick="if(typeof gtag==='function') gtag('event','guia_descargada');">Descargar la guía →</a>
     </p>
     <p class="foot-note">
-      <a href="privacidad.html">Privacidad</a>
+      Versión beta<span></span><a href="privacidad.html">Privacidad</a>
     </p>
   </div>
   <script>
@@ -91,7 +105,12 @@
       // Solo salta el aviso quien aceptó esta misma versión de las condiciones.
       // Si las condiciones cambian (como ahora, con el guardado temporal),
       // el aviso se muestra de nuevo y el consentimiento se renueva.
-      if (c.accepted && c.version === 'beta-julio-2026') window.location.replace('/tu-espacio');
+      if (c.accepted && c.version === 'beta-julio-2026') {
+        window.location.replace('/tu-espacio');
+      } else {
+        // Solo cuenta quien ve el aviso de verdad, no quien pasa de largo.
+        if (typeof gtag === 'function') gtag('event', 'aviso_visto');
+      }
     } catch(e) {}
 
     // ── Guardar consentimiento con clave correcta y redirigir ─────────────
@@ -99,6 +118,12 @@
     // consentimiento: el texto de condiciones está inmediatamente encima
     // del botón y es imposible pulsarlo sin haberlo visto.
     function entrar() {
+      // Evento de embudo: cuántas de las que llegan al aviso lo aceptan.
+      // Junto a beta_arrival_selected permite ver dónde se pierde la gente:
+      // antes del aviso, entre el aviso y la puerta, o al elegir puerta.
+      try {
+        if (typeof gtag === 'function') gtag('event', 'consent_accepted');
+      } catch(e) {}
       try {
         // CLAVE: alma_consent — la misma que lee init() en index.html
         localStorage.setItem('alma_consent', JSON.stringify({
