@@ -894,7 +894,7 @@ nav {
     <div class="lock-sub">Solo para la guardiana</div>
   </div>
   <input class="lock-input" id="lock-input" type="password"
-    placeholder="contraseña" autocomplete="current-password"
+    placeholder="clave del Sanctum" autocomplete="off"
     inputmode="text">
   <button class="lock-btn" onclick="tryUnlock()">Entrar</button>
   <div class="lock-error" id="lock-error"></div>
@@ -1016,35 +1016,12 @@ nav {
 
 <script>
 // ── CONFIGURACIÓN ──
-// Cambia esto antes de subir a Netlify
-const PASSWORD = "R3f4g1oV0zAlm@2026";
-
-const PROMPTS = [
-  "¿En qué momento de esta semana te sostuviste sola sin hacer ruido sobre ello?",
-  "¿Qué dejaste de sostener esta semana — aunque solo fuera por un momento? ¿Qué apareció debajo?",
-  "¿Cuándo fue la última vez que lloraste sin intentar parar antes de tiempo?",
-  "¿Qué parte de Alma nació para la mujer que fuiste — y cuál está naciendo para la que eres ahora?",
-  "¿Qué escribió alguien esta semana que sentiste también dentro de ti?",
-  "¿Dónde termina acompañar a otras y empieza dejarte a ti para después?",
-  "¿Qué crees que necesitaría escuchar hoy la mujer que empezó todo esto?",
-  "¿Qué crees que diría tu padre de lo que estás construyendo?",
-  "¿Hubo un momento esta semana donde sentiste que te elegiste a ti misma?",
-  "¿Y algún momento pequeño donde te abandonaste un poco para sostener otra cosa?",
-  "¿Cómo estuvo la soledad esta semana — pesada, ligera, tuya?",
-  "¿Hubo un momento donde estuviste sola y fue exactamente lo que necesitabas?",
-  "¿Qué descubriste esta semana sobre la persona con la que más vas a vivir: tú?",
-  "¿Qué patrón viejo apareció esta semana disfrazado de algo nuevo?",
-  "¿Dónde sigues dándote menos de lo que le darías a alguien que quieres?",
-  "¿Qué límite pusiste esta semana — aunque costara?",
-  "¿Qué límite no pusiste — y sabes por qué?",
-  "¿Qué verdad se quedó esta semana atrapada en tu garganta?",
-  "¿Qué parte de tu esencia apareció esta semana sin que la llamaras?",
-  "¿Cuándo te escuchaste esta semana sin corregir lo que sentías?",
-  "¿Dónde está la luz hoy — grande, pequeña, casi invisible?",
-  "¿Qué desearía para su vida la mujer que ya no le teme a la soledad?",
-  "¿Qué semilla plantaste esta semana — para ti, no para nadie más?",
-  "¿Qué necesita la guardiana que nadie ha pensado en darle?"
-];
+// Ya no hay contraseña en el código: cualquiera que abriera el fuente la leía.
+// La única puerta es ahora la clave del Sanctum, que se escribe en el candado
+// y valida el servidor. Las preguntas tampoco viven aquí — llegan desde
+// sanctum-load, detrás de la clave, para que nadie que dé con esta página
+// pueda leerlas.
+let PROMPTS = [];
 
 // ── ESTADO ──
 let entries = [];
@@ -1052,19 +1029,33 @@ let essence = null;
 let selectedMood = '';
 
 // ── LOCK ──
-function tryUnlock() {
-  const val = document.getElementById('lock-input').value;
-  if (val === PASSWORD) {
-    document.getElementById('lock-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    init();
-  } else {
-    const err = document.getElementById('lock-error');
+async function tryUnlock() {
+  const input = document.getElementById('lock-input');
+  const err   = document.getElementById('lock-error');
+  const val   = input.value.trim();
+
+  if (!val) { input.focus(); return; }
+
+  // La app no se destapa hasta que el servidor confirma la clave.
+  // Si falla, la clave se descarta y la página se queda en el candado:
+  // no hay ningún estado en el que se vea el interior sin haber entrado.
+  err.textContent = 'Abriendo…';
+  sessionStorage.setItem('sanctum_key', val);
+  const dentro = await init();
+
+  if (!dentro) {
+    sessionStorage.removeItem('sanctum_key');
     err.textContent = 'Esa no es la palabra.';
     setTimeout(() => err.textContent = '', 2200);
-    document.getElementById('lock-input').value = '';
-    document.getElementById('lock-input').focus();
+    input.value = '';
+    input.focus();
+    return;
   }
+
+  err.textContent = '';
+  input.value = '';
+  document.getElementById('lock-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
 }
 
 document.getElementById('lock-input').addEventListener('keydown', e => {
@@ -1072,18 +1063,25 @@ document.getElementById('lock-input').addEventListener('keydown', e => {
 });
 
 function lock() {
+  // Cerrar es olvidar la clave: al volver hay que escribirla otra vez.
+  sessionStorage.removeItem('sanctum_key');
+  entries = [];
+  essence = null;
+  PROMPTS = [];
   document.getElementById('app').style.display = 'none';
   document.getElementById('lock-screen').style.display = 'flex';
   document.getElementById('lock-input').value = '';
+  document.getElementById('lock-input').focus();
 }
 
 // ── INIT ──
 async function init() {
-  await loadData();
+  if (!await loadData()) return false;
   setDate();
   newPrompt();
   renderHistorial();
   renderEssence();
+  return true;
 }
 
 // ── BACKEND API — toda comunicación con Supabase va por el servidor ──
@@ -1092,12 +1090,7 @@ async function init() {
 // navegador esté abierto, en sessionStorage. Al cerrar el navegador se borra
 // y se vuelve a pedir. Nunca queda guardada de forma permanente.
 function claveSanctum() {
-  let k = sessionStorage.getItem('sanctum_key');
-  if (!k) {
-    k = (prompt('Tu clave del Sanctum') || '').trim();
-    if (k) sessionStorage.setItem('sanctum_key', k);
-  }
-  return k || '';
+  return sessionStorage.getItem('sanctum_key') || '';
 }
 
 // Limpieza única: elimina de este navegador cualquier copia antigua del
@@ -1116,31 +1109,32 @@ async function loadData() {
   if (!clave) {
     entries = [];
     essence = null;
-    alert('Sin la clave, el Sanctum permanece cerrado. Recarga la página para introducirla.');
-    return;
+    return false;
   }
   try {
     const res = await fetch('/.netlify/functions/sanctum-load', {
       headers: { 'x-sanctum-key': clave }
     });
     if (res.status === 401) {
-      // Clave incorrecta: se descarta y la página se queda fuera.
+      // Clave incorrecta: se descarta y la página se queda en el candado.
       sessionStorage.removeItem('sanctum_key');
       entries = [];
       essence = null;
-      alert('Clave del Sanctum incorrecta. Recarga la página para volver a introducirla.');
-      return;
+      return false;
     }
     if (!res.ok) throw new Error(`sanctum-load error: ${res.status}`);
     const data = await res.json();
     entries = data.entries || [];
     essence = data.essence || null;
+    PROMPTS = data.prompts || [];
+    return true;
   } catch(e) {
     // Sin conexión no hay Sanctum: no existe copia local.
     console.warn('Backend no disponible:', e);
     entries = [];
     essence = null;
     alert('No hay conexión con el servidor. El Sanctum queda cerrado hasta que vuelva.');
+    return false;
   }
 }
 
@@ -1157,6 +1151,7 @@ function setDate() {
 }
 
 function newPrompt() {
+  if (!PROMPTS.length) return;
   document.getElementById('prompt-text').textContent =
     PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
 }
@@ -1703,6 +1698,18 @@ function esc(t) {
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;');
 }
+// ── Si el Sanctum ya se abrió en esta sesión del navegador, entrar directo.
+// Si el servidor rechaza la clave guardada, se descarta y queda el candado.
+(async function reabrirSesion() {
+  if (!claveSanctum()) return;
+  if (await init()) {
+    document.getElementById('lock-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+  } else {
+    sessionStorage.removeItem('sanctum_key');
+  }
+})();
+
 </script>
 </body>
 </html>
