@@ -1,15 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-P3FN83B6K5"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-P3FN83B6K5');
-  </script>
+<!-- Analítica: la carga cookies.js, y solo si la usuaria acepta -->
+  <script src="cookies.js"></script>
 <meta charset="UTF-8">
+<style>html{background:#F5EDD8}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -47,8 +42,26 @@ body {
   min-height: 100vh; min-height: -webkit-fill-available;
   display: flex; flex-direction: column;
   -webkit-font-smoothing: antialiased;
-  visibility: hidden; /* oculto hasta que init() compruebe consentimiento */
 }
+
+/* Cortina de arranque: cubre el contenido hasta que init() comprueba el
+   consentimiento, pero con el color de la app en vez del blanco del navegador.
+   Los puntos aparecen medio segundo tarde: si carga rápido no llegan a verse. */
+#cortina {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.4s ease;
+}
+#cortina.fuera { opacity: 0; pointer-events: none; }
+#cortina .puntos { display: flex; gap: 0.45rem; opacity: 0; animation: cortinaOn 0.4s ease 0.5s forwards; }
+#cortina .puntos span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--clay); animation: pulse 1.3s ease-in-out infinite;
+}
+#cortina .puntos span:nth-child(2) { animation-delay: 0.18s; }
+#cortina .puntos span:nth-child(3) { animation-delay: 0.36s; }
+@keyframes cortinaOn { to { opacity: 0.5; } }
 
 /* ════════════════════════════════
    TOPBAR — compartido
@@ -862,6 +875,83 @@ body {
 }
 .arrival-selector-btn.selected::before { display: none; }
 
+/* Registro al terminar los tres días */
+.registro-box {
+  width: 100%; max-width: 420px;
+  background: rgba(69,99,82,0.06);
+  border: 1px solid rgba(69,99,82,0.28);
+  border-radius: 1.1rem;
+  padding: 1.4rem 1.3rem;
+  display: flex; flex-direction: column; gap: 0.85rem;
+  animation: fadeUp 0.6s ease both;
+}
+.registro-titulo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem; font-style: italic;
+  color: #38513F; text-align: center; line-height: 1.4;
+}
+.registro-texto {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.8rem; font-weight: 300; line-height: 1.75;
+  color: #7A6047; text-align: center;
+}
+.registro-fila { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.registro-input {
+  flex: 1 1 190px; min-width: 0;
+  font-family: 'Jost', sans-serif; font-size: 16px; font-weight: 300;
+  color: var(--ink);
+  background: #FFFDF7;
+  border: 1.5px solid rgba(69,99,82,0.3);
+  border-radius: 0.75rem;
+  padding: 0.7rem 0.9rem; outline: none;
+  transition: border-color 0.2s;
+}
+.registro-input:focus { border-color: #456352; }
+.registro-input::placeholder { color: rgba(122,96,71,0.5); }
+.registro-btn {
+  flex: 0 0 auto;
+  font-family: 'Jost', sans-serif; font-size: 0.84rem; font-weight: 500;
+  color: #FDF8E7; background: #456352;
+  border: 1.5px solid #456352; border-radius: 0.75rem;
+  padding: 0.7rem 1.25rem; cursor: pointer;
+  transition: opacity 0.2s; min-height: 46px;
+  -webkit-tap-highlight-color: transparent;
+}
+.registro-btn:hover:not(:disabled) { opacity: 0.85; }
+.registro-btn:disabled { opacity: 0.55; cursor: default; }
+.registro-legal {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.64rem; font-weight: 300; line-height: 1.7;
+  color: rgba(44,32,16,0.6); text-align: center;
+}
+.registro-legal a { color: rgba(44,32,16,0.85); text-decoration: underline; text-underline-offset: 2px; }
+.registro-hecho {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem; font-style: italic;
+  color: #38513F; text-align: center; line-height: 1.6;
+}
+
+/* Guía y condiciones, debajo de las opciones */
+.arrival-guia {
+  display: block; text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.88rem; font-style: italic;
+  color: var(--clay2); text-decoration: none;
+  margin-top: 0.9rem;
+  animation: fadeUp 0.5s 0.35s ease both;
+}
+.arrival-guia:hover { color: var(--clay); }
+.arrival-legal {
+  text-align: center;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.66rem; font-weight: 300; line-height: 1.75;
+  color: rgba(44,32,16,0.65);
+  margin-top: 0.75rem; padding-top: 0.75rem;
+  border-top: 1px solid rgba(184,134,11,0.18);
+  animation: fadeUp 0.5s 0.4s ease both;
+}
+.arrival-legal a { color: rgba(44,32,16,0.85); text-decoration: underline; text-underline-offset: 2px; }
+
 /* Nota debajo de los botones */
 .arrival-selector-note {
   text-align: center;
@@ -1656,6 +1746,8 @@ body {
 </head>
 <body>
 
+<div id="cortina" aria-hidden="true"><div class="puntos"><span></span><span></span><span></span></div></div>
+
 <!-- PANTALLA DE CIERRE -->
 <div class="farewell-screen" id="farewell-screen">
   <div class="farewell-card">
@@ -1725,10 +1817,30 @@ body {
       </button>
     </div>
 
+    <!-- Seguir escribiendo: aquí es donde deja de ser un recorrido de tres
+         días y empieza a ser suyo. Solo aparece al terminar los tres. -->
+    <div class="registro-box" id="registro-box" style="display:none">
+      <div class="registro-titulo">¿Quieres seguir escribiendo?</div>
+      <p class="registro-texto">
+        Alma puede acompañarte cada día, no solo estos tres.
+        Déjanos tu correo y te avisamos en cuanto puedas volver
+        y encontrar aquí todo lo que has escrito.
+      </p>
+      <div class="registro-fila">
+        <input class="registro-input" id="registro-email" type="email"
+               inputmode="email" autocomplete="email"
+               placeholder="tu@correo.com" aria-label="Tu correo electrónico">
+        <button class="registro-btn" id="registro-btn" onclick="enviarRegistro()">Avísame</button>
+      </div>
+      <p class="registro-legal" id="registro-legal">
+        Solo lo usaremos para escribirte sobre Alma. Puedes darte de baja cuando quieras.
+        <a href="privacidad.html" target="_blank" rel="noopener">Política de privacidad</a>.
+      </p>
+    </div>
+
     <div class="farewell-badge">✦ Fundadora de Alma</div>
 
     <p class="farewell-note">
-      Te avisaremos cuando el proyecto esté listo.<br>
       Gracias por confiar en nosotras desde el principio.
     </p>
 
@@ -1921,6 +2033,15 @@ body {
         <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_unclear')">Sin saber por qué</button>
       </div>
       <div class="arrival-selector-note">No hay respuesta correcta.</div>
+      <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
+         onclick="if(typeof gtag==='function') gtag('event','guia_descargada');">De dónde viene Alma →</a>
+      <p class="arrival-legal">
+        Alma no es terapia ni sustituye a un profesional. Si necesitas ayuda ahora:
+        <a href="tel:717003717">717 003 717</a> (Teléfono de la Esperanza, 24h).<br>
+        Al elegir confirmas que eres mayor de 18 años y aceptas la
+        <a href="privacidad.html">política de privacidad</a>. Tus palabras se guardan
+        mientras dura tu recorrido y se borran solas a los catorce días.
+      </p>
     </div>
 
     <!-- Selector de llegada 3 DÍAS integrado -->
@@ -1933,6 +2054,15 @@ body {
         <button class="arrival-selector-btn" onclick="selectArrival(this,'depth')">Sin saber por qué</button>
       </div>
       <div class="arrival-selector-note">No hay respuesta correcta.</div>
+      <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
+         onclick="if(typeof gtag==='function') gtag('event','guia_descargada');">De dónde viene Alma →</a>
+      <p class="arrival-legal">
+        Alma no es terapia ni sustituye a un profesional. Si necesitas ayuda ahora:
+        <a href="tel:717003717">717 003 717</a> (Teléfono de la Esperanza, 24h).<br>
+        Al elegir confirmas que eres mayor de 18 años y aceptas la
+        <a href="privacidad.html">política de privacidad</a>. Tus palabras se guardan
+        mientras dura tu recorrido y se borran solas a los catorce días.
+      </p>
     </div>
 
     <!-- Pregunta -->
@@ -3284,6 +3414,59 @@ async function downloadFarewell() {
 function showFarewellActions() {
   const el = document.getElementById('farewell-actions');
   if (el) el.style.display = 'flex';
+  mostrarRegistro();
+}
+
+// El registro solo se ofrece al terminar los tres días, y solo una vez:
+// si ya dejó su correo, no se le vuelve a pedir.
+function mostrarRegistro() {
+  const caja = document.getElementById('registro-box');
+  if (!caja) return;
+  let yaEsta = false;
+  try { yaEsta = !!localStorage.getItem('alma_registro'); } catch(e) {}
+  if (yaEsta) {
+    caja.innerHTML = '<div class="registro-hecho">Ya tenemos tu correo.<br>Te escribiremos cuando Alma esté lista para quedarse.</div>';
+  }
+  caja.style.display = 'flex';
+  trackEvent('registro_mostrado');
+}
+
+async function enviarRegistro() {
+  const input = document.getElementById('registro-email');
+  const btn   = document.getElementById('registro-btn');
+  const legal = document.getElementById('registro-legal');
+  if (!input || !btn) return;
+
+  const email = (input.value || '').trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    input.focus();
+    if (legal) legal.textContent = 'Ese correo no parece completo. Revísalo y vuelve a intentarlo.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+
+  try {
+    const res = await fetch('/.netlify/functions/registro', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, anonId: anonId() }),
+    });
+    if (!res.ok) throw new Error('registro ' + res.status);
+
+    try { localStorage.setItem('alma_registro', email); } catch(e) {}
+    trackEvent('registro_completado');
+
+    const caja = document.getElementById('registro-box');
+    if (caja) caja.innerHTML = '<div class="registro-hecho">Anotado.<br>Te escribiremos cuando Alma esté lista para quedarse contigo.</div>';
+
+  } catch(e) {
+    console.warn('No se pudo registrar:', e);
+    btn.disabled = false;
+    btn.textContent = 'Avísame';
+    if (legal) legal.textContent = 'No hemos podido guardarlo ahora mismo. Inténtalo de nuevo en un momento.';
+  }
 }
 // =======================
 
@@ -3477,7 +3660,23 @@ async function showFarewell() {
 // PREGUNTA CERO — modo de llegada
 // =======================
 
+// El consentimiento ya no vive en una pantalla propia: elegir cómo llega es
+// el acto afirmativo, con las condiciones a la vista justo debajo de las
+// opciones. Misma clave y misma versión que usaba beta-aviso.html.
+function guardarConsentimiento() {
+  try {
+    if (JSON.parse(localStorage.getItem('alma_consent') || '{}').accepted) return;
+    localStorage.setItem('alma_consent', JSON.stringify({
+      accepted: true,
+      date: new Date().toISOString(),
+      version: 'beta-julio-2026'
+    }));
+  } catch(e) {}
+  if (typeof gtag === 'function') gtag('event', 'consent_accepted');
+}
+
 function selectArrival(btn, mode) {
+  guardarConsentimiento();
   document.querySelectorAll('#arrival-selector-wrap .arrival-selector-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   currentArrivalMode = mode;
@@ -3505,20 +3704,26 @@ function selectArrival(btn, mode) {
   trackEvent('arrival_mode_selected', { mode });
 }
 
+function quitarCortina() {
+  const c = document.getElementById('cortina');
+  if (!c) return;
+  c.classList.add('fuera');
+  setTimeout(() => c.remove(), 450);
+}
+
 function init() {
   // ── GUARDIA DE CONSENTIMIENTO ──────────────────────────
   // Debe haber aceptado ESTA versión de las condiciones. Si aceptó una
   // anterior (cuando nada se guardaba), vuelve a pasar por el aviso para
   // renovar el consentimiento con las condiciones nuevas.
+  // Ya no se redirige a ninguna parte: el consentimiento se recoge en la
+  // pantalla de llegada. Aquí solo se comprueba que el navegador nos deja
+  // guardar algo; si no, no hay experiencia posible y hay que avisar.
   try {
-    const consent = JSON.parse(localStorage.getItem('alma_consent') || '{}');
-    if (!consent.accepted || consent.version !== 'beta-julio-2026') {
-      window.location.replace('/beta-aviso.html');
-      return; // body sigue invisible — la usuaria no ve nada antes de la redirección
-    }
+    localStorage.getItem('alma_consent');
   } catch(e) {
     // localStorage bloqueado — mostrar mensaje de error
-    document.body.style.visibility = 'visible';
+    quitarCortina();
     document.body.innerHTML = `
       <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;
                   background:#F5EDD8;font-family:'Jost',sans-serif;padding:2rem;text-align:center;">
@@ -3745,8 +3950,8 @@ function init() {
   // Registrar día de uso
   trackUsageDay();
 
-  // Todo configurado — hacer visible el body ahora sin flash
-  document.body.style.visibility = 'visible';
+  // Todo configurado — retirar la cortina sin flash
+  quitarCortina();
 
   // Farewell al final — después de que todo el estado esté limpio
   // Evita el flash de bienvenida y la restauración incompleta
@@ -3851,6 +4056,7 @@ function chooseMode(mode) {
 
 // Selección de estado de llegada en beta
 function selectBetaArrival(btn, mode) {
+  guardarConsentimiento();
   document.querySelectorAll('#beta-arrival-selector-wrap .arrival-selector-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   betaMode = mode;

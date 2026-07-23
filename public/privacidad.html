@@ -1,14 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-P3FN83B6K5"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-P3FN83B6K5');
-  </script>
+<!-- Analítica: la carga cookies.js, y solo si la usuaria acepta -->
+  <script src="cookies.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
@@ -65,39 +59,42 @@
 </head>
 <body>
   <div class="container">
-    <a class="back-link" href="beta-aviso.html">Volver a la pantalla de bienvenida</a>
+    <a class="back-link" href="/">Volver a Alma</a>
     <div class="doc-header">
-      <span class="badge">Versión Beta — Documento Legal</span>
+      <span class="badge">Documento Legal</span>
       <h1>Política de <em>Privacidad</em></h1>
-      <p class="doc-meta">Alma Proyect · Fase beta cerrada<br>Última actualización: julio de 2026</p>
-      <div class="doc-intro">Documento simplificado para fase beta. Esta política aplica exclusivamente durante la fase de pruebas cerrada. Cuando el servicio se lance de forma definitiva, será reemplazada por una política completa.</div>
+      <p class="doc-meta">Alma Proyect<br>Última actualización: julio de 2026</p>
+      <div class="doc-intro">Alma Proyect está en desarrollo activo. Esta política describe cómo se tratan los datos hoy y se actualizará cuando el servicio cambie. Si algo aquí no coincide con lo que ves en la web, escríbenos y lo corregimos.</div>
     </div>
     <div class="section">
       <span class="section-num">01</span>
       <h2>Quién es responsable del tratamiento</h2>
-      <p>El responsable del tratamiento de los datos es el equipo de Alma Proyect, en fase de constitución. Durante la beta, puedes contactar en <a href="mailto:almaproyect11@gmail.com">almaproyect11@gmail.com</a>.</p>
+      <p>El responsable del tratamiento de los datos es el equipo de Alma Proyect, en fase de constitución. Puedes contactar en <a href="mailto:almaproyect11@gmail.com">almaproyect11@gmail.com</a>.</p>
     </div>
     <div class="section">
       <span class="section-num">02</span>
       <h2>Qué datos se tratan y por qué</h2>
-      <p>Durante esta fase beta no se solicitan datos personales identificativos (nombre, email, teléfono). El acceso se facilita mediante enlace privado.</p>
-      <p>Los únicos datos que se generan son los textos que tú escribes libremente en el espacio de journaling. Estos textos son procesados en tiempo real por sistemas de inteligencia artificial para generar respuestas de acompañamiento.</p>
-      <p>Además, mientras dura tu recorrido, esos textos se guardan de forma segura asociados a un identificador anónimo (sin nombre, sin email, sin ningún dato que te identifique), con una única finalidad: que no pierdas lo escrito si cambias de dispositivo o cierras el navegador, y que puedas continuar donde lo dejaste.</p>
-      <p>La base jurídica del tratamiento es el consentimiento explícito que prestas al aceptar las condiciones antes de entrar.</p>
+      <p><strong>Para entrar y usar Alma no se te pide ningún dato personal:</strong> ni nombre, ni email, ni teléfono. No hay registro ni cuenta.</p>
+      <p>Los datos que se generan al usar el servicio son los textos que tú escribes libremente. Estos textos son procesados en tiempo real por sistemas de inteligencia artificial para generar las respuestas de acompañamiento.</p>
+      <p>Mientras dura tu recorrido, esos textos se guardan asociados a un identificador aleatorio que genera tu propio navegador (sin nombre, sin email, sin ningún dato que te identifique), con una única finalidad: que no se pierda lo escrito mientras completas los tres días.</p>
+      <p>Al terminar el recorrido de tres días te ofrecemos dejarnos tu correo electrónico para avisarte cuando puedas volver y seguir escribiendo. Ese paso es <strong>voluntario</strong> y no condiciona nada de lo anterior. Si lo das, guardamos el correo junto al identificador aleatorio de tu navegador, para poder reunirte con lo que escribiste cuando exista el acceso con cuenta.</p>
+      <p>La base jurídica del tratamiento es el consentimiento que prestas al aceptar las condiciones antes de entrar y, en el caso del correo, al enviarlo tú misma.</p>
     </div>
     <div class="section">
       <span class="section-num">03</span>
       <h2>Uso de inteligencia artificial (Anthropic / Claude)</h2>
       <p>Los textos que introduces son enviados a la API de Anthropic para generar las respuestas del acompañante. Esto implica que Anthropic procesa ese contenido de acuerdo con su propia política de privacidad y sus condiciones de uso.</p>
       <p>Anthropic actúa como encargado del tratamiento. Puedes consultar su política en <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">anthropic.com/privacy</a>.</p>
-      <p>El almacenamiento temporal de los textos se realiza en Supabase, proveedor de base de datos que actúa igualmente como encargado del tratamiento. Puedes consultar su política en <a href="https://supabase.com/privacy" target="_blank" rel="noopener">supabase.com/privacy</a>.</p>
-      <p>Te recordamos que en esta beta no debes introducir tu nombre real, datos de terceras personas ni información sensible identificable.</p>
+      <p>El almacenamiento temporal de los textos se realiza en Supabase, y el alojamiento de la web en Netlify. Ambos actúan igualmente como encargados del tratamiento: <a href="https://supabase.com/privacy" target="_blank" rel="noopener">supabase.com/privacy</a> y <a href="https://www.netlify.com/privacy/" target="_blank" rel="noopener">netlify.com/privacy</a>.</p>
+      <p>Algunos de estos proveedores están radicados fuera de la Unión Europea. Las transferencias internacionales se amparan en las cláusulas contractuales tipo de la Comisión Europea y en los marcos de adecuación aplicables en cada caso.</p>
+      <p><strong>Te recomendamos no introducir tu nombre real, datos de terceras personas ni información sensible que permita identificarte.</strong> Alma no lo necesita para acompañarte.</p>
     </div>
     <div class="section">
       <span class="section-num">04</span>
       <h2>Cuánto tiempo se conservan los datos</h2>
-      <p>Los textos guardados durante tu recorrido se eliminan automáticamente a los catorce días de su creación si al terminar decides no conservarlos. No se realiza ninguna copia adicional ni se usan para ningún otro fin.</p>
-      <p>Al finalizar la fase beta, cualquier dato generado durante las pruebas será eliminado antes del lanzamiento del servicio definitivo.</p>
+      <p>Los textos guardados durante tu recorrido se eliminan automáticamente a los catorce días de su creación. No se realiza ninguna copia adicional ni se usan para ningún otro fin.</p>
+      <p>Si nos has dejado tu correo, lo conservamos hasta que nos pidas darte de baja, cosa que puedes hacer en cualquier momento escribiendo a la dirección de contacto o respondiendo a cualquiera de nuestros mensajes.</p>
+      <p>Lo que escribes también queda guardado en el almacenamiento de tu propio navegador, en tu dispositivo. Eso no lo controlamos nosotras: puedes borrarlo cuando quieras vaciando los datos del sitio desde los ajustes de tu navegador.</p>
     </div>
     <div class="section">
       <span class="section-num">05</span>
@@ -112,6 +109,14 @@
     </div>
     <div class="section">
       <span class="section-num">06</span>
+      <h2>Cookies y analítica</h2>
+      <p>Usamos Google Analytics para saber cuántas personas llegan a la web y en qué punto la abandonan. Nos sirve para mejorar el servicio, no para perfilarte ni para hacerte publicidad.</p>
+      <p><strong>No se instala ninguna cookie de analítica hasta que tú la aceptas.</strong> La primera vez que llegas verás un aviso con dos opciones. Si eliges «Solo lo necesario», Google Analytics ni siquiera llega a cargarse y no se envía nada. Alma funciona exactamente igual en los dos casos.</p>
+      <p>Si cambias de idea, borra los datos del sitio desde los ajustes de tu navegador y el aviso volverá a aparecer para que elijas de nuevo.</p>
+      <p>El almacenamiento local que usa Alma para guardar tu recorrido en tu dispositivo no es una cookie de seguimiento: es lo que permite que la experiencia funcione, y sin él el servicio no puede prestarse.</p>
+    </div>
+    <div class="section">
+      <span class="section-num">07</span>
       <h2>Naturaleza del servicio</h2>
       <p>Alma Proyect es un espacio de journaling y acompañamiento emocional. No es un servicio de psicología, terapia, coaching ni atención sanitaria, y no sustituye en ningún caso la atención de un profesional de salud mental.</p>
       <div class="crisis-box">
@@ -123,8 +128,9 @@
       <p>Para cualquier consulta sobre privacidad o para ejercer tus derechos, escríbenos a <a href="mailto:almaproyect11@gmail.com">almaproyect11@gmail.com</a>.</p>
     </div>
     <div class="doc-footer">
-      Alma Proyect · Beta cerrada · Abril 2026<br>
-      Este documento no constituye asesoramiento jurídico definitivo
+      Alma Proyect · Julio 2026<br>
+      Este documento no constituye asesoramiento jurídico definitivo<br>
+      <a href="beta-aviso.html" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-light);">Condiciones antes de entrar</a>
     </div>
   </div>
 </body>

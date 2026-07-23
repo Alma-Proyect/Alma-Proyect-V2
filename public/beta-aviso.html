@@ -1,14 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-P3FN83B6K5"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-P3FN83B6K5');
-  </script>
+<!-- Analítica: la carga cookies.js, y solo si la usuaria acepta -->
+  <script src="cookies.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
@@ -85,7 +79,7 @@
       </div>
     </div>
     <button class="btn" id="btnEntrar" onclick="entrar()">
-      Entrar en mi refugio →
+      Ir a mi refugio →
     </button>
     <p class="guide-link">
       Antes de elegir tu puerta, puedes leer de dónde viene Alma.<br />
@@ -99,18 +93,11 @@
     // ── Limpiar modo de llegada — siempre elige cómo llega ──────────────
     try { localStorage.removeItem('alma_arrival_mode'); } catch(e) {}
 
-    // ── Si ya aceptó antes, entrar directamente sin mostrar la pantalla ──
+    // Esta página ya no es la puerta: el consentimiento se presta al elegir
+    // cómo llega, dentro de la propia app. Aquí vive el texto completo para
+    // quien quiera leerlo, enlazado desde privacidad y desde el pie.
     try {
-      const c = JSON.parse(localStorage.getItem('alma_consent') || '{}');
-      // Solo salta el aviso quien aceptó esta misma versión de las condiciones.
-      // Si las condiciones cambian (como ahora, con el guardado temporal),
-      // el aviso se muestra de nuevo y el consentimiento se renueva.
-      if (c.accepted && c.version === 'beta-julio-2026') {
-        window.location.replace('/tu-espacio');
-      } else {
-        // Solo cuenta quien ve el aviso de verdad, no quien pasa de largo.
-        if (typeof gtag === 'function') gtag('event', 'aviso_visto');
-      }
+      if (typeof gtag === 'function') gtag('event', 'aviso_visto');
     } catch(e) {}
 
     // ── Guardar consentimiento con clave correcta y redirigir ─────────────

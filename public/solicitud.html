@@ -2,8 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <script src="cookies.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Alma Proyect · Solicita tu plaza</title>
+  <title>Alma Proyect · Vuelve a ti</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -347,6 +348,53 @@
     .btn:active { transform: translateY(0); }
     .btn:disabled { opacity:0.55; cursor:not-allowed; transform:none; box-shadow:none; }
 
+    .btn-entrar {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      margin-top: 0;
+    }
+
+    .card-intro {
+      text-align: center;
+      font-size: 0.86rem;
+      font-weight: 300;
+      line-height: 1.9;
+      color: var(--brown-soft);
+      margin-bottom: 22px;
+    }
+
+    .card-sep {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 30px 0 22px;
+    }
+
+    .card-sep::before, .card-sep::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(181,135,42,0.2);
+    }
+
+    .card-sep span {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--brown-soft);
+      opacity: 0.6;
+    }
+
+    .aviso-intro {
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--brown-soft);
+      margin-bottom: 18px;
+    }
+
     .note {
       text-align: center;
       margin-top: 16px;
@@ -454,7 +502,7 @@
     <!-- BADGE -->
     <div class="badge">
       <span class="badge-dot"></span>
-      Beta cerrada · Plazas muy limitadas
+      Sin registro · Gratis · Empieza hoy
     </div>
 
     <!-- LOGO -->
@@ -476,8 +524,8 @@
       <p class="hero-desc">
         Sin ruido. Sin juicios. Sin prisas.<br/>
         <strong>Solo tú.</strong><br/><br/>
-        Un espacio íntimo donde, en tres días,<br/>
-        empiezas a escucharte de verdad.
+        Un espacio íntimo donde empiezas<br/>
+        a escucharte de verdad.
       </p>
     </div>
 
@@ -491,62 +539,42 @@
     <!-- FEATURES -->
     <div class="features">
       <div class="feature">
-        <div class="feature-num">3</div>
-        <div class="feature-label">Preguntas</div>
+        <div class="feature-num">1</div>
+        <div class="feature-label">Pregunta</div>
       </div>
       <div class="feature">
-        <div class="feature-num">3</div>
-        <div class="feature-label">Días</div>
+        <div class="feature-num">0</div>
+        <div class="feature-label">Datos</div>
       </div>
       <div class="feature">
-        <div class="feature-num">25</div>
-        <div class="feature-label">Plazas</div>
+        <div class="feature-num">∞</div>
+        <div class="feature-label">Tu ritmo</div>
       </div>
     </div>
 
     <!-- FORM CARD -->
     <div class="card">
-      <p class="card-eyebrow">Solicitud de acceso</p>
+      <p class="card-eyebrow">Empieza cuando quieras</p>
 
-      <form id="alma-form" action="https://formspree.io/f/xeenqyzq" method="POST">
+      <p class="card-intro">
+        Eliges cómo llegas hoy y empiezas a escribir.<br/>
+        Una conversación, sin dar ningún dato.<br/>
+        Al terminarla decides si quieres seguir.
+      </p>
 
-        <div class="field">
-          <label for="name">Tu nombre</label>
-          <input type="text" id="name" name="name" placeholder="¿Cómo te llamas?" required />
-        </div>
+      <a href="/" class="btn btn-entrar">
+        <span class="btn-shine"></span>
+        Entrar ahora →
+      </a>
 
-        <div class="field">
-          <label for="email">Tu email</label>
-          <input type="email" id="email" name="email" placeholder="Donde podemos escribirte" required />
-        </div>
+      <p class="note">Sin dar tu nombre ni tu email 🤍</p>
 
-        <input type="hidden" name="_subject" value="Nueva solicitud beta · Alma Proyect" />
-        <input type="hidden" name="_replyto" value="almaproyect11@gmail.com" />
-
-        <button type="submit" class="btn" id="submit-btn">
-          <span class="btn-shine"></span>
-          Quiero mi plaza →
-        </button>
-
-      </form>
-
-      <p class="note">Tu solicitud es revisada personalmente 🤍</p>
-
-      <p class="note" style="margin-top:8px; opacity:0.55; font-size:0.65rem; line-height:1.7;">
-        Al enviar, aceptas nuestra
-        <a href="privacidad.html" target="_blank" style="color:var(--brown-soft);text-decoration:underline;text-underline-offset:3px;">política de privacidad</a>.
+      <p class="note" style="margin-top:14px; opacity:0.6; font-size:0.65rem; line-height:1.7;">
+        Al entrar aceptas nuestra
+        <a href="privacidad.html" style="color:var(--brown-soft);text-decoration:underline;text-underline-offset:3px;">política de privacidad</a>.
         Alma Proyect no es un servicio de salud mental.
       </p>
 
-      <div class="success" id="success-msg">
-        <div class="success-ring"></div>
-        <h3>Gracias por elegirte.</h3>
-        <p>
-          Hemos recibido tu solicitud.<br/>
-          Te escribiremos pronto con tu acceso.<br/><br/>
-          Este es el comienzo<br/>de tu regreso a ti.
-        </p>
-      </div>
     </div>
 
     <!-- FOOTER -->
@@ -562,40 +590,6 @@
   </div>
 </div>
 
-<script>
-  const form    = document.getElementById('alma-form');
-  const btn     = document.getElementById('submit-btn');
-  const success = document.getElementById('success-msg');
-  const note    = document.querySelector('.note');
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    btn.disabled = true;
-    btn.innerHTML = '<span class="btn-shine"></span>Enviando...';
-
-    try {
-      const res = await fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { 'Accept': 'application/json' }
-      });
-
-      if (res.ok) {
-        form.style.display = 'none';
-        note.style.display = 'none';
-        success.style.display = 'flex';
-      } else {
-        btn.disabled = false;
-        btn.innerHTML = '<span class="btn-shine"></span>Quiero mi plaza →';
-        alert('Algo salió mal. Inténtalo de nuevo 🤍');
-      }
-    } catch {
-      btn.disabled = false;
-      btn.innerHTML = '<span class="btn-shine"></span>Quiero mi plaza →';
-      alert('Error de conexión. Inténtalo de nuevo 🤍');
-    }
-  });
-</script>
 
 </body>
 </html>
