@@ -28,12 +28,16 @@ exports.handler = async function (event) {
     return { statusCode: 400, body: JSON.stringify({ error: 'JSON inválido' }) };
   }
 
-  if (!id) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Sin id' }) };
+  // El id de sanctum_entries es un entero. Se exige que lo sea antes de
+  // construir la URL: así nada de lo que llegue puede colar parámetros
+  // extra y convertir el borrado de una fila en el de varias.
+  const idNum = Number(id);
+  if (!Number.isInteger(idNum) || idNum <= 0) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Identificador inválido' }) };
   }
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/sanctum_entries?id=eq.${id}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/sanctum_entries?id=eq.${idNum}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
