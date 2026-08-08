@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- Analítica: la carga cookies.js, y solo si la usuaria acepta -->
-  <script src="cookies.js"></script>
+  <!-- Analítica sin cookies (Plausible) -->
+  <script async src="https://plausible.io/js/pa-ZuDBA5p-0URIKR_khQmjM.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
@@ -83,7 +88,7 @@
     </button>
     <p class="guide-link">
       Antes de elegir tu puerta, puedes leer de dónde viene Alma.<br />
-      <a href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener" onclick="if(typeof gtag==='function') gtag('event','guia_descargada');">Descargar la guía →</a>
+      <a href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener" onclick="if(typeof plausible==='function') plausible('guia_descargada');">Descargar la guía →</a>
     </p>
     <p class="foot-note">
       Versión beta<span></span><a href="privacidad.html">Privacidad</a>
@@ -97,7 +102,7 @@
     // cómo llega, dentro de la propia app. Aquí vive el texto completo para
     // quien quiera leerlo, enlazado desde privacidad y desde el pie.
     try {
-      if (typeof gtag === 'function') gtag('event', 'aviso_visto');
+      if (typeof plausible === 'function') plausible('aviso_visto');
     } catch(e) {}
 
     // ── Guardar consentimiento con clave correcta y redirigir ─────────────
@@ -109,7 +114,7 @@
       // Junto a beta_arrival_selected permite ver dónde se pierde la gente:
       // antes del aviso, entre el aviso y la puerta, o al elegir puerta.
       try {
-        if (typeof gtag === 'function') gtag('event', 'consent_accepted');
+        if (typeof plausible === 'function') plausible('consent_accepted');
       } catch(e) {}
       try {
         // CLAVE: alma_consent — la misma que lee init() en index.html

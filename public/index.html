@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- Analítica: la carga cookies.js, y solo si la usuaria acepta -->
-  <script src="cookies.js"></script>
+  <!-- Analítica sin cookies (Plausible) -->
+  <script async src="https://plausible.io/js/pa-ZuDBA5p-0URIKR_khQmjM.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
+
 <meta charset="UTF-8">
 <style>html{background:#F5EDD8}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2034,7 +2039,7 @@ body {
       </div>
       <div class="arrival-selector-note">No hay respuesta correcta.</div>
       <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
-         onclick="if(typeof gtag==='function') gtag('event','guia_descargada');">De dónde viene Alma →</a>
+         onclick="if(typeof plausible==='function') plausible('guia_descargada');">De dónde viene Alma →</a>
       <p class="arrival-legal">
         Alma no es terapia ni sustituye a un profesional. Si necesitas ayuda ahora:
         <a href="tel:717003717">717 003 717</a> (Teléfono de la Esperanza, 24h).<br>
@@ -2055,7 +2060,7 @@ body {
       </div>
       <div class="arrival-selector-note">No hay respuesta correcta.</div>
       <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
-         onclick="if(typeof gtag==='function') gtag('event','guia_descargada');">De dónde viene Alma →</a>
+         onclick="if(typeof plausible==='function') plausible('guia_descargada');">De dónde viene Alma →</a>
       <p class="arrival-legal">
         Alma no es terapia ni sustituye a un profesional. Si necesitas ayuda ahora:
         <a href="tel:717003717">717 003 717</a> (Teléfono de la Esperanza, 24h).<br>
@@ -2379,10 +2384,11 @@ function simpleHash(str) {
   return hash.toString(36);
 }
 
-// Evento de Google Analytics — seguro aunque gtag no esté disponible
+// Evento propio de Plausible — seguro aunque no haya cargado
 function trackEvent(name, params) {
+  // Plausible: eventos propios sin cookies ni datos personales.
   try {
-    if (typeof gtag === 'function') gtag('event', name, params || {});
+    if (typeof plausible === 'function') plausible(name, params ? { props: params } : undefined);
   } catch(e) {}
 }
 
@@ -3672,7 +3678,7 @@ function guardarConsentimiento() {
       version: 'beta-julio-2026'
     }));
   } catch(e) {}
-  if (typeof gtag === 'function') gtag('event', 'consent_accepted');
+  if (typeof plausible === 'function') plausible('consent_accepted');
 }
 
 function selectArrival(btn, mode) {
