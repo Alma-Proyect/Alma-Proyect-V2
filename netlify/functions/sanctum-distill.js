@@ -49,9 +49,9 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  let entries;
+  let entries, fromScratch;
   try {
-    ({ entries } = JSON.parse(event.body || '{}'));
+    ({ entries, fromScratch } = JSON.parse(event.body || '{}'));
   } catch (e) {
     return { statusCode: 400, body: JSON.stringify({ error: 'JSON inválido' }) };
   }
@@ -60,43 +60,36 @@ exports.handler = async function (event) {
     return { statusCode: 400, body: JSON.stringify({ error: 'No hay entradas.' }) };
   }
 
-  // Cargar esencia anterior
+  // Cargar esencia anterior — salvo que se pida regenerar desde cero.
+  // fromScratch rompe la cadena una vez: ignora el retrato previo y las etapas,
+  // para que una esencia contaminada no reinfecte a la nueva.
   let esenciaAnterior = null;
-  try {
-    const { data } = await sbFetch('sanctum_essence?select=data&order=created_at.desc&limit=1');
-    if (data && data[0] && data[0].data) esenciaAnterior = data[0].data;
-  } catch (e) {}
+  if (!fromScratch) {
+    try {
+      const { data } = await sbFetch('sanctum_essence?select=data&order=created_at.desc&limit=1');
+      if (data && data[0] && data[0].data) esenciaAnterior = data[0].data;
+    } catch (e) {}
+  }
 
-  // Últimas 5 entradas escritas ordenadas por fecha
+  // Últimas 8 entradas escritas ordenadas por fecha
   const ordenadas = [...entries]
     .sort((a, b) => {
       const da = new Date(a.date || a.created_at || 0).getTime();
       const db = new Date(b.date || b.created_at || 0).getTime();
       return da - db;
     })
-    .slice(-5);
+    .slice(-8);
 
   const entriesText = ordenadas
     .map((e, i) => `E${i + 1}:${e.content.slice(0, 400)}`)
     .join('\n');
 
-  // Últimas conversaciones del chat de Alma — también alimentan la destilación
-  let conversacionesText = '';
-  try {
-    const { data: convData } = await sbFetch(
-      'sanctum_conversations?select=role,content,is_mirror&order=created_at.desc&limit=40'
-    );
-    if (convData && convData.length > 0) {
-      const convs = [...convData].reverse(); // cronológico
-      conversacionesText = '\n\nConversaciones recientes con Alma:\n' +
-        convs
-          .filter(c => !c.is_mirror) // excluir espejos, solo el diálogo
-          .map(c => `${c.role === 'user' ? 'Guardiana' : 'Alma'}: ${(c.content || '').slice(0, 350)}`)
-          .join('\n');
-    }
-  } catch (e) {
-    console.warn('No se pudieron cargar conversaciones:', e.message);
-  }
+  // La esencia se destila SOLO de las entradas de diario, nunca del chat.
+  // Antes también leía sanctum_conversations, y eso creaba un bucle: la voz de
+  // Alma se guardaba como conversación, la siguiente destilación la leía, y la
+  // voz se destilaba a sí misma, torciéndose un poco más en cada vuelta y
+  // aprendiendo a hablar en segunda persona. La esencia representa la voz de la
+  // guardiana, y esa voz vive en la escritura reflexiva, no en el diálogo.
 
   const etapasPrevias = (esenciaAnterior && Array.isArray(esenciaAnterior.etapas))
     ? esenciaAnterior.etapas
@@ -134,12 +127,12 @@ exports.handler = async function (event) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 480,
-        system: 'JSON puro, sin markdown. Valores de máximo 5 palabras cada uno — nunca frases largas, nunca comas dentro de un valor de string. Las etapas solo crecen: copia las anteriores exactas y añade una nueva si el momento vital es distinto. Si ya hay 6 etapas, fusiona la más antigua con la más similar. Completa el objeto JSON.',
+        max_tokens: 900,
+        system: 'Destilas la VOZ de una guardiana a partir de su escritura reflexiva: cómo acompaña, cómo sostiene, desde dónde mira. No resumes su vida ni sus problemas, destilas su manera de escuchar. Todo en primera persona o en modo de cualidad, nunca dirigiéndote a nadie en segunda persona. JSON puro, sin markdown. Cada valor de string, máximo 5 palabras, sin comas dentro. Las etapas son memoria y solo crecen: copia las anteriores tal cual y añade una nueva solo si el momento vital es claramente distinto. Si ya hay 6, fusiona las dos más parecidas. Completa el objeto JSON.',
         messages: [
           {
             role: 'user',
-            content: `${contexto}${etapasTexto}\n\nLO QUE ESCRIBIÓ Y HABLÓ AHORA:\n${entriesText}${conversacionesText}\n\nCompleta este JSON con valores MUY CORTOS (máximo 5 palabras por valor de string, sin comas dentro de los strings):\n{"tono_central":"[3-5 palabras]","sostiene_dolor":"[3-5 palabras]","valores":["[3 palabras]","[3 palabras]","[3 palabras]"],"nunca":["[3 palabras]","[3 palabras]"],"preguntas":["[pregunta corta]","[pregunta corta]"],"palabra_semana":"[1 palabra]","hilo_conductor":"[4-5 palabras]","etapas":[{"nombre":"[3-5 palabras]","aprendizaje":"[5-8 palabras]"}]}`
+            content: `${contexto}${etapasTexto}\n\nLO QUE ESCRIBIÓ AHORA:\n${entriesText}\n\nCompleta este JSON con valores MUY CORTOS (máximo 5 palabras por valor de string, sin comas dentro de los strings):\n{"tono_central":"[3-5 palabras]","sostiene_dolor":"[3-5 palabras]","valores":["[3 palabras]","[3 palabras]","[3 palabras]"],"nunca":["[3 palabras]","[3 palabras]"],"preguntas":["[pregunta corta]","[pregunta corta]"],"palabra_semana":"[1 palabra]","hilo_conductor":"[4-5 palabras]","etapas":[{"nombre":"[3-5 palabras]","aprendizaje":"[5-8 palabras]"}]}`
           },
           {
             role: 'assistant',
@@ -167,21 +160,71 @@ exports.handler = async function (event) {
     };
   }
 
+  // Cierra un JSON que se cortó a media escritura: recorta cualquier cola
+  // incompleta y añade las comillas, corchetes y llaves que falten, en el
+  // orden correcto. Así se rescata aunque el corte cayera dentro de un valor.
+  function repararJson(txt) {
+    let s = txt;
+    // Fuera una posible última pareja "clave":"valor a medias sin cerrar
+    // y cualquier coma suelta al final.
+    let dentro = false, esc = false, ultimoCierreSeguro = -1, pila = [];
+    for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (esc) { esc = false; continue; }
+      if (c === '\\') { esc = true; continue; }
+      if (c === '"') { dentro = !dentro; continue; }
+      if (dentro) continue;
+      if (c === '{' || c === '[') pila.push(c);
+      else if (c === '}' || c === ']') { pila.pop(); ultimoCierreSeguro = i; }
+    }
+    // Si acabó dentro de un string, el corte cayó dentro de un valor. Retroceder
+    // hasta justo antes de esa última clave incompleta y descartarla entera:
+    // intentar cerrarla dejaría un objeto o array roto.
+    if (dentro) {
+      // Buscar el comienzo de la última pareta "clave": que quedó a medias.
+      // Retrocedemos hasta el último separador estructural ( , { [ ) fuera de string.
+      let corte = -1, d2 = false, e2 = false;
+      for (let i = 0; i < s.length; i++) {
+        const c = s[i];
+        if (e2) { e2 = false; continue; }
+        if (c === '\\') { e2 = true; continue; }
+        if (c === '"') { d2 = !d2; continue; }
+        if (d2) continue;
+        if (c === ',' || c === '{' || c === '[') corte = i;
+      }
+      if (corte !== -1) s = s.slice(0, corte);
+      // Si el carácter de corte era una coma, la quitamos; si era { o [, lo dejamos.
+      s = s.replace(/,\s*$/, '');
+    } else {
+      s = s.replace(/,\s*$/, '');
+    }
+
+    // Recalcular la pila sobre el texto ya saneado y cerrar lo que falte.
+    pila = []; dentro = false; esc = false;
+    for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (esc) { esc = false; continue; }
+      if (c === '\\') { esc = true; continue; }
+      if (c === '"') { dentro = !dentro; continue; }
+      if (dentro) continue;
+      if (c === '{' || c === '[') pila.push(c);
+      else if (c === '}' || c === ']') pila.pop();
+    }
+    s = s.replace(/,\s*$/, '');
+    while (pila.length) s += pila.pop() === '{' ? '}' : ']';
+    return s;
+  }
+
   // Parse blindado — reconstruye el JSON desde el prefill
   let essenceData;
   try {
     const fullJson = '{"tono_central":"' + claudeText;
 
-    // Intentar parsear el JSON completo primero
-    let candidate = fullJson;
     try {
-      essenceData = JSON.parse(candidate);
+      essenceData = JSON.parse(fullJson);
     } catch (e) {
-      // Si falla, buscar el último } válido y truncar ahí
-      const lastBrace = fullJson.lastIndexOf('}');
-      if (lastBrace === -1) throw new Error('Sin cierre de JSON');
-      candidate = fullJson.slice(0, lastBrace + 1);
-      essenceData = JSON.parse(candidate);
+      // Reparar el corte y volver a intentar
+      essenceData = JSON.parse(repararJson(fullJson));
     }
 
     // Verificar y rellenar campos mínimos obligatorios
