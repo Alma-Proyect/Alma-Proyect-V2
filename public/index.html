@@ -2815,11 +2815,12 @@ function detectEmotionFromText(text) {
 }
 
 function renderNav() {
-  const dayMeta = [
-    { name:'Día 1', sub:'Para llegar aquí' },
-    { name:'Día 2', sub:'Para mirarse' },
-    { name:'Día 3', sub:'Para cerrar' }
-  ];
+  // Los pasos se generan según el tramo actual (3, 5 o 7), no fijos en 3.
+  // El subtítulo sale de TITULOS_DIA, quitándole el énfasis para el lateral.
+  const dayMeta = Array.from({ length: totalDays }, (_, i) => {
+    const t = (TITULOS_DIA[i] || TITULOS_DIA[TITULOS_DIA.length - 1]).title;
+    return { name: 'Día ' + (i + 1), sub: t.replace(/<\/?em>/g, '') };
+  });
 
   // Una sola pasada — no 3 lecturas separadas por render
   const savedDays = Array.from({ length: totalDays }, (_, i) => !!loadFromLocal(i));
@@ -2865,14 +2866,19 @@ function renderNav() {
   const msgs = [
     '"Cada vez que escribes, te escuchas un poco más."',
     '"Dos días. El espacio ya es tuyo."',
-    '"Tres días. Eso dice mucho de ti."'
+    '"Tres días. Eso dice mucho de ti."',
+    '"Cuatro días. Ya no es casualidad."',
+    '"Cinco días. Esto es un compromiso contigo."',
+    '"Seis días. Mira lo lejos que has llegado."',
+    '"Siete días. Todo el recorrido, entero."'
   ];
-  const msg = msgs[Math.min(done, msgs.length - 1)];
-  const n   = Math.max(1, done);
+  // El número grande refleja el día en el que está, no los completados.
+  const nDia = Math.max(1, (typeof currentDay === 'number' ? currentDay + 1 : done));
+  const msg  = msgs[Math.min(nDia - 1, msgs.length - 1)];
 
   ['streak-num-m'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.textContent = n;
+    if (el) el.textContent = nDia;
   });
   ['streak-msg-d','streak-msg-m'].forEach(id => {
     const el = document.getElementById(id);
@@ -3664,36 +3670,15 @@ function continuarTramo() {
   if (screen) screen.classList.remove('visible');
   window.scrollTo({ top: 0, behavior: 'auto' });
 
-  // El día que se acaba de terminar era el último del tramo viejo (índice
-  // tramoViejo-1). El siguiente día es ese +1. Como se hizo hoy, el bloqueo
-  // por fecha lo mantendrá cerrado hasta mañana, igual que entre día y día.
-  const tramoViejo = (window._farewellContexto && window._farewellContexto.tramo) || (totalDays);
-  currentDay = tramoViejo; // p.ej. venías del día 3 (idx2) del tramo 3 -> ahora idx3 = día 4
-  resetTurnState();
-
-  renderQuestion(currentDay);
-  const ta = document.getElementById('journal-text');
-  if (ta) ta.value = '';
-  const cc = document.getElementById('char-count');
-  if (cc) cc.textContent = '0 / 2000';
-  document.getElementById('alma-response')?.classList.remove('visible');
-  const trr = document.getElementById('turn-reply'); if (trr) trr.style.display = 'none';
-  const art = document.getElementById('alma-response-text'); if (art) art.innerHTML = '';
-
-  const pill = document.getElementById('day-pill');
-  if (pill) pill.textContent = `Día ${currentDay + 1} de ${totalDays}`;
-  const title = document.getElementById('day-title');
-  if (title) title.innerHTML = (TITULOS_DIA[currentDay] || TITULOS_DIA[TITULOS_DIA.length-1]).title;
-
-  // Bloqueo por fecha: el día recién terminado es de hoy, así que el nuevo
-  // queda cerrado hasta mañana. Se refleja escondiendo los botones de escritura.
-  ['btn-save-d','btn-save-m'].forEach(id => { const b=document.getElementById(id); if(b){b.disabled=false; b.textContent='✦ Guardar y lo suelto aquí…';} });
-  ['btn-next-d','btn-next-m'].forEach(id => { const b=document.getElementById(id); if(b){b.classList.remove('ready'); b.style.display='';} });
-  const rowD = document.getElementById('actions-row-d');
-  if (rowD) rowD.style.display = 'none';
-  setMobileButtons(false);
-
-  renderNav();
+  // El día recién terminado era el último del tramo viejo. Nos colocamos en él
+  // (currentDay = tramoViejo - 1) y dejamos que la rutina normal de avance haga
+  // el resto: sube a currentDay+1, refresca pill, título, streak, bloqueo por
+  // fecha y navegación, exactamente igual que el paso normal entre días.
+  const tramoViejo = (window._farewellContexto && window._farewellContexto.tramo) || totalDays;
+  // El último día del tramo viejo tenía índice (tramoViejo - 1). El día nuevo
+  // es el siguiente: índice tramoViejo. Ej: tramo 3 -> día índice 3 = "Día 4".
+  currentDay = tramoViejo;
+  avanzarDeDia();
 }
 
 // El registro solo se ofrece al terminar los tres días, y solo una vez:
@@ -3830,35 +3815,36 @@ function nextDay() {
   }
 
   currentDay++;
+  avanzarDeDia();
+}
+
+// Prepara la UI para el día actual (currentDay ya apunta al día destino).
+// Compartida por nextDay (paso normal) y continuarTramo (salto de tramo), para
+// que ambas rutas refresquen exactamente lo mismo: pregunta, pill, título,
+// streak, botones y bloqueo. El día destino se hizo hoy solo si ya existe
+// guardado con fecha de hoy; si es nuevo, queda listo para escribir.
+function avanzarDeDia() {
   resetTurnState();
   trackEvent('day_advanced', { day: currentDay + 1 });
 
-  const lastEntry = loadFromLocal(currentDay - 1);
-  let emotions = lastEntry?.emotions || [];
-  if (!emotions.length && lastEntry?.text) {
-    emotions = [detectEmotionFromText(lastEntry.text)];
-  }
-
-  // Actualizar pregunta y UI
   renderQuestion(currentDay);
 
-  document.getElementById("journal-text").value = "";
+  const ta = document.getElementById("journal-text");
+  if (ta) ta.value = "";
   const ccEl = document.getElementById('char-count');
   if (ccEl) ccEl.textContent = '0 / 2000';
-  document.getElementById('autosave-label') && (document.getElementById('autosave-label').style.display = 'none');
-  document.getElementById('alma-response').classList.remove('visible');
+  const asl = document.getElementById('autosave-label'); if (asl) asl.style.display = 'none';
+  document.getElementById('alma-response')?.classList.remove('visible');
   const tr2 = document.getElementById('turn-reply'); if (tr2) tr2.style.display = 'none';
-  document.getElementById('alma-response-text').innerHTML = '';
-  document.getElementById('typing').classList.remove('visible');
+  const art = document.getElementById('alma-response-text'); if (art) art.innerHTML = '';
+  document.getElementById('typing')?.classList.remove('visible');
 
-  // Actualizar pill y título
   const meta = TITULOS_DIA;
   const pill = document.getElementById('day-pill');
   const title = document.getElementById('day-title');
   if (pill)  pill.textContent = `Día ${currentDay + 1} de ${totalDays}`;
-  if (title) title.innerHTML  = meta[currentDay].title;
+  if (title) title.innerHTML  = (meta[currentDay] || meta[meta.length - 1]).title;
 
-  // Resetear botones
   ['btn-save-d','btn-save-m'].forEach(id => {
     const b = document.getElementById(id);
     if (b) { b.disabled = false; b.textContent = '✦ Guardar y lo suelto aquí…'; }
@@ -3868,7 +3854,6 @@ function nextDay() {
     if (b) { b.classList.remove('ready'); b.style.display = ''; }
   });
 
-  // Ocultar fila de botones hasta que escriba algo
   const rowD = document.getElementById('actions-row-d');
   if (rowD) rowD.style.display = 'none';
   setMobileButtons(false);
