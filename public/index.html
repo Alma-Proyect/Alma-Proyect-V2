@@ -4147,16 +4147,11 @@ function init() {
   const dateEl = document.getElementById('today-date');
   if (dateEl) dateEl.textContent = today;
 
-  // Actualizar pill y título al día activo real
-  const metaDays = [
-    { title: 'Para <em>llegar aquí</em>' },
-    { title: 'Para <em>mirarse</em>' },
-    { title: 'Para cerrar <em>con algo real</em>' }
-  ];
+  // Actualizar pill y título al día activo real (usa la lista global de 7).
   const pill  = document.getElementById('day-pill');
   const title = document.getElementById('day-title');
   if (pill)  pill.textContent = `Día ${currentDay + 1} de ${totalDays}`;
-  if (title) title.innerHTML  = metaDays[currentDay].title;
+  if (title) title.innerHTML  = (TITULOS_DIA[currentDay] || TITULOS_DIA[TITULOS_DIA.length - 1]).title;
 
   renderQuestion(currentDay);
   renderNav();
