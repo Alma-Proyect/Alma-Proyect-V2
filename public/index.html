@@ -881,6 +881,71 @@ body {
 .arrival-selector-btn.selected::before { display: none; }
 
 /* Registro al terminar los tres días */
+/* Continuar al siguiente tramo (camino A: sigue) */
+.continuar-tramo-box {
+  width: 100%; max-width: 420px;
+  display: none; flex-direction: column; gap: 0.7rem;
+  align-items: center; animation: fadeUp 0.6s ease both;
+}
+.btn-continuar-tramo {
+  width: 100%;
+  font-family: 'Jost', sans-serif; font-size: 0.95rem; font-weight: 600;
+  color: #FDF8E7; background: #456352;
+  border: 1.5px solid #456352; border-radius: 0.9rem;
+  padding: 1rem 1.25rem; cursor: pointer; transition: all 0.2s;
+  min-height: 52px; -webkit-tap-highlight-color: transparent;
+}
+.btn-continuar-tramo:hover { background: #38513F; transform: translateY(-1px); }
+.btn-continuar-tramo:active { transform: scale(0.98); }
+.continuar-tramo-nota {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 0.92rem; color: var(--muted); text-align: center;
+}
+
+/* Cierre final (camino B: para) — envuelve registro, Instagram y feedback */
+.cierre-final-box {
+  width: 100%; max-width: 420px;
+  display: none; flex-direction: column; gap: 1.1rem;
+  animation: fadeUp 0.6s ease both;
+}
+.cierre-instagram {
+  display: flex; align-items: center; justify-content: center; gap: 0.55rem;
+  width: 100%;
+  font-family: 'Jost', sans-serif; font-size: 0.86rem; font-weight: 500;
+  color: #8B4F38; background: rgba(168,107,80,0.07);
+  border: 1.5px solid rgba(168,107,80,0.3); border-radius: 0.8rem;
+  padding: 0.8rem 1rem; text-decoration: none; transition: all 0.2s;
+  min-height: 46px; -webkit-tap-highlight-color: transparent;
+}
+.cierre-instagram:hover { background: rgba(168,107,80,0.13); }
+.cierre-instagram svg { width: 18px; height: 18px; flex-shrink: 0; }
+.cierre-feedback-toggle {
+  background: none; border: none; cursor: pointer;
+  font-family: 'Jost', sans-serif; font-size: 0.78rem; font-weight: 300;
+  color: var(--muted); text-decoration: underline; text-underline-offset: 3px;
+  text-align: center; padding: 0.3rem;
+}
+.cierre-feedback-form { display: none; flex-direction: column; gap: 0.6rem; }
+.cierre-feedback-form.abierto { display: flex; }
+.cierre-feedback-textarea {
+  width: 100%; min-height: 84px; resize: vertical;
+  font-family: 'Jost', sans-serif; font-size: 15px; line-height: 1.6;
+  color: var(--ink); background: #FFFDF7;
+  border: 1.5px solid rgba(69,99,82,0.28); border-radius: 0.7rem;
+  padding: 0.7rem 0.9rem; outline: none;
+}
+.cierre-feedback-textarea:focus { border-color: #456352; }
+.cierre-feedback-btn {
+  align-self: flex-end;
+  font-family: 'Jost', sans-serif; font-size: 0.82rem; font-weight: 500;
+  color: #456352; background: none;
+  border: 1.5px solid rgba(69,99,82,0.4); border-radius: 0.7rem;
+  padding: 0.55rem 1.1rem; cursor: pointer; transition: opacity 0.2s;
+}
+.cierre-feedback-gracias {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 0.95rem; color: #38513F; text-align: center;
+}
 .registro-box {
   width: 100%; max-width: 420px;
   background: rgba(69,99,82,0.06);
@@ -1822,31 +1887,61 @@ body {
       </button>
     </div>
 
-    <!-- Seguir escribiendo: aquí es donde deja de ser un recorrido de tres
-         días y empieza a ser suyo. Solo aparece al terminar los tres. -->
-    <div class="registro-box" id="registro-box" style="display:none">
-      <div class="registro-titulo">¿Quieres seguir escribiendo?</div>
-      <p class="registro-texto">
-        Alma puede acompañarte cada día, no solo estos tres.
-        Déjanos tu correo y te avisamos en cuanto puedas volver
-        y encontrar aquí todo lo que has escrito.
-      </p>
-      <div class="registro-fila">
-        <input class="registro-input" id="registro-email" type="email"
-               inputmode="email" autocomplete="email"
-               placeholder="tu@correo.com" aria-label="Tu correo electrónico">
-        <button class="registro-btn" id="registro-btn" onclick="enviarRegistro()">Avísame</button>
-      </div>
-      <p class="registro-legal" id="registro-legal">
-        Solo lo usaremos para escribirte sobre Alma. Puedes darte de baja cuando quieras.
-        <a href="privacidad.html" target="_blank" rel="noopener">Política de privacidad</a>.
-      </p>
+    <!-- CAMINO A — puede seguir al siguiente tramo. Sin registro: no se va. -->
+    <div class="continuar-tramo-box" id="continuar-tramo-box">
+      <button class="btn-continuar-tramo" id="btn-continuar-tramo" onclick="continuarTramo()">
+        Continuar →
+      </button>
+      <p class="continuar-tramo-nota" id="continuar-tramo-nota"></p>
     </div>
 
-    <div class="farewell-badge">✦ Fundadora de Alma</div>
+    <!-- CAMINO B — es su final (paró, o llegó al día 7). Despedida completa. -->
+    <div class="cierre-final-box" id="cierre-final-box">
+
+      <!-- Registro: lo que de verdad importa, protagonista -->
+      <div class="registro-box" id="registro-box" style="display:flex">
+        <div class="registro-titulo">¿Quieres que Alma te acompañe cada día?</div>
+        <p class="registro-texto">
+          Estamos construyendo el espacio donde podrás volver y escribir
+          siempre que lo necesites. Déjanos tu correo y serás de las primeras
+          en entrar cuando esté listo.
+        </p>
+        <div class="registro-fila">
+          <input class="registro-input" id="registro-email" type="email"
+                 inputmode="email" autocomplete="email"
+                 placeholder="tu@correo.com" aria-label="Tu correo electrónico">
+          <button class="registro-btn" id="registro-btn" onclick="enviarRegistro()">Avísame</button>
+        </div>
+        <p class="registro-legal" id="registro-legal">
+          Solo lo usaremos para escribirte sobre Alma. Puedes darte de baja cuando quieras.
+          <a href="privacidad.html" target="_blank" rel="noopener">Política de privacidad</a>.
+        </p>
+      </div>
+
+      <!-- Instagram: secundario, un clic -->
+      <a class="cierre-instagram" href="https://instagram.com/almaproyect_" target="_blank" rel="noopener"
+         onclick="if(typeof plausible==='function') plausible('instagram_click');">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+        </svg>
+        Sigue a Alma en Instagram · @almaproyect_
+      </a>
+
+      <!-- Feedback: opcional, plegado -->
+      <button class="cierre-feedback-toggle" onclick="toggleFeedback()">¿Quieres contarnos cómo te has sentido?</button>
+      <div class="cierre-feedback-form" id="cierre-feedback-form">
+        <textarea class="cierre-feedback-textarea" id="cierre-feedback-text"
+                  placeholder="Lo que sea. Nos ayuda a que Alma crezca." rows="3"></textarea>
+        <button class="cierre-feedback-btn" onclick="enviarFeedbackCierre()">Enviar</button>
+      </div>
+      <p class="cierre-feedback-gracias" id="cierre-feedback-gracias" style="display:none">Gracias. Tu voz nos ayuda a que Alma crezca.</p>
+
+    </div>
+
+    <div class="farewell-badge">✦ Alma proyeCT</div>
 
     <p class="farewell-note">
-      Gracias por confiar en nosotras desde el principio.
+      Gracias por haber estado.
     </p>
 
   </div>
@@ -2308,9 +2403,35 @@ async function generarReflejoPDF(reflejo, fechaTexto){
 // CONFIG
 // =======================
 
-const totalDays = 3;
+// El recorrido crece por tramos: 3, luego 5, luego 7. totalDays es el tramo
+// actual, y se recuerda para que al volver siga donde estaba.
+const TRAMOS = [3, 5, 7];
+function loadTramo() {
+  try {
+    const t = parseInt(localStorage.getItem('alma_tramo'), 10);
+    if (TRAMOS.includes(t)) return t;
+  } catch(e) {}
+  return 3;
+}
+let totalDays = loadTramo();
+function setTramo(t) {
+  totalDays = t;
+  try { localStorage.setItem('alma_tramo', String(t)); } catch(e) {}
+}
 let currentDay = 0;
 let currentArrivalMode = 'pain';
+
+// Títulos por día. Los tres primeros son los de siempre; del 4 al 7 acompañan
+// la curva de hondura hacia integración, sin sonar a cierre hasta el final.
+const TITULOS_DIA = [
+  { title: 'Para <em>llegar aquí</em>' },
+  { title: 'Para <em>mirarse</em>' },
+  { title: 'Para ver <em>lo que hay</em>' },
+  { title: 'Para <em>sostener</em>' },
+  { title: 'Para <em>reconocerte</em>' },
+  { title: 'Para <em>recoger</em>' },
+  { title: 'Para <em>llevarte contigo</em>' }
+];
 let isBetaMode = false; // true cuando la usuaria eligió el día beta
 
 // =======================
@@ -2448,6 +2569,79 @@ const QUESTION_BANK = {
   ],
 };
 
+
+// Banco de cierre: solo para los dos últimos días de un recorrido de 7.
+// Recogen en vez de excavar. Quien hace 3 o 5 días nunca los ve.
+const CLOSING_BANK = {
+  pain: [
+    "Después de todos estos días diciendo lo que callabas, ¿qué se ha aflojado por dentro?",
+    "Lo que trajiste el primer día pesaba de una forma. ¿Pesa igual ahora?",
+    "Si la mujer del primer día te viera hoy, ¿qué notaría distinto en ti?",
+    "De todo lo que has soltado aquí, ¿qué es lo que ya no quieres volver a cargar?"
+  ],
+  curiosity: [
+    "De todo lo que has descubierto de ti estos días, ¿qué es lo que no quieres olvidar?",
+    "¿Qué parte de ti, que estaba callada al empezar, ha encontrado su voz aquí?",
+    "Si tuvieras que quedarte con una sola cosa que has descubierto de ti, ¿cuál sería?",
+    "¿Qué vas a hacer distinto ahora que has descubierto algo nuevo en esta etapa?"
+  ],
+  open: [
+    "Empezaste sin saber muy bien. ¿Has podido ordenar un poco lo que sentías?",
+    "De todo lo que ha ido saliendo estos días, ¿qué era lo que de verdad pedía espacio?",
+    "¿Qué palabra le pondrías ahora a eso que al principio no sabías nombrar?",
+    "Si pudieras llevarte una frase ancla para los días que vuelvas a perderte, ¿cuál sería?"
+  ],
+  depth: [
+    "Después de mirar tan adentro estos días, ¿qué has encontrado que no esperabas?",
+    "¿Qué has dejado de necesitar entender para poder estar en paz?",
+    "¿Qué has dejado de ver como alarma y has empezado a sostener con calma?",
+    "De todo lo que ha aparecido aquí, ¿qué te llevas para cuando la vida vuelva a estar en silencio?"
+  ],
+};
+
+// Baraja una copia sin tocar el original.
+function shuffleQ(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Genera el set de preguntas para un recorrido de 3, 5 o 7 días.
+// Devuelve { 1:..., 2:..., ... }. Las de cierre solo entran en los dos últimos
+// días de un recorrido de 7. Conserva lo ya asignado si se amplía de tramo.
+function buildQuestionSet(mode, totalDays, previousSet) {
+  const bank = QUESTION_BANK[mode] || QUESTION_BANK.pain;
+  const closing = CLOSING_BANK[mode] || CLOSING_BANK.pain;
+  const days = totalDays || 3;
+
+  const set = {};
+  const usadasN = new Set();
+  const usadasC = new Set();
+
+  if (previousSet) {
+    for (const k of Object.keys(previousSet)) {
+      set[k] = previousSet[k];
+      if (closing.includes(previousSet[k])) usadasC.add(previousSet[k]);
+      else usadasN.add(previousSet[k]);
+    }
+  }
+
+  const libresN = shuffleQ(bank.filter(q => !usadasN.has(q)));
+  const libresC = shuffleQ(closing.filter(q => !usadasC.has(q)));
+  const primerCierre = days >= 7 ? days - 1 : Infinity;
+
+  for (let d = 1; d <= days; d++) {
+    if (set[d]) continue;
+    if (d >= primerCierre && libresC.length) set[d] = libresC.shift();
+    else if (libresN.length) set[d] = libresN.shift();
+    else set[d] = libresC.shift() || bank[0];
+  }
+  return set;
+}
+
 const QUESTION_INTRO = "No hace falta que esté bien explicado, solo exprésalo, como salga…";
 
 // ── SET ALEATORIO — se genera una vez por sesión y se guarda ──────────────
@@ -2455,15 +2649,20 @@ const QUESTION_INTRO = "No hace falta que esté bien explicado, solo exprésalo,
 // pero cada nueva sesión puede traer un set diferente
 function getOrCreateQuestionSet(mode) {
   const key = `alma_qset_${mode}`;
+  let saved = null;
   try {
-    const saved = localStorage.getItem(key);
-    if (saved) return JSON.parse(saved);
+    const raw = localStorage.getItem(key);
+    if (raw) saved = JSON.parse(raw);
   } catch(e) {}
 
-  // Generar nuevo set aleatorio
-  const bank = QUESTION_BANK[mode] || QUESTION_BANK.pain;
-  const shuffled = [...bank].sort(() => Math.random() - 0.5);
-  const set = [shuffled[0], shuffled[1], shuffled[2]];
+  // buildQuestionSet devuelve un objeto { 1:..., 2:..., ... }. Si ya hay un set
+  // guardado con menos días que el tramo actual (porque amplió de 3 a 5 o a 7),
+  // se extiende conservando las preguntas ya vistas. Nunca se le cambia una
+  // pregunta que ya respondió.
+  const yaCubre = saved && Object.keys(saved).length >= totalDays;
+  if (yaCubre) return saved;
+
+  const set = buildQuestionSet(mode, totalDays, saved || null);
   try { localStorage.setItem(key, JSON.stringify(set)); } catch(e) {}
   return set;
 }
@@ -2471,7 +2670,8 @@ function getOrCreateQuestionSet(mode) {
 function getQuestionForDay(day) {
   const mode = currentArrivalMode || 'pain';
   const set = getOrCreateQuestionSet(mode);
-  return set[day] || set[0];
+  // Los sets nuevos son 1-indexados (día 1 = clave "1"). day aquí es 0-indexado.
+  return set[day + 1] || set[1] || Object.values(set)[0];
 }
 
 function renderQuestion(day) {
@@ -2683,11 +2883,7 @@ function renderNav() {
 function jumpToDay(index) {
   if (index > currentDay) return; // solo puede ir hacia atrás o al día actual
   currentDay = index;
-  const meta = [
-    { title: 'Para <em>llegar aquí</em>' },
-    { title: 'Para <em>mirarse</em>' },
-    { title: 'Para cerrar <em>con algo real</em>' }
-  ];
+  const meta = TITULOS_DIA;
   const prev = loadFromLocal(index - 1);
   let prevEmotions = prev?.emotions || [];
   if (!prevEmotions.length && prev?.text) prevEmotions = [detectEmotionFromText(prev.text)];
@@ -3420,11 +3616,119 @@ async function downloadFarewell() {
 function showFarewellActions() {
   const el = document.getElementById('farewell-actions');
   if (el) el.style.display = 'flex';
-  mostrarRegistro();
+
+  const ctx = window._farewellContexto || { hayTramoSiguiente: false, esFinalDefinitivo: true };
+
+  const cont = document.getElementById('continuar-tramo-box');
+  const cierre = document.getElementById('cierre-final-box');
+
+  if (ctx.hayTramoSiguiente) {
+    // Camino A: puede seguir. Se ofrece el siguiente tramo, sin registro.
+    if (cont) {
+      const siguiente = TRAMOS[TRAMOS.indexOf(totalDays) + 1];
+      const btn = document.getElementById('btn-continuar-tramo');
+      if (btn) btn.textContent = `Continuar hasta los ${siguiente} días →`;
+      const nota = document.getElementById('continuar-tramo-nota');
+      if (nota) nota.textContent = totalDays === 3
+        ? 'O quédate aquí. Lo que has hecho ya es tuyo.'
+        : 'O cierra aquí. Has llegado lejos.';
+      cont.style.display = 'flex';
+    }
+    if (cierre) cierre.style.display = 'none';
+  } else {
+    // Camino B: es el final. Despedida completa con registro, Instagram y feedback.
+    if (cont) cont.style.display = 'none';
+    if (cierre) cierre.style.display = 'flex';
+    mostrarRegistro();
+  }
+}
+
+// Continuar al siguiente tramo: amplía totalDays, regenera el set conservando
+// lo visto, y vuelve al día siguiente (bloqueado hasta mañana por fecha).
+function continuarTramo() {
+  const siguiente = TRAMOS[TRAMOS.indexOf(totalDays) + 1];
+  if (!siguiente) return;
+  setTramo(siguiente);
+  trackEvent('tramo_continuado', { desde: totalDays, hasta: siguiente });
+
+  // Regenerar el set para el tramo nuevo, conservando las preguntas ya vistas.
+  const mode = currentArrivalMode || 'pain';
+  const key = `alma_qset_${mode}`;
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) {}
+  const nuevo = buildQuestionSet(mode, siguiente, saved);
+  try { localStorage.setItem(key, JSON.stringify(nuevo)); } catch(e) {}
+
+  // Cerrar la pantalla de reflejo y volver al recorrido.
+  const screen = document.getElementById('farewell-screen');
+  if (screen) screen.classList.remove('visible');
+  window.scrollTo({ top: 0, behavior: 'auto' });
+
+  // El día que se acaba de terminar era el último del tramo viejo (índice
+  // tramoViejo-1). El siguiente día es ese +1. Como se hizo hoy, el bloqueo
+  // por fecha lo mantendrá cerrado hasta mañana, igual que entre día y día.
+  const tramoViejo = (window._farewellContexto && window._farewellContexto.tramo) || (totalDays);
+  currentDay = tramoViejo; // p.ej. venías del día 3 (idx2) del tramo 3 -> ahora idx3 = día 4
+  resetTurnState();
+
+  renderQuestion(currentDay);
+  const ta = document.getElementById('journal-text');
+  if (ta) ta.value = '';
+  const cc = document.getElementById('char-count');
+  if (cc) cc.textContent = '0 / 2000';
+  document.getElementById('alma-response')?.classList.remove('visible');
+  const trr = document.getElementById('turn-reply'); if (trr) trr.style.display = 'none';
+  const art = document.getElementById('alma-response-text'); if (art) art.innerHTML = '';
+
+  const pill = document.getElementById('day-pill');
+  if (pill) pill.textContent = `Día ${currentDay + 1} de ${totalDays}`;
+  const title = document.getElementById('day-title');
+  if (title) title.innerHTML = (TITULOS_DIA[currentDay] || TITULOS_DIA[TITULOS_DIA.length-1]).title;
+
+  // Bloqueo por fecha: el día recién terminado es de hoy, así que el nuevo
+  // queda cerrado hasta mañana. Se refleja escondiendo los botones de escritura.
+  ['btn-save-d','btn-save-m'].forEach(id => { const b=document.getElementById(id); if(b){b.disabled=false; b.textContent='✦ Guardar y lo suelto aquí…';} });
+  ['btn-next-d','btn-next-m'].forEach(id => { const b=document.getElementById(id); if(b){b.classList.remove('ready'); b.style.display='';} });
+  const rowD = document.getElementById('actions-row-d');
+  if (rowD) rowD.style.display = 'none';
+  setMobileButtons(false);
+
+  renderNav();
 }
 
 // El registro solo se ofrece al terminar los tres días, y solo una vez:
 // si ya dejó su correo, no se le vuelve a pedir.
+// Feedback en el cierre final: plegable, opcional, guarda en Supabase.
+function toggleFeedback() {
+  const form = document.getElementById('cierre-feedback-form');
+  if (form) form.classList.toggle('abierto');
+}
+
+async function enviarFeedbackCierre() {
+  const ta = document.getElementById('cierre-feedback-text');
+  const form = document.getElementById('cierre-feedback-form');
+  const gracias = document.getElementById('cierre-feedback-gracias');
+  const toggle = document.querySelector('.cierre-feedback-toggle');
+  if (!ta) return;
+  const texto = (ta.value || '').trim();
+  if (!texto) { ta.focus(); return; }
+
+  try {
+    await fetch('/.netlify/functions/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: texto })
+    });
+    trackEvent('feedback_submitted');
+  } catch(e) {
+    // Aunque falle el guardado, no le arruinamos el cierre: se le agradece igual.
+    console.warn('feedback no guardado:', e);
+  }
+  if (form) form.style.display = 'none';
+  if (toggle) toggle.style.display = 'none';
+  if (gracias) gracias.style.display = 'block';
+}
+
 function mostrarRegistro() {
   const caja = document.getElementById('registro-box');
   if (!caja) return;
@@ -3509,7 +3813,7 @@ function showNextIfNewDay() {
 
 function nextDay() {
   if (currentDay >= totalDays - 1) {
-    // Mostrar transición de palabra antes del reflejo
+    // Fin del tramo actual (3, 5 o 7): palabra + reflejo del tramo.
     mostrarPalabraYReflejo(showFarewell, conversationHistory);
     return;
   }
@@ -3548,11 +3852,7 @@ function nextDay() {
   document.getElementById('typing').classList.remove('visible');
 
   // Actualizar pill y título
-  const meta = [
-    { title: 'Para <em>llegar aquí</em>' },
-    { title: 'Para <em>mirarse</em>' },
-    { title: 'Para cerrar <em>con algo real</em>' }
-  ];
+  const meta = TITULOS_DIA;
   const pill = document.getElementById('day-pill');
   const title = document.getElementById('day-title');
   if (pill)  pill.textContent = `Día ${currentDay + 1} de ${totalDays}`;
@@ -3589,18 +3889,24 @@ async function showFarewell() {
   // Guardar en el camino
   guardarCaminoRefugio('Experiencia de tres días completada.');
 
-  // Mandar historial completo de cada día para que el reflejo sea más profundo
-  const d0 = loadFromLocal(0), d1 = loadFromLocal(1), d2 = loadFromLocal(2);
-  const entries = {
-    day1: d0?.history?.length ? d0.history : (d0?.text || ""),
-    day2: d1?.history?.length ? d1.history : (d1?.text || ""),
-    day3: d2?.history?.length ? d2.history : (d2?.text || ""),
-  };
+  // Recoger todos los días del tramo actual, no solo tres.
+  const entries = {};
+  for (let i = 0; i < totalDays; i++) {
+    const d = loadFromLocal(i);
+    entries['day' + (i + 1)] = d?.history?.length ? d.history : (d?.text || "");
+  }
   const questionSet = getOrCreateQuestionSet(currentArrivalMode);
+
+  // ¿Hay un tramo siguiente? 3 → 5 → 7. Si lo hay, este cierre es intermedio
+  // y NO se pide registro; si no lo hay (o es el 7), es despedida completa.
+  const idxTramo = TRAMOS.indexOf(totalDays);
+  const hayTramoSiguiente = idxTramo !== -1 && idxTramo < TRAMOS.length - 1;
+  const esFinalDefinitivo = !hayTramoSiguiente; // día 7, o el tramo más largo
+  window._farewellContexto = { hayTramoSiguiente, esFinalDefinitivo, tramo: totalDays };
 
   // Hash simple de las tres entradas — para detectar si las entradas cambiaron
   // desde la última vez que se generó el reflejo
-  const entriesHash = simpleHash(JSON.stringify(entries));
+  const entriesHash = simpleHash(JSON.stringify(entries) + '|tramo' + totalDays);
 
   const screen = document.getElementById('farewell-screen');
   if (screen) screen.classList.add('visible');
@@ -3611,7 +3917,7 @@ async function showFarewell() {
   const replyEl   = document.getElementById('farewell-alma-text');
 
   // Si ya tenemos el reflejo guardado Y corresponde a estas mismas entradas, mostrarlo sin llamar a la API
-  const cached = loadFromLocal('farewell');
+  const cached = loadFromLocal('farewell_' + totalDays);
   if (cached?.summary && cached?.entriesHash === entriesHash) {
     if (loadingEl) loadingEl.style.display = 'none';
     if (replyEl) {
@@ -3630,7 +3936,11 @@ async function showFarewell() {
     const res  = await fetch('/.netlify/functions/summary', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ entries, arrivalMode: currentArrivalMode, plan: 'free', questionSet }),
+      body: JSON.stringify({
+        entries, arrivalMode: currentArrivalMode, plan: 'free', questionSet,
+        tramo: totalDays,
+        reflejoTotal: (window._farewellContexto && window._farewellContexto.esFinalDefinitivo) || false
+      }),
       signal: controller.signal
     });
     clearTimeout(timeoutId);
@@ -3639,7 +3949,7 @@ async function showFarewell() {
 
     // Guardar para no volver a llamar — junto con el hash de estas entradas
     if (summaryText) {
-      try { localStorage.setItem('alma_farewell', JSON.stringify({ summary: summaryText, entriesHash })); } catch(e) {}
+      try { localStorage.setItem('alma_farewell_' + totalDays, JSON.stringify({ summary: summaryText, entriesHash })); } catch(e) {}
       // Guardar en Tu refugio
       guardarReflejoRefugio(summaryText);
     }
