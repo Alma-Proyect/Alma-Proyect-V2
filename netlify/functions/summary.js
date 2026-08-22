@@ -3,7 +3,7 @@
 // Recibe el historial completo de los tres días con todos los turnos
 
 const { callAnthropic } = require("./lib/anthropic");
-const { SUMMARY_SYSTEM_PROMPT, getSummaryUserMessage } = require("./lib/prompts");
+const { SUMMARY_SYSTEM_PROMPT, SUMMARY_TOTAL_SYSTEM_PROMPT, getSummaryUserMessage } = require("./lib/prompts");
 const { getQuestion } = require("./lib/questions");
 
 // Si la respuesta llegó truncada por tope de tokens, recorta hasta el último
@@ -30,7 +30,7 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  const { entries, plan, arrivalMode, questionSet } = JSON.parse(event.body || "{}");
+  const { entries, plan, arrivalMode, questionSet, tramo, reflejoTotal } = JSON.parse(event.body || "{}");
 
   if (!entries || !entries.day1) {
     return {
@@ -40,11 +40,12 @@ exports.handler = async function (event) {
   }
 
   try {
+    const esTotal = reflejoTotal === true;
     const result = await callAnthropic({
-      system: SUMMARY_SYSTEM_PROMPT,
-      messages: [{ role: "user", content: getSummaryUserMessage(entries, arrivalMode, questionSet) }],
-      maxTokens: 360,
-      temperature: 0.75,
+      system: esTotal ? SUMMARY_TOTAL_SYSTEM_PROMPT : SUMMARY_SYSTEM_PROMPT,
+      messages: [{ role: "user", content: getSummaryUserMessage(entries, arrivalMode, questionSet, esTotal) }],
+      maxTokens: esTotal ? 520 : 360,
+      temperature: 0.78,
       plan: plan || "free",
     });
 
@@ -81,13 +82,13 @@ function buildDownloadText(entries, summary, arrivalMode, questionSet) {
   });
 
   const mode = arrivalMode || "pain";
+  const sep = "─".repeat(40);
 
   function formatDayForDownload(dayEntries, pregunta, numDia) {
     if (!dayEntries) return `DÍA ${numDia}\n${pregunta}\n\n(Este día elegiste no escribir)\n`;
     if (typeof dayEntries === "string") {
       return `DÍA ${numDia}\n${pregunta}\n\n${dayEntries}\n`;
     }
-    // Array de turnos — solo lo que escribió la usuaria
     const lines = dayEntries
       .filter(t => t.role === "user")
       .map(t => t.text)
@@ -95,24 +96,22 @@ function buildDownloadText(entries, summary, arrivalMode, questionSet) {
     return `DÍA ${numDia}\n${pregunta}\n\n${lines}\n`;
   }
 
+  // Recorre todos los días presentes, sean 3, 5 o 7.
+  let dias = "";
+  for (let i = 1; i <= 7; i++) {
+    if (entries["day" + i] === undefined) continue;
+    dias += `\n${formatDayForDownload(entries["day" + i], getQuestion(mode, i, questionSet), i)}\n${sep}\n`;
+  }
+
   return `ALMA PROYECT · Tu espacio emocional
 ${fecha}
-${"─".repeat(40)}
-
-${formatDayForDownload(entries.day1, getQuestion(mode, 1, questionSet), 1)}
-${"─".repeat(40)}
-
-${formatDayForDownload(entries.day2, getQuestion(mode, 2, questionSet), 2)}
-${"─".repeat(40)}
-
-${formatDayForDownload(entries.day3, getQuestion(mode, 3, questionSet), 3)}
-${"─".repeat(40)}
-
+${sep}
+${dias}
 LO QUE ALMA VIO
 
 ${summary}
 
-${"─".repeat(40)}
+${sep}
 alma proyect · tu espacio emocional
 `;
 }
