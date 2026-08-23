@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="robots" content="noindex, nofollow">
 <title>Alma Proyect — Entiende lo que sientes, no lo hagas sola.</title>
-<meta name="description" content="Alma Proyect. Entiende lo que sientes, no lo hagas sola. Sin prisas, sin juicios, a tu ritmo… Tres preguntas. Tres días.">
+<meta name="description" content="Alma Proyect. Entiende lo que sientes, no lo hagas sola. Sin prisas, sin juicios, a tu ritmo. Una pregunta al día, y alguien que escucha.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@300;400;500;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
@@ -1842,7 +1842,7 @@ body {
 
     <div class="farewell-body">
       <p>
-        Durante estos tres días te hiciste algo difícil y valioso a la vez:
+        Estos días te hiciste algo difícil y valioso a la vez:
         te detuviste. Te preguntaste. Te escuchaste.
         <strong>No todo el mundo se atreve a hacer eso.</strong>
       </p>
@@ -2009,9 +2009,9 @@ body {
       </div>
 
       <button class="beta-cta" onclick="startFullJourney()">
-        Quiero hacer los tres días →
+        Quiero seguir con Alma →
       </button>
-      <p class="beta-cta-note">La experiencia completa incluye tres días, un reflejo más profundo y descarga en PDF.</p>
+      <p class="beta-cta-note">El recorrido completo va más hondo día a día, con un reflejo final y tu carta descargable en PDF.</p>
     </div>
 
     <!-- Mensaje de transición — visible tras pulsar el botón -->
@@ -2031,7 +2031,7 @@ body {
     <div class="welcome-divider"></div>
     <p class="welcome-text">
       <strong>Todo lo que compartas aquí se trata con respeto y sin juicio.</strong><br><br>
-      Tres preguntas. Tres días. Un acompañamiento que escucha de verdad.
+      Una pregunta al día. Un acompañamiento que escucha de verdad.
     </p>
     <div class="welcome-divider"></div>
     <p class="arrival-question">Alma se ajusta a cómo llegas hoy.</p>
@@ -3584,11 +3584,16 @@ async function downloadFarewell() {
   const btn = document.querySelector('.farewell-actions .btn-farewell:last-child');
   const original = btn ? btn.innerHTML : '';
 
-  // Coger el reflejo real ya guardado
+  // Coger el reflejo real ya guardado. Desde los tramos, cada uno se guarda con
+  // su clave (alma_farewell_3/_5/_7). Se lee el del tramo actual, y si no está,
+  // se prueban los otros por si se descarga desde un tramo distinto al generado.
   let reflejo = '';
   try {
-    const farewell = JSON.parse(localStorage.getItem('alma_farewell') || '{}');
-    reflejo = farewell.summary || '';
+    const claves = ['alma_farewell_' + totalDays, 'alma_farewell_7', 'alma_farewell_5', 'alma_farewell_3', 'alma_farewell'];
+    for (const k of claves) {
+      const f = JSON.parse(localStorage.getItem(k) || '{}');
+      if (f.summary) { reflejo = f.summary; break; }
+    }
   } catch(e) {}
 
   if (!reflejo) {
@@ -3872,7 +3877,7 @@ async function showFarewell() {
   checkFeedback();
 
   // Guardar en el camino
-  guardarCaminoRefugio('Experiencia de tres días completada.');
+  guardarCaminoRefugio('Recorrido de ' + totalDays + ' días completado.');
 
   // Recoger todos los días del tramo actual, no solo tres.
   const entries = {};
