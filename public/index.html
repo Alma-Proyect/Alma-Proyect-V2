@@ -2180,7 +2180,7 @@ body {
 
       <textarea class="journal-textarea" id="journal-text"
         aria-label="Escribe tu entrada del diario"
-        placeholder="Escribe lo que sea… no hay respuesta correcta ni incorrecta."
+        placeholder="Empieza por donde te salga…"
         oninput="onType()" rows="6" maxlength="2000"></textarea>
       <div class="char-row">
         <span class="autosave" id="autosave-label" style="display:none">Guardado</span>
@@ -4376,7 +4376,6 @@ function selectBetaArrival(btn, mode) {
   const questionEl = document.getElementById('question-text');
   if (questionEl) {
     questionEl.innerHTML = `
-      <p class="question-intro">No hace falta que esté bien explicado, solo exprésalo, como salga…</p>
       <p class="question-main">${BETA_QUESTIONS[mode] || BETA_QUESTIONS.beta_unclear}</p>
     `;
   }
