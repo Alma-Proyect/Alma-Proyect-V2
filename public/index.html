@@ -2171,6 +2171,7 @@ body {
         <p class="question-intro">No hace falta que esté bien explicado, solo exprésalo, como salga…</p>
         <p class="question-main">¿Hay algo que llevas dentro y que casi nunca dices en voz alta?</p>
       </div>
+      <button class="cierre-feedback-toggle" id="btn-otra-pregunta-inicio" onclick="otraPreguntaInicio()" style="display:none">Hazme otra pregunta</button>
 
       <!-- Frase de Alma antes del textarea — rompe el hielo -->
       <div class="alma-opener" id="alma-opener">
@@ -2215,6 +2216,7 @@ body {
       <textarea class="turn-textarea" id="turn-text"
         placeholder="Escribe lo que sea… no hay respuesta correcta."
         oninput="onTurnType()" rows="5" maxlength="1000"></textarea>
+      <button class="cierre-feedback-toggle" id="btn-otra-pregunta-medio" onclick="pedirOtraPregunta()" style="display:none">Hazme otra pregunta</button>
       <div class="turn-footer">
         <span class="char-count" id="turn-char-count">0 / 1000</span>
         <button class="btn-turn-send" id="btn-turn-send" onclick="sendTurn()">
@@ -2232,6 +2234,7 @@ body {
   <button class="btn-next" onclick="nextDay()" id="btn-next-m">Siguiente →</button>
 </div>
 
+<script src="/data/questions-data.js"></script>
 <script>
 
 
@@ -2517,87 +2520,9 @@ function trackEvent(name, params) {
 // QUESTIONS
 // =======================
 
-// ── BANCO DE PREGUNTAS — 10 por estado de ánimo ───────────────────────────
-const QUESTION_BANK = {
-  pain: [
-    "¿Cuándo fue la última vez que sentiste que alguien podía sostener lo que te pasaba… y tú dejaste de fingir que estabas bien?",
-    "¿Cuándo aprendiste a hacerte pequeña para que los demás estuvieran cómodos?",
-    "Si alguien a quien amas sintiera lo que tú sientes ahora, ¿qué le dirías que nunca te dices a ti?",
-    "¿Qué es lo que más te cuesta soltar?",
-    "¿Cuándo fue la última vez que estuviste mal y lo dejaste estar, sin hacer nada con ello?",
-    "¿Qué parte de lo que sientes ahora llevas tiempo sin contárselo a nadie?",
-    "¿Qué emoción estás cargando que no es tuya, y sigues cargando igual?",
-    "¿Qué es lo que hoy no quieres mirar, aunque sabes que está ahí?",
-    "¿Qué pasaría si dejaras de vigilar lo que sientes?",
-    "¿Qué es lo que nadie sabe que necesitas ahora mismo?",
-  ],
-  curiosity: [
-    "¿Qué parte de ti lleva tiempo sin tener espacio para existir?",
-    "¿Qué has asumido de ti misma sin cuestionarlo nunca, solo porque siempre ha sido así?",
-    "¿Qué sientes cuando no tienes que interpretar ningún papel?",
-    "¿Qué versión de ti misma aparece cuando nadie te está mirando?",
-    "¿Qué deseo tuyo llevas tiempo dejando para después, sin una razón clara?",
-    "¿Qué te sorprendió de ti misma esta semana, aunque fuera algo pequeño?",
-    "¿Qué sabes de ti que todavía no te has dicho a ti misma en voz alta?",
-    "¿Qué necesitas sentir, no dar, no resolver, no sostener... solo sentir tú?",
-    "¿Qué parte de ti aparece cuando bajas la guardia?",
-    "¿Qué relación tienes con la mujer que eras hace dos años?",
-  ],
-  open: [
-    "¿Cómo estás de verdad, no la respuesta de siempre, sino la real?",
-    "¿Qué emoción hay debajo de ese 'no sé muy bien'?",
-    "¿Qué es lo primero que te vino a la mente cuando decidiste abrir esto hoy?",
-    "¿Hay algo que llevas tiempo sintiendo pero que todavía no has podido ponerle nombre?",
-    "¿Si tuvieras que ponerle una palabra a lo que sientes ahora mismo, solo una, cuál sería?",
-    "¿Hay algo que estás sosteniendo hoy que todavía no sabes si merece espacio?",
-    "¿Qué hay detrás del 'estoy bien' que te dices antes de atreverte a quedarte en silencio?",
-    "Si pudieras hablar de cualquier cosa hoy, ¿de qué hablarías?",
-    "¿Qué es lo que hoy te hizo parar, aunque sea un momento, y escucharte?",
-    "¿Qué necesitas hoy que no has pedido?",
-  ],
-  depth: [
-    "¿Qué sientes cuando la vida está tranquila y aun así algo en ti no termina de estarlo?",
-    "¿Cuándo fue la última vez que confundiste estar bien con estar perdida?",
-    "¿Cuando todo se siente plano, qué es lo primero que te dices?",
-    "¿Qué pasa cuando el silencio llega y no se siente paz... se siente vacío?",
-    "¿Qué estás esperando que ocurra para saber que ya estás bien?",
-    "¿Qué hay en ti que ya no duele como antes, pero que todavía no te atreves a tocar?",
-    "¿Y si lo que no entiendes de lo que sientes no es confusión, sino que aún no tiene nombre?",
-    "¿Cuándo empezaste a leer la calma como señal de alarma?",
-    "¿Qué parte de ti espera que esto se rompa?",
-    "¿Qué pregunta sobre ti misma llevas tiempo evitando, y todavía te da vértigo enfrentarla?",
-  ],
-};
-
-
-// Banco de cierre: solo para los dos últimos días de un recorrido de 7.
-// Recogen en vez de excavar. Quien hace 3 o 5 días nunca los ve.
-const CLOSING_BANK = {
-  pain: [
-    "Después de todos estos días diciendo lo que callabas, ¿qué se ha aflojado por dentro?",
-    "Lo que trajiste el primer día pesaba de una forma. ¿Pesa igual ahora?",
-    "Si la mujer del primer día te viera hoy, ¿qué notaría distinto en ti?",
-    "De todo lo que has soltado aquí, ¿qué es lo que ya no quieres volver a cargar?"
-  ],
-  curiosity: [
-    "De todo lo que has descubierto de ti estos días, ¿qué es lo que no quieres olvidar?",
-    "¿Qué parte de ti, que estaba callada al empezar, ha encontrado su voz aquí?",
-    "Si tuvieras que quedarte con una sola cosa que has descubierto de ti, ¿cuál sería?",
-    "¿Qué vas a hacer distinto ahora que has descubierto algo nuevo en esta etapa?"
-  ],
-  open: [
-    "Empezaste sin saber muy bien. ¿Has podido ordenar un poco lo que sentías?",
-    "De todo lo que ha ido saliendo estos días, ¿qué era lo que de verdad pedía espacio?",
-    "¿Qué palabra le pondrías ahora a eso que al principio no sabías nombrar?",
-    "Si pudieras llevarte una frase ancla para los días que vuelvas a perderte, ¿cuál sería?"
-  ],
-  depth: [
-    "Después de mirar tan adentro estos días, ¿qué has encontrado que no esperabas?",
-    "¿Qué has dejado de necesitar entender para poder estar en paz?",
-    "¿Qué has dejado de ver como alarma y has empezado a sostener con calma?",
-    "De todo lo que ha aparecido aquí, ¿qué te llevas para cuando la vida vuelva a estar en silencio?"
-  ],
-};
+// Fuente única: /data/questions-data.js (compartida con el servidor).
+// Aquí solo se referencia — nunca se vuelve a escribir el contenido.
+const { QUESTION_BANK, CLOSING_BANK } = window.ALMA_QUESTIONS;
 
 // Baraja una copia sin tocar el original.
 function shuffleQ(arr) {
@@ -2642,6 +2567,22 @@ function buildQuestionSet(mode, totalDays, previousSet) {
   return set;
 }
 
+// Sustituye la pregunta de un día concreto por otra sin usar del mismo banco
+// (normal o de cierre, según cuál tocara ese día). Si ya no queda ninguna
+// libre, devuelve el set sin tocar — no hay alternativa que ofrecer.
+function swapQuestionForDay(mode, day, currentSet) {
+  const bank = QUESTION_BANK[mode] || QUESTION_BANK.pain;
+  const closing = CLOSING_BANK[mode] || CLOSING_BANK.pain;
+  const actual = currentSet[day];
+  const esCierre = closing.includes(actual);
+  const pool = esCierre ? closing : bank;
+  const usadas = new Set(Object.values(currentSet));
+  const libres = pool.filter(q => !usadas.has(q));
+  if (libres.length === 0) return currentSet;
+  const nueva = libres[Math.floor(Math.random() * libres.length)];
+  return { ...currentSet, [day]: nueva };
+}
+
 const QUESTION_INTRO = "No hace falta que esté bien explicado, solo exprésalo, como salga…";
 
 // ── SET ALEATORIO — se genera una vez por sesión y se guarda ──────────────
@@ -2682,6 +2623,26 @@ function renderQuestion(day) {
       <p class="question-main">${getQuestionForDay(day)}</p>
     `;
   }
+  // El botón solo tiene sentido en el modo de 3/5/7 días (hay banco de 10
+  // preguntas por puerta) y solo antes de responder. En beta no hay banco
+  // alternativo — una sola pregunta por modo — así que se queda oculto.
+  const btnOtra = document.getElementById('btn-otra-pregunta-inicio');
+  if (btnOtra) {
+    const yaRespondida = !!(loadFromLocal(day)?.almaReply);
+    btnOtra.style.display = (!isBetaMode && !yaRespondida) ? 'inline-block' : 'none';
+  }
+}
+
+// Cambia la pregunta de apertura del día actual por otra del mismo banco.
+function otraPreguntaInicio() {
+  if (isBetaMode) return;
+  const mode = currentArrivalMode || 'pain';
+  const key = `alma_qset_${mode}`;
+  const set = getOrCreateQuestionSet(mode);
+  const nuevoSet = swapQuestionForDay(mode, currentDay + 1, set);
+  try { localStorage.setItem(key, JSON.stringify(nuevoSet)); } catch(e) {}
+  renderQuestion(currentDay);
+  trackEvent('pregunta_inicio_cambiada', { day: currentDay + 1, mode });
 }
 
 // =======================
@@ -2983,6 +2944,9 @@ async function saveEntry() {
   const text = document.getElementById("journal-text").value.trim();
   if (!text) return;
 
+  const btnOtraInicio = document.getElementById('btn-otra-pregunta-inicio');
+  if (btnOtraInicio) btnOtraInicio.style.display = 'none';
+
   const emotions = [];
   saveToLocal(currentDay, text, emotions, undefined, undefined, currentArrivalMode);
 
@@ -3158,6 +3122,106 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
       hideTurnReply();
       showFinalButtons();
       setMobileButtons(false);
+    });
+  }
+}
+
+// Quita del historial visible el último bloque de Alma — se usa justo antes
+// de sustituirlo por una reformulación, para no dejar las dos a la vez.
+function quitarUltimoBloqueAlma() {
+  const container = document.getElementById('conversation-history');
+  if (!container) return;
+  const bloques = container.querySelectorAll('.history-alma');
+  if (bloques.length) bloques[bloques.length - 1].remove();
+}
+
+// "Hazme otra pregunta" a mitad de conversación — le pide a Alma que
+// sustituya la pregunta con la que cerró su último turno por otra distinta.
+// No avanza el turno ni cuenta como respuesta suya.
+async function pedirOtraPregunta() {
+  const btn = document.getElementById('btn-otra-pregunta-medio');
+  if (btn?.disabled) return;
+  if (btn) { btn.disabled = true; btn.textContent = 'Un momento…'; }
+
+  const hist = isBetaMode ? betaHistory : conversationHistory;
+  const turnActual = isBetaMode ? betaTurn : currentTurn;
+  const fallbackMsg = "No he podido pensar otra pregunta ahora mismo. Sigamos con lo de antes.";
+
+  hideTurnReply();
+  quitarUltimoBloqueAlma();
+  document.getElementById('alma-response').classList.add('visible');
+  document.getElementById('typing').classList.add('visible');
+  document.getElementById('alma-response-text').innerHTML = '';
+
+  const previousEntries = {};
+  if (!isBetaMode) {
+    for (let i = 0; i < currentDay; i++) {
+      const entry = loadFromLocal(i);
+      if (entry?.text) previousEntries[`day${i + 1}`] = entry.text;
+    }
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 9000);
+
+  try {
+    const res = await fetch("/.netlify/functions/alma", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        day: isBetaMode ? 1 : currentDay + 1,
+        turn: turnActual,
+        reformular: true,
+        conversationHistory: hist,
+        previousEntries,
+        arrivalMode: isBetaMode ? betaMode : currentArrivalMode,
+        questionSet: isBetaMode ? undefined : getOrCreateQuestionSet(currentArrivalMode),
+        plan: 'free',
+        isBeta: isBetaMode,
+        betaMaxTurns: BETA_MAX_TURNS,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    const data = await res.json();
+    document.getElementById('typing').classList.remove('visible');
+    const nuevaRespuesta = data.response || fallbackMsg;
+
+    if (hist.length && hist[hist.length - 1].role === 'alma') {
+      hist[hist.length - 1].text = nuevaRespuesta;
+    } else {
+      hist.push({ role: 'alma', text: nuevaRespuesta });
+    }
+    if (isBetaMode) {
+      saveBetaToLocal(hist, nuevaRespuesta);
+    } else {
+      const entryNow = loadFromLocal(currentDay);
+      saveToLocal(currentDay, entryNow?.text, entryNow?.emotions || [], nuevaRespuesta, hist, currentArrivalMode);
+    }
+
+    typeWriter(nuevaRespuesta, () => {
+      const almaText = document.getElementById('alma-response-text').innerHTML;
+      addToHistory('alma', almaText);
+      document.getElementById('alma-response-text').innerHTML = '';
+      document.getElementById('alma-response').classList.remove('visible');
+      showTurnReply();
+    });
+    trackEvent('otra_pregunta_pedida', { turn: turnActual, beta: isBetaMode });
+
+  } catch(e) {
+    clearTimeout(timeoutId);
+    document.getElementById('typing').classList.remove('visible');
+    // No se pudo reformular — se vuelve a mostrar tal cual lo que ya había.
+    const anterior = (hist[hist.length - 1] && hist[hist.length - 1].role === 'alma')
+      ? hist[hist.length - 1].text
+      : fallbackMsg;
+    typeWriter(anterior, () => {
+      const almaText = document.getElementById('alma-response-text').innerHTML;
+      addToHistory('alma', almaText);
+      document.getElementById('alma-response-text').innerHTML = '';
+      document.getElementById('alma-response').classList.remove('visible');
+      showTurnReply();
     });
   }
 }
@@ -3500,6 +3564,18 @@ function showTurnReply() {
     const btn = document.getElementById('btn-turn-send');
     if (btn) btn.classList.remove('ready');
   }
+
+  // "Hazme otra pregunta" — nunca en la respuesta que lleva directa al
+  // turno de cierre (día 3, o turno 4 en beta): esa no se reformula.
+  const btnOtra = document.getElementById('btn-otra-pregunta-medio');
+  if (btnOtra) {
+    const turnActual = isBetaMode ? betaTurn : currentTurn;
+    const maxT = isBetaMode ? BETA_MAX_TURNS : 3;
+    btnOtra.style.display = (turnActual < maxT - 1) ? 'inline-block' : 'none';
+    btnOtra.disabled = false;
+    btnOtra.textContent = 'Hazme otra pregunta';
+  }
+
   setTimeout(() =>
     turnReply?.scrollIntoView({ behavior:'smooth', block:'end' }), 200);
 }
