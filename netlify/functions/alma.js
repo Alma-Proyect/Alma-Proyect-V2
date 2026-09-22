@@ -41,9 +41,12 @@ exports.handler = async function (event) {
     questionSet,
     isBeta,
     betaMaxTurns,
+    reformular,
   } = JSON.parse(event.body || "{}");
 
-  if (!entry || entry.trim().length === 0) {
+  // "reformular" no trae texto nuevo de ella — es una petición de "hazme otra
+  // pregunta", así que el hueco de texto está permitido solo en este caso.
+  if (!reformular && (!entry || entry.trim().length === 0)) {
     return {
       statusCode: 400,
       body: JSON.stringify({ error: "No se recibió ningún texto." }),
@@ -56,7 +59,24 @@ exports.handler = async function (event) {
 
   // Construir historial de mensajes — solo lo esencial para no superar el timeout
   const messages = [];
-  if (conversationHistory && conversationHistory.length > 0) {
+  if (reformular) {
+    // Se ha bloqueado con la pregunta del último turno. Reconstruimos el
+    // historial SIN esa última respuesta (la vamos a sustituir) y pedimos
+    // una alternativa — nunca se llama con reformular=true en el turno de
+    // cierre, eso lo controla el frontend.
+    const hist = Array.isArray(conversationHistory) ? [...conversationHistory] : [];
+    if (hist.length && hist[hist.length - 1].role === "alma") hist.pop();
+    for (const t of hist) {
+      messages.push({
+        role: t.role === "alma" ? "assistant" : "user",
+        content: t.text,
+      });
+    }
+    messages.push({
+      role: "user",
+      content: "[La usuaria se ha quedado bloqueada con la pregunta de tu último turno y te pide que se la hagas de otra forma. Vuelve a hacer tu turno completo, mismo tono, la misma persona que eres, pero cierra con una pregunta distinta a la anterior — que no se parezca ni en el enfoque ni en las palabras. No menciones que te lo han pedido ni te disculpes por la pregunta anterior.]",
+    });
+  } else if (conversationHistory && conversationHistory.length > 0) {
     // Mandar todos los turnos del día para mantener el hilo completo
     for (const t of conversationHistory) {
       messages.push({
@@ -111,7 +131,7 @@ exports.handler = async function (event) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         response,
-        isLastTurn,
+        isLastTurn: reformular ? false : isLastTurn,
         turnsLeft: MAX_TURNS_PER_DAY - currentTurn,
       }),
     };
