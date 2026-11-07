@@ -3,7 +3,7 @@
 // El efecto de escritura palabra a palabra lo hace el typewriter en el frontend.
 
 const { getAlmaSystemPrompt } = require("./lib/prompts");
-const { getQuestion, MAX_TURNS_PER_DAY } = require("./lib/questions");
+const { getQuestion, getBetaQuestion, MAX_TURNS_PER_DAY } = require("./lib/questions");
 const { callAnthropic } = require("./lib/anthropic");
 
 // Si la respuesta llegó truncada por tope de tokens, recorta hasta el último
@@ -41,12 +41,9 @@ exports.handler = async function (event) {
     questionSet,
     isBeta,
     betaMaxTurns,
-    reformular,
   } = JSON.parse(event.body || "{}");
 
-  // "reformular" no trae texto nuevo de ella — es una petición de "hazme otra
-  // pregunta", así que el hueco de texto está permitido solo en este caso.
-  if (!reformular && (!entry || entry.trim().length === 0)) {
+  if (!entry || entry.trim().length === 0) {
     return {
       statusCode: 400,
       body: JSON.stringify({ error: "No se recibió ningún texto." }),
@@ -57,26 +54,16 @@ exports.handler = async function (event) {
   const maxTurns    = (isBeta && betaMaxTurns) ? betaMaxTurns : MAX_TURNS_PER_DAY;
   const isLastTurn  = currentTurn >= maxTurns;
 
+  // La pregunta que de verdad vio la usuaria. En la beta (ids beta_*) viene de su propio
+  // banco; antes caía al primer elemento del banco "pain" y Alma recibía una pregunta
+  // distinta a la que se había mostrado en pantalla.
+  const preguntaDeHoy = isBeta
+    ? getBetaQuestion(arrivalMode)
+    : getQuestion(arrivalMode, day, questionSet);
+
   // Construir historial de mensajes — solo lo esencial para no superar el timeout
   const messages = [];
-  if (reformular) {
-    // Se ha bloqueado con la pregunta del último turno. Reconstruimos el
-    // historial SIN esa última respuesta (la vamos a sustituir) y pedimos
-    // una alternativa — nunca se llama con reformular=true en el turno de
-    // cierre, eso lo controla el frontend.
-    const hist = Array.isArray(conversationHistory) ? [...conversationHistory] : [];
-    if (hist.length && hist[hist.length - 1].role === "alma") hist.pop();
-    for (const t of hist) {
-      messages.push({
-        role: t.role === "alma" ? "assistant" : "user",
-        content: t.text,
-      });
-    }
-    messages.push({
-      role: "user",
-      content: "[La usuaria se ha quedado bloqueada con la pregunta de tu último turno y te pide que se la hagas de otra forma. Vuelve a hacer tu turno completo, mismo tono, la misma persona que eres, pero cierra con una pregunta distinta a la anterior — que no se parezca ni en el enfoque ni en las palabras. No menciones que te lo han pedido ni te disculpes por la pregunta anterior.]",
-    });
-  } else if (conversationHistory && conversationHistory.length > 0) {
+  if (conversationHistory && conversationHistory.length > 0) {
     // Mandar todos los turnos del día para mantener el hilo completo
     for (const t of conversationHistory) {
       messages.push({
@@ -92,7 +79,7 @@ exports.handler = async function (event) {
   } else {
     messages.push({
       role: "user",
-      content: `La pregunta de hoy era: "${getQuestion(arrivalMode, day, questionSet)}"\n\nEsto es lo que escribió:\n\n"${entry}"`,
+      content: `La pregunta de hoy era: "${preguntaDeHoy}"\n\nEsto es lo que escribió:\n\n"${entry}"`,
     });
   }
 
@@ -131,7 +118,7 @@ exports.handler = async function (event) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         response,
-        isLastTurn: reformular ? false : isLastTurn,
+        isLastTurn,
         turnsLeft: MAX_TURNS_PER_DAY - currentTurn,
       }),
     };
