@@ -1,20 +1,114 @@
 // lib/questions.js
-// Lógica de selección de preguntas para Alma: el CONTENIDO de las preguntas
-// (ARRIVAL_QUESTION, QUESTION_BANK, CLOSING_BANK) vive en
-// public/data/questions-data.js — fuente única compartida con el cliente,
-// para que nunca vuelvan a desincronizarse. Este archivo solo decide cómo
-// se barajan, se reparten por día y se conserva lo ya asignado al ampliar
-// un tramo.
+// Fuente única de verdad para todas las preguntas de Alma
+// 10 preguntas potentes por estado, mas 4 de cierre para el final del recorrido largo.
+// Se eligen al azar segun el numero de dias (3, 5 o 7). Nunca se repite una.
+// Cada experiencia es unica.
 
-const { ARRIVAL_QUESTION, QUESTION_BANK, CLOSING_BANK } = require("../../../public/data/questions-data.js");
+// ── PREGUNTA CERO — pantalla de bienvenida ────────────────────────────────
+const ARRIVAL_QUESTION = {
+  text: "Antes de empezar, ¿cómo llegas?",
+  options: [
+    { id: "weight",  label: "Con algo que pesa",      almaMode: "pain"      },
+    { id: "curiosity", label: "Con ganas de conocerme", almaMode: "curiosity" },
+    { id: "open",    label: "Sin saber muy bien",      almaMode: "open"      },
+    { id: "depth",   label: "Profundizar en mí",       almaMode: "depth"     },
+  ],
+};
 
-// ── PREGUNTAS BETA — una por modo de llegada ─────────────────────────────
+// ── BANCO DE PREGUNTAS — 10 por estado de ánimo ───────────────────────────
+const QUESTION_BANK = {
+  pain: [
+    "¿Con quién puedes dejar de fingir que estás bien?",
+    "¿Hay algo que callas para que los demás estén cómodos?",
+    "Si una amiga sintiera lo que tú sientes ahora, ¿qué le dirías?",
+    "¿Qué es lo que más te cuesta soltar?",
+    "La última vez que estuviste mal, ¿qué hiciste con ello?",
+    "¿Qué llevas tiempo sin contarle a nadie?",
+    "¿Qué estás cargando que quizá no te toca cargar?",
+    "¿Qué prefieres no mirar hoy?",
+    "¿Qué pasaría si dejaras de vigilar lo que sientes?",
+    "¿Qué necesitas ahora mismo y nadie sabe?",
+  ],
+  curiosity: [
+    "¿Qué parte de ti necesita más espacio?",
+    "¿Qué das por hecho de ti misma sin haberlo cuestionado?",
+    "¿Qué sientes cuando no tienes que interpretar ningún papel?",
+    "¿Cómo eres cuando nadie te mira?",
+    "¿Qué deseo llevas tiempo dejando para después?",
+    "¿Qué te sorprendió de ti misma esta semana, aunque fuera algo pequeño?",
+    "¿Qué sabes de ti que todavía no te has dicho en voz alta?",
+    "¿Qué necesitas sentir hoy, sin tener que resolver nada?",
+    "¿Qué parte de ti aparece cuando bajas la guardia?",
+    "¿Qué le dirías a la mujer que eras hace dos años?",
+  ],
+  open: [
+    "¿Cómo estás, de verdad? No la respuesta de siempre.",
+    "¿Qué emoción hay debajo de ese 'no sé muy bien'?",
+    "¿Qué te vino a la mente al abrir esto hoy?",
+    "¿Hay algo que sientes y todavía no sabes nombrar?",
+    "Si tuvieras que ponerle una sola palabra a lo que sientes, ¿cuál sería?",
+    "¿Hay algo que sostienes hoy y no sabes si merece espacio?",
+    "¿Qué hay detrás de tu 'estoy bien'?",
+    "Si pudieras hablar de cualquier cosa hoy, ¿de qué hablarías?",
+    "¿Qué te hizo parar hoy, aunque fuera un momento?",
+    "¿Qué necesitas hoy que no has pedido?",
+  ],
+  depth: [
+    "¿Qué sientes cuando todo está tranquilo pero tú no?",
+    "¿Alguna vez has confundido estar bien con estar perdida?",
+    "Cuando todo se siente plano, ¿qué te dices?",
+    "¿Qué haces cuando el silencio se siente vacío y no en paz?",
+    "¿Qué esperas que ocurra para sentir que ya estás bien?",
+    "¿Qué ya no duele como antes, pero aún no te atreves a tocar?",
+    "¿Y si lo que sientes no es confusión, sino algo que aún no tiene nombre?",
+    "¿Cuándo empezaste a leer la calma como señal de alarma?",
+    "¿Qué parte de ti espera que esto se rompa?",
+    "¿Qué pregunta sobre ti llevas tiempo evitando?",
+  ],
+};
+
+// ── BANCO DE CIERRE — solo días 6 y 7 del recorrido de 7 ──────────────────
+// Recogen el recorrido en vez de abrir herida. Solo las ve quien llega al
+// final. Quien hace 1, 3 o 5 días nunca las recibe: se lleva siempre lo más
+// potente del banco normal.
+const CLOSING_BANK = {
+  pain: [
+      "Después de todos estos días diciendo lo que callabas, ¿qué se ha aflojado por dentro?",
+      "Lo que trajiste el primer día pesaba de una forma. ¿Pesa igual ahora?",
+      "Si la mujer del primer día te viera hoy, ¿qué notaría distinto en ti?",
+      "De todo lo que has soltado aquí, ¿qué es lo que ya no quieres volver a cargar?"
+    ],
+
+  curiosity: [
+      "De todo lo que has descubierto de ti estos días, ¿qué es lo que no quieres olvidar?",
+      "¿Qué parte de ti, que estaba callada al empezar, ha encontrado su voz aquí?",
+      "Si tuvieras que quedarte con una sola cosa que has descubierto de ti, ¿cuál sería?",
+      "¿Qué vas a hacer distinto ahora que has descubierto algo nuevo en esta etapa?"
+    ],
+
+  open: [
+      "Empezaste sin saber muy bien. ¿Has podido ordenar un poco lo que sentías?",
+      "De todo lo que ha ido saliendo estos días, ¿qué era lo que de verdad pedía espacio?",
+      "¿Qué palabra le pondrías ahora a eso que al principio no sabías nombrar?",
+      "Si pudieras llevarte una frase ancla para los días que vuelvas a perderte, ¿cuál sería?"
+    ],
+
+  depth: [
+      "Después de mirar tan adentro estos días, ¿qué has encontrado que no esperabas?",
+      "¿Qué has dejado de necesitar entender para poder estar en paz?",
+      "¿Qué has dejado de ver como alarma y has empezado a sostener con calma?",
+      "De todo lo que ha aparecido aquí, ¿qué te llevas para cuando la vida vuelva a estar en silencio?"
+    ],
+};
+
+
+// ── PREGUNTAS BETA — una por modo de llegada (ids beta_*, como en index.html) ──
 // Simples. Directas. La profundidad la pone Alma en la respuesta.
 const BETA_QUESTIONS = {
-  pain:      "¿Hay algo que necesitas contar y no puedes?",
-  curiosity: "¿Qué hay en ti ahora mismo que te está pidiendo atención?",
-  open:      "¿Qué te ha traído aquí hoy?",
-  depth:     "¿De quién necesitas permiso para ser tú misma?",
+  beta_pain:    "¿Qué es lo que más te pesa hoy?",
+  beta_search:  "¿Qué parte de ti quieres escuchar hoy?",
+  beta_self:    "¿Qué te está pidiendo atención últimamente?",
+  beta_unclear: "¿Qué te ha traído aquí hoy?",
 };
 
 // "open" tiene su propio banco — no cae a pain
@@ -94,7 +188,7 @@ function getQuestion(arrivalMode, day, questionSet) {
 
 // ── HELPER — devuelve la pregunta beta según modo ─────────────────────────
 function getBetaQuestion(arrivalMode) {
-  return BETA_QUESTIONS[arrivalMode] || BETA_QUESTIONS.unclear;
+  return BETA_QUESTIONS[arrivalMode] || BETA_QUESTIONS.beta_unclear;
 }
 
 module.exports = {
