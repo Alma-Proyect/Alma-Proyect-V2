@@ -348,7 +348,8 @@ body {
   box-shadow: 0 0 0 3px rgba(140,80,20,0.06);
 }
 .char-row   { display: flex; justify-content: flex-end; align-items: center; margin-top: 0.5rem; gap: 0.5rem; }
-.char-count { font-size: 0.69rem; color: var(--muted); }
+.char-count { font-size: 0.69rem; color: var(--muted); visibility: hidden; }
+.char-count.visible { visibility: visible; }
 .autosave   { font-size: 0.65rem; color: var(--sage); display: flex; align-items: center; gap: 0.3rem; }
 .autosave::before { content: '●'; font-size: 0.36rem; }
 
@@ -2038,8 +2039,8 @@ body {
     <div class="arrival-options">
       <button class="arrival-btn" onclick="selectArrival(this,'pain')">Con algo que pesa</button>
       <button class="arrival-btn" onclick="selectArrival(this,'curiosity')">Buscándome</button>
-      <button class="arrival-btn" onclick="selectArrival(this,'open')">Con una inquietud</button>
-      <button class="arrival-btn" onclick="selectArrival(this,'depth')">Sin saber por qué</button>
+      <button class="arrival-btn" onclick="selectArrival(this,'depth')">Con una inquietud</button>
+      <button class="arrival-btn" onclick="selectArrival(this,'open')">Sin saber por qué</button>
     </div>
     <button class="welcome-btn" id="welcome-btn" onclick="startJourney()">Entrar →</button>
     <p class="welcome-note">No hay respuesta correcta.</p>
@@ -2132,9 +2133,6 @@ body {
         <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_self')">Con una inquietud</button>
         <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_unclear')">Sin saber por qué</button>
       </div>
-      <div class="arrival-selector-note">No hay respuesta correcta.</div>
-      <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
-         onclick="if(typeof plausible==='function') plausible('guia_descargada');">De dónde viene Alma →</a>
       <p class="arrival-legal">
         Alma no es terapia ni sustituye a un profesional. Si necesitas ayuda ahora:
         <a href="tel:717003717">717 003 717</a> (Teléfono de la Esperanza, 24h).<br>
@@ -2142,6 +2140,8 @@ body {
         <a href="privacidad.html">política de privacidad</a>. Tus palabras se guardan
         mientras dura tu recorrido y se borran solas a los catorce días.
       </p>
+      <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
+         onclick="if(typeof plausible==='function') plausible('guia_descargada');">De dónde viene Alma →</a>
     </div>
 
     <!-- Selector de llegada 3 DÍAS integrado -->
@@ -2150,12 +2150,9 @@ body {
       <div class="arrival-selector-options">
         <button class="arrival-selector-btn" onclick="selectArrival(this,'pain')">Con algo que pesa</button>
         <button class="arrival-selector-btn" onclick="selectArrival(this,'curiosity')">Buscándome</button>
-        <button class="arrival-selector-btn" onclick="selectArrival(this,'open')">Con una inquietud</button>
-        <button class="arrival-selector-btn" onclick="selectArrival(this,'depth')">Sin saber por qué</button>
+        <button class="arrival-selector-btn" onclick="selectArrival(this,'depth')">Con una inquietud</button>
+        <button class="arrival-selector-btn" onclick="selectArrival(this,'open')">Sin saber por qué</button>
       </div>
-      <div class="arrival-selector-note">No hay respuesta correcta.</div>
-      <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
-         onclick="if(typeof plausible==='function') plausible('guia_descargada');">De dónde viene Alma →</a>
       <p class="arrival-legal">
         Alma no es terapia ni sustituye a un profesional. Si necesitas ayuda ahora:
         <a href="tel:717003717">717 003 717</a> (Teléfono de la Esperanza, 24h).<br>
@@ -2163,6 +2160,8 @@ body {
         <a href="privacidad.html">política de privacidad</a>. Tus palabras se guardan
         mientras dura tu recorrido y se borran solas a los catorce días.
       </p>
+      <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
+         onclick="if(typeof plausible==='function') plausible('guia_descargada');">De dónde viene Alma →</a>
     </div>
 
     <!-- Pregunta -->
@@ -2171,7 +2170,6 @@ body {
         <p class="question-intro">No hace falta que esté bien explicado, solo exprésalo, como salga…</p>
         <p class="question-main">¿Hay algo que llevas dentro y que casi nunca dices en voz alta?</p>
       </div>
-      <button class="cierre-feedback-toggle" id="btn-otra-pregunta-inicio" onclick="otraPreguntaInicio()" style="display:none">Hazme otra pregunta</button>
 
       <!-- Frase de Alma antes del textarea — rompe el hielo -->
       <div class="alma-opener" id="alma-opener">
@@ -2216,7 +2214,6 @@ body {
       <textarea class="turn-textarea" id="turn-text"
         placeholder="Escribe lo que sea… no hay respuesta correcta."
         oninput="onTurnType()" rows="5" maxlength="1000"></textarea>
-      <button class="cierre-feedback-toggle" id="btn-otra-pregunta-medio" onclick="pedirOtraPregunta()" style="display:none">Hazme otra pregunta</button>
       <div class="turn-footer">
         <span class="char-count" id="turn-char-count">0 / 1000</span>
         <button class="btn-turn-send" id="btn-turn-send" onclick="sendTurn()">
@@ -2234,7 +2231,6 @@ body {
   <button class="btn-next" onclick="nextDay()" id="btn-next-m">Siguiente →</button>
 </div>
 
-<script src="/data/questions-data.js"></script>
 <script>
 
 
@@ -2520,9 +2516,87 @@ function trackEvent(name, params) {
 // QUESTIONS
 // =======================
 
-// Fuente única: /data/questions-data.js (compartida con el servidor).
-// Aquí solo se referencia — nunca se vuelve a escribir el contenido.
-const { QUESTION_BANK, CLOSING_BANK } = window.ALMA_QUESTIONS;
+// ── BANCO DE PREGUNTAS — 10 por estado de ánimo ───────────────────────────
+const QUESTION_BANK = {
+  pain: [
+    "¿Con quién puedes dejar de fingir que estás bien?",
+    "¿Hay algo que callas para que los demás estén cómodos?",
+    "Si una amiga sintiera lo que tú sientes ahora, ¿qué le dirías?",
+    "¿Qué es lo que más te cuesta soltar?",
+    "La última vez que estuviste mal, ¿qué hiciste con ello?",
+    "¿Qué llevas tiempo sin contarle a nadie?",
+    "¿Qué estás cargando que quizá no te toca cargar?",
+    "¿Qué prefieres no mirar hoy?",
+    "¿Qué pasaría si dejaras de vigilar lo que sientes?",
+    "¿Qué necesitas ahora mismo y nadie sabe?",
+  ],
+  curiosity: [
+    "¿Qué parte de ti necesita más espacio?",
+    "¿Qué das por hecho de ti misma sin haberlo cuestionado?",
+    "¿Qué sientes cuando no tienes que interpretar ningún papel?",
+    "¿Cómo eres cuando nadie te mira?",
+    "¿Qué deseo llevas tiempo dejando para después?",
+    "¿Qué te sorprendió de ti misma esta semana, aunque fuera algo pequeño?",
+    "¿Qué sabes de ti que todavía no te has dicho en voz alta?",
+    "¿Qué necesitas sentir hoy, sin tener que resolver nada?",
+    "¿Qué parte de ti aparece cuando bajas la guardia?",
+    "¿Qué le dirías a la mujer que eras hace dos años?",
+  ],
+  open: [
+    "¿Cómo estás, de verdad? No la respuesta de siempre.",
+    "¿Qué emoción hay debajo de ese 'no sé muy bien'?",
+    "¿Qué te vino a la mente al abrir esto hoy?",
+    "¿Hay algo que sientes y todavía no sabes nombrar?",
+    "Si tuvieras que ponerle una sola palabra a lo que sientes, ¿cuál sería?",
+    "¿Hay algo que sostienes hoy y no sabes si merece espacio?",
+    "¿Qué hay detrás de tu 'estoy bien'?",
+    "Si pudieras hablar de cualquier cosa hoy, ¿de qué hablarías?",
+    "¿Qué te hizo parar hoy, aunque fuera un momento?",
+    "¿Qué necesitas hoy que no has pedido?",
+  ],
+  depth: [
+    "¿Qué sientes cuando todo está tranquilo pero tú no?",
+    "¿Alguna vez has confundido estar bien con estar perdida?",
+    "Cuando todo se siente plano, ¿qué te dices?",
+    "¿Qué haces cuando el silencio se siente vacío y no en paz?",
+    "¿Qué esperas que ocurra para sentir que ya estás bien?",
+    "¿Qué ya no duele como antes, pero aún no te atreves a tocar?",
+    "¿Y si lo que sientes no es confusión, sino algo que aún no tiene nombre?",
+    "¿Cuándo empezaste a leer la calma como señal de alarma?",
+    "¿Qué parte de ti espera que esto se rompa?",
+    "¿Qué pregunta sobre ti llevas tiempo evitando?",
+  ],
+};
+
+
+// Banco de cierre: solo para los dos últimos días de un recorrido de 7.
+// Recogen en vez de excavar. Quien hace 3 o 5 días nunca los ve.
+const CLOSING_BANK = {
+  pain: [
+    "Después de todos estos días diciendo lo que callabas, ¿qué se ha aflojado por dentro?",
+    "Lo que trajiste el primer día pesaba de una forma. ¿Pesa igual ahora?",
+    "Si la mujer del primer día te viera hoy, ¿qué notaría distinto en ti?",
+    "De todo lo que has soltado aquí, ¿qué es lo que ya no quieres volver a cargar?"
+  ],
+  curiosity: [
+    "De todo lo que has descubierto de ti estos días, ¿qué es lo que no quieres olvidar?",
+    "¿Qué parte de ti, que estaba callada al empezar, ha encontrado su voz aquí?",
+    "Si tuvieras que quedarte con una sola cosa que has descubierto de ti, ¿cuál sería?",
+    "¿Qué vas a hacer distinto ahora que has descubierto algo nuevo en esta etapa?"
+  ],
+  open: [
+    "Empezaste sin saber muy bien. ¿Has podido ordenar un poco lo que sentías?",
+    "De todo lo que ha ido saliendo estos días, ¿qué era lo que de verdad pedía espacio?",
+    "¿Qué palabra le pondrías ahora a eso que al principio no sabías nombrar?",
+    "Si pudieras llevarte una frase ancla para los días que vuelvas a perderte, ¿cuál sería?"
+  ],
+  depth: [
+    "Después de mirar tan adentro estos días, ¿qué has encontrado que no esperabas?",
+    "¿Qué has dejado de necesitar entender para poder estar en paz?",
+    "¿Qué has dejado de ver como alarma y has empezado a sostener con calma?",
+    "De todo lo que ha aparecido aquí, ¿qué te llevas para cuando la vida vuelva a estar en silencio?"
+  ],
+};
 
 // Baraja una copia sin tocar el original.
 function shuffleQ(arr) {
@@ -2567,22 +2641,6 @@ function buildQuestionSet(mode, totalDays, previousSet) {
   return set;
 }
 
-// Sustituye la pregunta de un día concreto por otra sin usar del mismo banco
-// (normal o de cierre, según cuál tocara ese día). Si ya no queda ninguna
-// libre, devuelve el set sin tocar — no hay alternativa que ofrecer.
-function swapQuestionForDay(mode, day, currentSet) {
-  const bank = QUESTION_BANK[mode] || QUESTION_BANK.pain;
-  const closing = CLOSING_BANK[mode] || CLOSING_BANK.pain;
-  const actual = currentSet[day];
-  const esCierre = closing.includes(actual);
-  const pool = esCierre ? closing : bank;
-  const usadas = new Set(Object.values(currentSet));
-  const libres = pool.filter(q => !usadas.has(q));
-  if (libres.length === 0) return currentSet;
-  const nueva = libres[Math.floor(Math.random() * libres.length)];
-  return { ...currentSet, [day]: nueva };
-}
-
 const QUESTION_INTRO = "No hace falta que esté bien explicado, solo exprésalo, como salga…";
 
 // ── SET ALEATORIO — se genera una vez por sesión y se guarda ──────────────
@@ -2608,7 +2666,48 @@ function getOrCreateQuestionSet(mode) {
   return set;
 }
 
+// La beta usa sus propios ids (beta_*); el recorrido usa los bancos pain/curiosity/open/depth.
+// Emparejamiento (el mismo que ya usan los openers): search = curiosity, self = depth, unclear = open.
+const MODO_BETA_A_BANCO = {
+  beta_pain: 'pain', beta_search: 'curiosity', beta_self: 'depth', beta_unclear: 'open'
+};
+
+// El modo de llegada del recorrido es el del primer día guardado (mapeado desde la beta).
+// Antes se reiniciaba siempre a 'pain' al volver, y las preguntas de los días 2 en adelante
+// salían siempre del banco «con algo que pesa» fuera cual fuera la puerta elegida.
+function modoDelRecorrido() {
+  for (let i = 0; i < 7; i++) {
+    const e = loadFromLocal(i);
+    if (e && e.arrivalMode) return MODO_BETA_A_BANCO[e.arrivalMode] || e.arrivalMode;
+  }
+  return 'pain';
+}
+
+// La pregunta de un día queda fijada al guardar la primera entrada de ese día (clave alma_q_<día>,
+// día 0-indexado). Así no cambia al recargar, ni al volver atrás, ni en el texto descargable.
+function preguntaFijada(day) {
+  try { return localStorage.getItem('alma_q_' + day) || null; } catch(e) { return null; }
+}
+function fijarPreguntaDelDia(day) {
+  try {
+    if (!localStorage.getItem('alma_q_' + day)) {
+      localStorage.setItem('alma_q_' + day, getQuestionForDay(day));
+    }
+  } catch(e) {}
+}
+// Set 1-indexado con las preguntas realmente mostradas (o, si aún no hay, las del set actual).
+function getFixedQuestionSet() {
+  const base = getOrCreateQuestionSet(currentArrivalMode || 'pain');
+  const out = {};
+  for (let d = 0; d < totalDays; d++) {
+    out[d + 1] = preguntaFijada(d) || base[d + 1];
+  }
+  return out;
+}
+
 function getQuestionForDay(day) {
+  const fijada = preguntaFijada(day);
+  if (fijada) return fijada;
   const mode = currentArrivalMode || 'pain';
   const set = getOrCreateQuestionSet(mode);
   // Los sets nuevos son 1-indexados (día 1 = clave "1"). day aquí es 0-indexado.
@@ -2623,26 +2722,6 @@ function renderQuestion(day) {
       <p class="question-main">${getQuestionForDay(day)}</p>
     `;
   }
-  // El botón solo tiene sentido en el modo de 3/5/7 días (hay banco de 10
-  // preguntas por puerta) y solo antes de responder. En beta no hay banco
-  // alternativo — una sola pregunta por modo — así que se queda oculto.
-  const btnOtra = document.getElementById('btn-otra-pregunta-inicio');
-  if (btnOtra) {
-    const yaRespondida = !!(loadFromLocal(day)?.almaReply);
-    btnOtra.style.display = (!isBetaMode && !yaRespondida) ? 'inline-block' : 'none';
-  }
-}
-
-// Cambia la pregunta de apertura del día actual por otra del mismo banco.
-function otraPreguntaInicio() {
-  if (isBetaMode) return;
-  const mode = currentArrivalMode || 'pain';
-  const key = `alma_qset_${mode}`;
-  const set = getOrCreateQuestionSet(mode);
-  const nuevoSet = swapQuestionForDay(mode, currentDay + 1, set);
-  try { localStorage.setItem(key, JSON.stringify(nuevoSet)); } catch(e) {}
-  renderQuestion(currentDay);
-  trackEvent('pregunta_inicio_cambiada', { day: currentDay + 1, mode });
 }
 
 // =======================
@@ -2697,15 +2776,15 @@ function setMobileButtons(show) {
 // =======================
 
 const ALMA_OPENERS = {
-  pain:      "La pregunta es solo una guía. Lo que importa es soltar, empieza por lo que salga aunque sea desordenado.",
-  curiosity: "La pregunta es solo una guía. Dime qué te preocupa, qué necesitas, te acompaño mientras lo descubres.",
-  open:      "Si la pregunta no te resuena, no importa. Cuéntame lo que sea, el orden lo encontramos juntas.",
-  depth:     "La pregunta es solo una guía, pásala por alto si no va contigo. Cuéntame qué necesitas encontrar, ordenar o soltar, te escucho mientras lo descubres.",
-  // Beta
-  beta_pain:    "La pregunta es solo una guía. Lo que importa es soltar, empieza por lo que salga aunque sea desordenado.",
-  beta_search:  "La pregunta es solo una guía. Dime qué te preocupa, qué necesitas, te acompaño mientras lo descubres.",
-  beta_self:    "La pregunta es solo una guía, pásala por alto si no va contigo. Cuéntame qué necesitas encontrar, ordenar o soltar, te escucho mientras lo descubres.",
-  beta_unclear: "Si la pregunta no te resuena, no importa. Cuéntame lo que sea, el orden lo encontramos juntas.",
+  pain:      "Es solo una guía. Empieza por lo que salga, aunque sea desordenado.",
+  curiosity: "Es solo una guía. Cuéntame lo que te preocupa o necesitas y lo vamos viendo juntas.",
+  open:      "Si la pregunta no te resuena, no importa. Cuéntame lo que sea.",
+  depth:     "Es solo una guía; pásala por alto si no va contigo. Cuéntame qué necesitas ordenar o soltar.",
+  // Beta (mismo emparejamiento: search = curiosity, self = depth, unclear = open)
+  beta_pain:    "Es solo una guía. Empieza por lo que salga, aunque sea desordenado.",
+  beta_search:  "Es solo una guía. Cuéntame lo que te preocupa o necesitas y lo vamos viendo juntas.",
+  beta_self:    "Es solo una guía; pásala por alto si no va contigo. Cuéntame qué necesitas ordenar o soltar.",
+  beta_unclear: "Si la pregunta no te resuena, no importa. Cuéntame lo que sea.",
 };
 
 function renderOpener(mode) {
@@ -2738,7 +2817,7 @@ function onType() {
   clearTimeout(countTimer);
   countTimer = setTimeout(() => {
     const cc = document.getElementById('char-count');
-    if (cc) cc.textContent = `${text.length} / 2000`;
+    if (cc) { cc.textContent = `${text.length} / 2000`; cc.classList.toggle('visible', text.length >= 1700); }
   }, 200);
 
   // Activar btn-save solo cuando hay texto
@@ -2928,7 +3007,7 @@ function resetTurnState() {
 function onTurnType() {
   const text = document.getElementById('turn-text')?.value || '';
   const cc = document.getElementById('turn-char-count');
-  if (cc) cc.textContent = `${text.length} / 1000`;
+  if (cc) { cc.textContent = `${text.length} / 1000`; cc.classList.toggle('visible', text.length >= 800); }
   const btn = document.getElementById('btn-turn-send');
   if (btn) btn.classList.toggle('ready', text.trim().length > 0);
 }
@@ -2944,9 +3023,7 @@ async function saveEntry() {
   const text = document.getElementById("journal-text").value.trim();
   if (!text) return;
 
-  const btnOtraInicio = document.getElementById('btn-otra-pregunta-inicio');
-  if (btnOtraInicio) btnOtraInicio.style.display = 'none';
-
+  fijarPreguntaDelDia(currentDay);
   const emotions = [];
   saveToLocal(currentDay, text, emotions, undefined, undefined, currentArrivalMode);
 
@@ -3045,7 +3122,7 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
         conversationHistory: conversationHistory.slice(0, -1),
         previousEntries,
         arrivalMode: currentArrivalMode,
-        questionSet: getOrCreateQuestionSet(currentArrivalMode),
+        questionSet: getFixedQuestionSet(),
         plan: 'free',
       }),
       signal: controller.signal,
@@ -3122,106 +3199,6 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
       hideTurnReply();
       showFinalButtons();
       setMobileButtons(false);
-    });
-  }
-}
-
-// Quita del historial visible el último bloque de Alma — se usa justo antes
-// de sustituirlo por una reformulación, para no dejar las dos a la vez.
-function quitarUltimoBloqueAlma() {
-  const container = document.getElementById('conversation-history');
-  if (!container) return;
-  const bloques = container.querySelectorAll('.history-alma');
-  if (bloques.length) bloques[bloques.length - 1].remove();
-}
-
-// "Hazme otra pregunta" a mitad de conversación — le pide a Alma que
-// sustituya la pregunta con la que cerró su último turno por otra distinta.
-// No avanza el turno ni cuenta como respuesta suya.
-async function pedirOtraPregunta() {
-  const btn = document.getElementById('btn-otra-pregunta-medio');
-  if (btn?.disabled) return;
-  if (btn) { btn.disabled = true; btn.textContent = 'Un momento…'; }
-
-  const hist = isBetaMode ? betaHistory : conversationHistory;
-  const turnActual = isBetaMode ? betaTurn : currentTurn;
-  const fallbackMsg = "No he podido pensar otra pregunta ahora mismo. Sigamos con lo de antes.";
-
-  hideTurnReply();
-  quitarUltimoBloqueAlma();
-  document.getElementById('alma-response').classList.add('visible');
-  document.getElementById('typing').classList.add('visible');
-  document.getElementById('alma-response-text').innerHTML = '';
-
-  const previousEntries = {};
-  if (!isBetaMode) {
-    for (let i = 0; i < currentDay; i++) {
-      const entry = loadFromLocal(i);
-      if (entry?.text) previousEntries[`day${i + 1}`] = entry.text;
-    }
-  }
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 9000);
-
-  try {
-    const res = await fetch("/.netlify/functions/alma", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        day: isBetaMode ? 1 : currentDay + 1,
-        turn: turnActual,
-        reformular: true,
-        conversationHistory: hist,
-        previousEntries,
-        arrivalMode: isBetaMode ? betaMode : currentArrivalMode,
-        questionSet: isBetaMode ? undefined : getOrCreateQuestionSet(currentArrivalMode),
-        plan: 'free',
-        isBeta: isBetaMode,
-        betaMaxTurns: BETA_MAX_TURNS,
-      }),
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-    const data = await res.json();
-    document.getElementById('typing').classList.remove('visible');
-    const nuevaRespuesta = data.response || fallbackMsg;
-
-    if (hist.length && hist[hist.length - 1].role === 'alma') {
-      hist[hist.length - 1].text = nuevaRespuesta;
-    } else {
-      hist.push({ role: 'alma', text: nuevaRespuesta });
-    }
-    if (isBetaMode) {
-      saveBetaToLocal(hist, nuevaRespuesta);
-    } else {
-      const entryNow = loadFromLocal(currentDay);
-      saveToLocal(currentDay, entryNow?.text, entryNow?.emotions || [], nuevaRespuesta, hist, currentArrivalMode);
-    }
-
-    typeWriter(nuevaRespuesta, () => {
-      const almaText = document.getElementById('alma-response-text').innerHTML;
-      addToHistory('alma', almaText);
-      document.getElementById('alma-response-text').innerHTML = '';
-      document.getElementById('alma-response').classList.remove('visible');
-      showTurnReply();
-    });
-    trackEvent('otra_pregunta_pedida', { turn: turnActual, beta: isBetaMode });
-
-  } catch(e) {
-    clearTimeout(timeoutId);
-    document.getElementById('typing').classList.remove('visible');
-    // No se pudo reformular — se vuelve a mostrar tal cual lo que ya había.
-    const anterior = (hist[hist.length - 1] && hist[hist.length - 1].role === 'alma')
-      ? hist[hist.length - 1].text
-      : fallbackMsg;
-    typeWriter(anterior, () => {
-      const almaText = document.getElementById('alma-response-text').innerHTML;
-      addToHistory('alma', almaText);
-      document.getElementById('alma-response-text').innerHTML = '';
-      document.getElementById('alma-response').classList.remove('visible');
-      showTurnReply();
     });
   }
 }
@@ -3564,18 +3541,6 @@ function showTurnReply() {
     const btn = document.getElementById('btn-turn-send');
     if (btn) btn.classList.remove('ready');
   }
-
-  // "Hazme otra pregunta" — nunca en la respuesta que lleva directa al
-  // turno de cierre (día 3, o turno 4 en beta): esa no se reformula.
-  const btnOtra = document.getElementById('btn-otra-pregunta-medio');
-  if (btnOtra) {
-    const turnActual = isBetaMode ? betaTurn : currentTurn;
-    const maxT = isBetaMode ? BETA_MAX_TURNS : 3;
-    btnOtra.style.display = (turnActual < maxT - 1) ? 'inline-block' : 'none';
-    btnOtra.disabled = false;
-    btnOtra.textContent = 'Hazme otra pregunta';
-  }
-
   setTimeout(() =>
     turnReply?.scrollIntoView({ behavior:'smooth', block:'end' }), 200);
 }
@@ -3599,9 +3564,10 @@ function buildWeekText() {
     const entry = loadFromLocal(i);
     if (!entry) continue;
     // Usar el arrivalMode guardado ese día, no el actual
-    const dayMode = entry.arrivalMode || 'pain';
+    const dayMode = MODO_BETA_A_BANCO[entry.arrivalMode] || entry.arrivalMode || 'pain';
     const daySet  = getOrCreateQuestionSet(dayMode);
-    const question = daySet[i] || daySet[0];
+    // Los sets son 1-indexados: antes se leía daySet[i] y el día 1 salía como «undefined»
+    const question = preguntaFijada(i) || daySet[i + 1] || daySet[1];
     const date = entry.date ? new Date(entry.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) : `Día ${i + 1}`;
     lines.push(`\nDÍA ${i + 1} — ${date}`);
     lines.push(`Pregunta: ${question}`);
@@ -3961,7 +3927,7 @@ async function showFarewell() {
     const d = loadFromLocal(i);
     entries['day' + (i + 1)] = d?.history?.length ? d.history : (d?.text || "");
   }
-  const questionSet = getOrCreateQuestionSet(currentArrivalMode);
+  const questionSet = getFixedQuestionSet();
 
   // ¿Hay un tramo siguiente? 3 → 5 → 7. Si lo hay, este cierre es intermedio
   // y NO se pide registro; si no lo hay (o es el 7), es despedida completa.
@@ -4141,6 +4107,8 @@ function init() {
 
   // ¿Tiene días en curso? Si sí, saltar directamente sin pantalla de elección
   const hasActiveDays = Array.from({ length: totalDays }, (_, i) => loadFromLocal(i)).some(Boolean);
+  // Si ya hay recorrido en curso, el modo es el del primer día (no el 'pain' por defecto)
+  if (hasActiveDays) currentArrivalMode = modoDelRecorrido();
 
   // Detectar si hay sesión beta activa en localStorage
   let hasBetaSession = false;
@@ -4348,9 +4316,9 @@ function startJourney() {
 
 const BETA_MAX_TURNS = 4;
 const BETA_QUESTIONS = {
-  beta_pain:    "¿Hay algo que necesitas contar y no puedes?",
-  beta_search:  "¿De quién necesitas permiso para ser tú misma?",
-  beta_self:    "¿Qué hay en tu vida ahora mismo que te está pidiendo atención?",
+  beta_pain:    "¿Qué es lo que más te pesa hoy?",
+  beta_search:  "¿Qué parte de ti quieres escuchar hoy?",
+  beta_self:    "¿Qué te está pidiendo atención últimamente?",
   beta_unclear: "¿Qué te ha traído aquí hoy?",
 };
 
@@ -4750,6 +4718,8 @@ function startFullJourney() {
       };
       localStorage.setItem('alma_0', JSON.stringify(day0));
       localStorage.setItem('alma_arrival_mode', betaData.arrivalMode || 'pain');
+      // La pregunta que de verdad vio el día 1 (para el texto descargable y el reflejo)
+      if (BETA_QUESTIONS[betaData.arrivalMode]) localStorage.setItem('alma_q_0', BETA_QUESTIONS[betaData.arrivalMode]);
     }
     localStorage.removeItem('alma_beta');
     localStorage.removeItem('alma_beta_farewell');
