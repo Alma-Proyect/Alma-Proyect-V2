@@ -6,7 +6,11 @@
 // se barajan, se reparten por día y se conserva lo ya asignado al ampliar
 // un tramo.
 
-const { ARRIVAL_QUESTION, QUESTION_BANK, CLOSING_BANK } = require("../../public/data/questions-data.js");
+const {
+  ARRIVAL_QUESTION,
+  QUESTION_BANK,
+  CLOSING_BANK
+} = require("./lib/questions.js");
 
 // ── PREGUNTAS BETA — una por modo de llegada ─────────────────────────────
 // Simples. Directas. La profundidad la pone Alma en la respuesta.
