@@ -350,6 +350,11 @@ body {
 .char-row   { display: flex; justify-content: flex-end; align-items: center; margin-top: 0.5rem; gap: 0.5rem; }
 .char-count { font-size: 0.69rem; color: var(--muted); visibility: hidden; }
 .char-count.visible { visibility: visible; }
+/* Primera visita (beta): sin contador de días, barra de progreso, fecha ni avatar */
+body.beta-limpia .streak-banner,
+body.beta-limpia .progress-bar-wrap,
+body.beta-limpia .topbar-date,
+body.beta-limpia .topbar-avatar { display: none !important; }
 .autosave   { font-size: 0.65rem; color: var(--sage); display: flex; align-items: center; gap: 0.3rem; }
 .autosave::before { content: '●'; font-size: 0.36rem; }
 
@@ -4120,6 +4125,7 @@ function init() {
 
   // Ocultar sidebar si es sesión beta
   if (hasBetaSession) {
+    document.body.classList.add('beta-limpia');
     const sidebar = document.querySelector('.sidebar');
     if (sidebar) { sidebar.classList.remove('sidebar-visible'); sidebar.classList.add('sidebar-hidden'); }
     const dayNav = document.getElementById('day-nav');
@@ -4347,6 +4353,7 @@ function chooseMode(mode) {
   setTimeout(() => { modeScreen.style.display = 'none'; }, 500);
 
   if (mode === 'beta') {
+    document.body.classList.add('beta-limpia');
     // Ocultar sidebar y nav — no aplican en experiencia de 1 día
     const sidebar = document.querySelector('.sidebar');
     if (sidebar) { sidebar.classList.remove('sidebar-visible'); sidebar.classList.add('sidebar-hidden'); }
@@ -4373,6 +4380,7 @@ function chooseMode(mode) {
     }
     hideOpener();
   } else {
+    document.body.classList.remove('beta-limpia');
     // Restaurar sidebar y nav para experiencia de 3 días
     const sidebar = document.querySelector('.sidebar');
     if (sidebar) { sidebar.classList.remove('sidebar-hidden'); sidebar.classList.add('sidebar-visible'); }
@@ -4746,6 +4754,7 @@ function startFullJourney() {
 
     setTimeout(() => {
       isBetaMode = false;
+      document.body.classList.remove('beta-limpia');
 
       // Ocultar pantalla farewell beta
       const betaFarewell = document.getElementById('beta-farewell-screen');
