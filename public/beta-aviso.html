@@ -1,12 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Analítica sin cookies (Plausible) -->
-  <script async src="https://plausible.io/js/pa-ZuDBA5p-0URIKR_khQmjM.js"></script>
-  <script>
-    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-    plausible.init()
-  </script>
+  <!-- Analítica sin cookies (Umami): el ID se configura en /analytics.js -->
+  <script src="/analytics.js"></script>
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -88,7 +84,7 @@
     </button>
     <p class="guide-link">
       Antes de elegir tu puerta, puedes leer de dónde viene Alma.<br />
-      <a href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener" onclick="if(typeof plausible==='function') plausible('guia_descargada');">Descargar la guía →</a>
+      <a href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener" onclick="if(typeof almaTrack==='function') almaTrack('guia_descargada');">Descargar la guía →</a>
     </p>
     <p class="foot-note">
       Versión beta<span></span><a href="privacidad.html">Privacidad</a>
@@ -102,7 +98,7 @@
     // cómo llega, dentro de la propia app. Aquí vive el texto completo para
     // quien quiera leerlo, enlazado desde privacidad y desde el pie.
     try {
-      if (typeof plausible === 'function') plausible('aviso_visto');
+      if (typeof almaTrack === 'function') almaTrack('aviso_visto');
     } catch(e) {}
 
     // ── Guardar consentimiento con clave correcta y redirigir ─────────────
@@ -114,7 +110,7 @@
       // Junto a beta_arrival_selected permite ver dónde se pierde la gente:
       // antes del aviso, entre el aviso y la puerta, o al elegir puerta.
       try {
-        if (typeof plausible === 'function') plausible('consent_accepted');
+        if (typeof almaTrack === 'function') almaTrack('consent_accepted');
       } catch(e) {}
       try {
         // CLAVE: alma_consent — la misma que lee init() en index.html
