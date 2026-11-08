@@ -837,6 +837,15 @@ body.beta-limpia .topbar-avatar { display: none !important; }
   animation: fadeUp 0.5s ease both;
 }
 .arrival-selector-sub { display: none; }
+/* Promesa de la primera visita: lo primero que se lee (mismas palabras que beta-aviso) */
+.arrival-promesa {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem; font-weight: 300; line-height: 1.5;
+  color: var(--ink); text-align: center;
+  margin: 0.2rem 0 1.1rem;
+  animation: fadeUp 0.5s ease both;
+}
+.arrival-promesa em { font-style: italic; color: var(--accent, #8b6f5e); }
 .arrival-selector-options {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2131,6 +2140,7 @@ body.beta-limpia .topbar-avatar { display: none !important; }
 
     <!-- Selector de llegada BETA integrado -->
     <div class="arrival-selector-wrap" id="beta-arrival-selector-wrap" style="display:none">
+      <p class="arrival-promesa">Una pregunta al día.<br>Nadie te va a <em>evaluar</em>, ni aconsejar, ni pedirte nada.</p>
       <div class="arrival-selector-title">Alma se ajusta a cómo llegas hoy.</div>
       <div class="arrival-selector-options">
         <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_pain')">Con algo que pesa</button>
