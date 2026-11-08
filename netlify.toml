@@ -8,12 +8,11 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
-[[redirects]]
-  from = "/"
-  to = "/index.html"
-  status = 200
+# La raíz (/) ya la sirve public/index.html: es la portada pública, la que se indexa.
 
+# La app. Se entra por /tu-espacio (la portada y beta-aviso.html apuntan aquí);
+# el archivo real es public/app.html, que lleva noindex.
 [[redirects]]
   from = "/tu-espacio"
-  to = "/index.html"
+  to = "/app.html"
   status = 200
