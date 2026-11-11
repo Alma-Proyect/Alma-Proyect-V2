@@ -2193,7 +2193,7 @@ body.beta-limpia .topbar-avatar { display: none !important; }
         placeholder="Empieza por donde te salga…"
         oninput="onType()" rows="6" maxlength="2000"></textarea>
       <div class="char-row">
-        <span class="autosave" id="autosave-label" style="display:none">Guardado</span>
+        <span class="autosave" id="autosave-label" style="display:none" title="Solo en este dispositivo. Alma no lo lee hasta que tú lo sueltes.">Borrador guardado</span>
         <span class="char-count" id="char-count">0 / 2000</span>
       </div>
     </div>
@@ -2819,6 +2819,95 @@ function toggleEmotion(el) {
 let typeTimer = null;
 let countTimer = null;
 
+// ── BORRADOR ─────────────────────────────────────────────
+// Lo que escribe en el cuadro principal se guarda en ESTE dispositivo
+// mientras escribe, antes de pulsar el botón. Si cierra la pestaña o se le
+// recarga la página, al volver lo encuentra donde lo dejó.
+// Solo vive aquí: no viaja al servidor ni a Alma hasta que ella decide
+// soltarlo. Al soltarlo se borra (ya pasa a ser la entrada del día).
+// Caduca a los catorce días, igual que promete el aviso.
+const BORRADOR_CADUCA_MS = 14 * 24 * 60 * 60 * 1000;
+
+function claveBorrador() {
+  return isBetaMode ? 'alma_borrador_beta' : `alma_borrador_${currentDay}`;
+}
+
+// Si el día ya tiene su entrada, no hay borrador que guardar.
+function borradorBloqueado() {
+  if (isBetaMode) {
+    if (betaHistory.length > 0) return true;
+    try {
+      const b = JSON.parse(localStorage.getItem('alma_beta') || '{}');
+      return !!(b.history && b.history.length > 0);
+    } catch(e) { return false; }
+  }
+  return !!loadFromLocal(currentDay)?.text;
+}
+
+// Devuelve true solo si de verdad quedó guardado (para no mentir en la etiqueta).
+function guardarBorrador(text) {
+  if (borradorBloqueado()) return false;
+  try {
+    const clave = claveBorrador();
+    if (!text || !text.trim()) { localStorage.removeItem(clave); return false; }
+    localStorage.setItem(clave, JSON.stringify({ text, at: Date.now() }));
+    return true;
+  } catch(e) { return false; }
+}
+
+function leerBorrador(clave) {
+  try {
+    const raw = localStorage.getItem(clave);
+    if (!raw) return '';
+    const b = JSON.parse(raw);
+    if (!b?.text || !b.at || Date.now() - b.at > BORRADOR_CADUCA_MS) {
+      localStorage.removeItem(clave);
+      return '';
+    }
+    return b.text;
+  } catch(e) { return ''; }
+}
+
+function borrarBorrador(clave) {
+  clearTimeout(typeTimer);
+  const al = document.getElementById('autosave-label');
+  if (al) al.style.display = 'none';
+  try { localStorage.removeItem(clave || claveBorrador()); } catch(e) {}
+}
+
+// Devuelve al cuadro lo que dejó escrito, si el cuadro está vacío.
+function restaurarBorrador() {
+  const ta = document.getElementById('journal-text');
+  if (!ta || ta.value.trim() || borradorBloqueado()) return;
+  const text = leerBorrador(claveBorrador());
+  if (!text) return;
+  ta.value = text;
+  onType(); // refresca contador, botones y opener como si lo acabara de escribir
+}
+
+// Si cierra o cambia de app justo después de escribir, guardar sin esperar.
+function guardarBorradorYa() {
+  const ta = document.getElementById('journal-text');
+  if (ta && ta.value.trim()) guardarBorrador(ta.value);
+}
+window.addEventListener('pagehide', guardarBorradorYa);
+
+// Al recargar o cerrar, el navegador corta la llamada a Alma que esté en
+// marcha. Eso no es un fallo de Alma: no hay que guardar el mensaje de
+// «No pude responderte» como si fuera su respuesta. Su mensaje ya está
+// guardado y al volver se le devuelve escrito para reenviarlo.
+let paginaSaliendo = false;
+window.addEventListener('beforeunload', () => {
+  paginaSaliendo = true;
+  // Si al final no se va (p. ej. un enlace mailto:), volvemos a la normalidad
+  setTimeout(() => { paginaSaliendo = false; }, 1500);
+});
+window.addEventListener('pagehide', () => { paginaSaliendo = true; });
+window.addEventListener('pageshow', () => { paginaSaliendo = false; });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') guardarBorradorYa();
+});
+
 function onType() {
   const text = document.getElementById('journal-text').value;
 
@@ -2845,11 +2934,11 @@ function onType() {
   clearTimeout(typeTimer);
   const al = document.getElementById('autosave-label');
   if (al) al.style.display = 'none';
-  if (text.trim()) {
-    typeTimer = setTimeout(() => {
-      if (al) al.style.display = 'flex';
-    }, 1500);
-  }
+  typeTimer = setTimeout(() => {
+    const actual = document.getElementById('journal-text')?.value || '';
+    const ok = guardarBorrador(actual);
+    if (al && ok) al.style.display = 'flex';
+  }, 800);
 }
 
 function detectEmotionFromText(text) {
@@ -2986,6 +3075,22 @@ function jumpToDay(index) {
     b.classList.toggle('ready', isNewDay);
   });
 
+  // Si ese día aún no tiene entrada, devolver lo que dejó a medias
+  if (!saved?.text) restaurarBorrador();
+
+  // Si ese día tiene una conversación a medias, retomarla donde estaba
+  let conversacionAbierta = false;
+  if (saved?.almaReply) {
+    const { h, pendiente, respuestasAlma } = prepararHistorial(saved.history);
+    if (h.length > 0 && respuestasAlma < MAX_TURNOS_DIA) {
+      pintarHistorial(h);
+      conversationHistory = h;
+      currentTurn = respuestasAlma;
+      reabrirTurno(pendiente);
+      conversacionAbierta = true;
+    }
+  }
+
   // Mostrar u ocultar fila de botones según si hay texto guardado o escrito
   const rowD = document.getElementById('actions-row-d');
   const taValue = document.getElementById('journal-text')?.value?.trim();
@@ -2994,7 +3099,7 @@ function jumpToDay(index) {
   setMobileButtons(showBtns);
 
   renderNav();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (!conversacionAbierta) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // =======================
@@ -3004,6 +3109,46 @@ function jumpToDay(index) {
 // Estado de la conversación del día actual
 let currentTurn = 1;          // 1, 2 o 3
 let conversationHistory = []; // [{role, text}] — turnos del día
+const MAX_TURNOS_DIA = 3;     // igual que MAX_TURNS_PER_DAY en netlify/functions/lib/questions.js
+
+// ── RESTAURAR UNA CONVERSACIÓN A MEDIAS ──────────────────
+// Si recarga (o se le cierra la pestaña) en mitad de una conversación,
+// al volver tiene que encontrarla tal cual: lo que se dijeron y el campo
+// para seguir respondiendo. Antes se daba el día por terminado (recorrido)
+// o desaparecía todo (beta).
+function escaparHTML(t) {
+  return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Separa el historial guardado en lo ya hablado y, si lo hay, el último
+// mensaje de ella que no llegó a tener respuesta (recargó mientras Alma pensaba).
+function prepararHistorial(history) {
+  const h = Array.isArray(history) ? history.slice() : [];
+  let pendiente = '';
+  if (h.length > 1 && h[h.length - 1].role === 'user') pendiente = h.pop().text || '';
+  return { h, pendiente, respuestasAlma: h.filter(t => t.role === 'alma').length };
+}
+
+function pintarHistorial(h) {
+  h.forEach(turn => {
+    if (turn.role === 'user') {
+      addToHistory('user', turn.text);
+    } else if (turn.role === 'alma') {
+      const html = String(turn.text || '').split('\n').filter(p => p.trim())
+        .map(p => `<p>${escaparHTML(p)}</p>`).join('');
+      addToHistory('alma', html);
+    }
+  });
+}
+
+// Abre el campo de respuesta; si había un mensaje sin respuesta, se lo devuelve escrito.
+function reabrirTurno(pendiente) {
+  showTurnReply();
+  if (pendiente) {
+    const tt = document.getElementById('turn-text');
+    if (tt) { tt.value = pendiente; onTurnType(); }
+  }
+}
 
 function resetTurnState() {
   currentTurn = 1;
@@ -3037,6 +3182,7 @@ async function saveEntry() {
   fijarPreguntaDelDia(currentDay);
   const emotions = [];
   saveToLocal(currentDay, text, emotions, undefined, undefined, currentArrivalMode);
+  borrarBorrador(`alma_borrador_${currentDay}`); // ya es la entrada del día
 
   const previousEntries = {};
   for (let i = 0; i < currentDay; i++) {
@@ -3076,6 +3222,9 @@ async function sendTurn() {
   // Añadir al historial interno
   conversationHistory.push({ role: 'user', text });
   currentTurn++;
+  // Guardarlo ya: si recarga mientras Alma piensa, no se pierde
+  const entradaDia = loadFromLocal(currentDay);
+  saveToLocal(currentDay, entradaDia?.text || text, entradaDia?.emotions || [], undefined, conversationHistory, currentArrivalMode);
 
   // Ocultar campo de respuesta mientras Alma piensa
   hideTurnReply();
@@ -3194,6 +3343,7 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
 
   } catch(e) {
     clearTimeout(timeoutId);
+    if (paginaSaliendo) return; // corte por recarga/cierre, no un fallo
     document.getElementById('typing').classList.remove('visible');
     const msg = e.name === 'AbortError'
       ? "Necesito un poco más de tiempo del habitual.\n\nLo que escribiste ya está guardado. Vuelve en un momento y estaré aquí."
@@ -3915,6 +4065,7 @@ function avanzarDeDia() {
   const rowD = document.getElementById('actions-row-d');
   if (rowD) rowD.style.display = 'none';
   setMobileButtons(false);
+  restaurarBorrador();
 
   renderNav();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -4053,6 +4204,7 @@ function selectArrival(btn, mode) {
       const rowD = document.getElementById('actions-row-d');
       if (rowD) rowD.style.display = 'flex';
       setMobileButtons(false);
+      restaurarBorrador(); // si recargó antes de soltarlo, su texto sigue aquí
     }, 200);
   }
 
@@ -4262,19 +4414,18 @@ function init() {
 
   if (savedEntry?.almaReply) {
     // El día activo ya tiene conversación — restaurar historial completo si existe
-    const history = savedEntry.history || [];
+    const { h: history, pendiente, respuestasAlma } = prepararHistorial(savedEntry.history);
     if (history.length > 0) {
-      // Restaurar cada turno del historial visual
-      history.forEach(turn => {
-        if (turn.role === 'user') {
-          addToHistory('user', turn.text);
-        } else if (turn.role === 'alma') {
-          const html = turn.text.split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
-          addToHistory('alma', html);
-        }
-      });
-      // Conversación completa — mostrar botón de siguiente en el historial
-      showFinalButtons();
+      pintarHistorial(history);
+      if (respuestasAlma < MAX_TURNOS_DIA) {
+        // Conversación a medias — la retomamos donde estaba
+        conversationHistory = history;
+        currentTurn = respuestasAlma;
+        reabrirTurno(pendiente);
+      } else {
+        // Conversación completa — mostrar botón de siguiente en el historial
+        showFinalButtons();
+      }
     } else {
       // Solo almaReply sin historial detallado — mostrar en bloque activo como antes
       if (responseEl && textEl) {
@@ -4302,7 +4453,13 @@ function init() {
     // Día nuevo — ocultar botones hasta que escriba
     if (rowD) rowD.style.display = 'none';
     setMobileButtons(false);
+    // …salvo que dejara algo a medias: se lo devolvemos
+    restaurarBorrador();
   }
+
+  // Beta en curso: devolverle su conversación (va aquí, al final, para que
+  // nada de lo anterior la pise: pregunta, cuadro de texto, historial)
+  if (hasBetaSession && !goToFarewell) restaurarBeta();
 
   // Registrar día de uso
   trackUsageDay();
@@ -4350,6 +4507,62 @@ function saveBetaToLocal(history, almaReply) {
     localStorage.setItem('alma_beta', JSON.stringify(payload));
     guardarEnServidor('beta', payload, betaMode);
   } catch(e) {}
+}
+
+// Devuelve la beta tal como la dejó al recargar: su pregunta, lo que escribió,
+// la conversación y el campo para seguir (o el botón del reflejo si ya acabó).
+function restaurarBeta() {
+  let data = {};
+  try { data = JSON.parse(localStorage.getItem('alma_beta') || '{}'); } catch(e) {}
+  const { h, pendiente, respuestasAlma } = prepararHistorial(data.history);
+  if (!h.length) return;
+
+  isBetaMode = true;
+  betaMode = data.arrivalMode || 'beta_unclear';
+
+  // Su pregunta (no la del recorrido) y la cabecera limpia, como en la primera visita
+  const questionEl = document.getElementById('question-text');
+  if (questionEl) {
+    questionEl.innerHTML = `<p class="question-main">${BETA_QUESTIONS[betaMode] || BETA_QUESTIONS.beta_unclear}</p>`;
+  }
+  const pill = document.getElementById('day-pill');
+  if (pill) pill.style.display = 'none';
+  const titleEl = document.getElementById('day-title');
+  if (titleEl) titleEl.style.display = 'none';
+  hideOpener();
+
+  // Su primera entrada vuelve al cuadro
+  const ta = document.getElementById('journal-text');
+  const primera = h[0]?.text || '';
+  if (ta) ta.value = primera;
+  const cc = document.getElementById('char-count');
+  if (cc) cc.textContent = `${primera.length} / 2000`;
+
+  const histContainer = document.getElementById('conversation-history');
+  if (histContainer) histContainer.innerHTML = '';
+  const rowD = document.getElementById('actions-row-d');
+  if (rowD) rowD.style.display = 'flex';
+  const btns = ['btn-save-d','btn-save-m'].map(id => document.getElementById(id)).filter(Boolean);
+
+  if (respuestasAlma === 0) {
+    // Recargó mientras Alma pensaba la primera respuesta: su texto está, puede volver a soltarlo
+    betaHistory = [];
+    betaTurn = 1;
+    btns.forEach(b => { b.disabled = false; b.textContent = '✦ Guardar y lo suelto aquí…'; b.classList.add('ready'); });
+    setMobileButtons(true);
+    return;
+  }
+
+  btns.forEach(b => { b.disabled = true; b.textContent = '✦ Ya guardado'; });
+  pintarHistorial(h);
+  betaHistory = h;
+  betaTurn = respuestasAlma;
+  setMobileButtons(false);
+  if (respuestasAlma < BETA_MAX_TURNS) {
+    reabrirTurno(pendiente);
+  } else {
+    showBetaFinalButton();
+  }
 }
 
 // Elección 1/3 días
@@ -4454,6 +4667,7 @@ function selectBetaArrival(btn, mode) {
       const rowD = document.getElementById('actions-row-d');
       if (rowD) rowD.style.display = 'flex';
       setMobileButtons(false);
+      restaurarBorrador(); // si recargó antes de soltarlo, su texto sigue aquí
     }, 200);
   }
 
@@ -4486,6 +4700,7 @@ async function saveBetaEntry() {
   betaHistory = [{ role: 'user', text }];
   betaTurn = 1;
   saveBetaToLocal(betaHistory, undefined);
+  borrarBorrador('alma_borrador_beta'); // ya es la entrada de la beta
 
   const histContainer = document.getElementById('conversation-history');
   if (histContainer) histContainer.innerHTML = '';
@@ -4504,6 +4719,7 @@ async function sendBetaTurn() {
   addToHistory('user', text);
   betaHistory.push({ role: 'user', text });
   betaTurn++;
+  saveBetaToLocal(betaHistory, undefined); // si recarga mientras Alma piensa, no se pierde
 
   hideTurnReply();
   document.getElementById('alma-response').classList.add('visible');
@@ -4588,6 +4804,7 @@ async function callBeta({ btns, text, isFirstTurn }) {
 
   } catch(e) {
     clearTimeout(timeoutId);
+    if (paginaSaliendo) return; // corte por recarga/cierre, no un fallo
     document.getElementById('typing').classList.remove('visible');
     const msg = e.name === 'AbortError'
       ? "Necesito un poco más de tiempo del habitual.\n\nLo que escribiste ya está guardado. Vuelve en un momento y estaré aquí."
