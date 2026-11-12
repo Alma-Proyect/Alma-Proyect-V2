@@ -19,6 +19,40 @@ function cleanIfTruncated(text, truncated) {
   return text.slice(0, lastPunct + 1);
 }
 
+// ── Límites de lo que se acepta del navegador ───────────────────────────
+// La app nunca manda más que esto (los cuadros tienen maxlength). Si llega
+// más, es alguien llamando a la función a mano: se recorta para que cada
+// llamada cueste como una normal. El turno y el tramo se validan aquí, no
+// se fían del navegador.
+const MAX_CHARS_ENTRADA = 2000;       // cuadro principal 2000, respuestas 1000
+const MAX_CHARS_DIA_ANTERIOR = 8000;  // el día 1 que viene de la beta junta 4 entradas
+const MAX_TURNOS_BETA = 4;
+const TRAMOS_VALIDOS = [3, 5, 7];
+
+function entero(valor, min, max, porDefecto) {
+  const n = parseInt(valor, 10);
+  if (isNaN(n)) return porDefecto;
+  return Math.min(max, Math.max(min, n));
+}
+
+function limpiarHistorial(historial, maxTurns) {
+  if (!Array.isArray(historial)) return [];
+  return historial
+    .filter(t => t && (t.role === "user" || t.role === "alma") && typeof t.text === "string")
+    .slice(-(maxTurns * 2))
+    .map(t => ({ role: t.role, text: t.text.slice(0, MAX_CHARS_ENTRADA) }));
+}
+
+function limpiarDiasAnteriores(prev) {
+  const limpio = {};
+  if (!prev || typeof prev !== "object") return limpio;
+  for (let i = 1; i <= 6; i++) {
+    const v = prev["day" + i];
+    if (typeof v === "string" && v.trim()) limpio["day" + i] = v.slice(0, MAX_CHARS_DIA_ANTERIOR);
+  }
+  return limpio;
+}
+
 const FALLBACKS = [
   "Algo en lo que escribiste me hizo pararme.\n\nNecesito un momento para estar con esto contigo.\n\nEstoy aquí.",
   "Lo que acabas de escribir tiene peso.\n\nNo quiero responder deprisa.\n\nEstoy aquí.",
@@ -30,29 +64,31 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  const {
-    day,
-    turn,
-    entry,
-    conversationHistory,
-    previousEntries,
-    arrivalMode,
-    plan,
-    questionSet,
-    isBeta,
-    betaMaxTurns,
-  } = JSON.parse(event.body || "{}");
+  const inicio = Date.now(); // Netlify corta a los 10 s: llevamos la cuenta
+  let datos;
+  try {
+    datos = JSON.parse(event.body || "{}");
+  } catch (e) {
+    return { statusCode: 400, body: JSON.stringify({ error: "JSON inválido" }) };
+  }
+  const { arrivalMode, questionSet } = datos;
+  const isBeta = datos.isBeta === true;
 
-  if (!entry || entry.trim().length === 0) {
+  if (typeof datos.entry !== "string" || datos.entry.trim().length === 0) {
     return {
       statusCode: 400,
       body: JSON.stringify({ error: "No se recibió ningún texto." }),
     };
   }
 
-  const currentTurn = turn || 1;
-  const maxTurns    = (isBeta && betaMaxTurns) ? betaMaxTurns : MAX_TURNS_PER_DAY;
+  const maxTurns    = isBeta ? entero(datos.betaMaxTurns, 1, MAX_TURNOS_BETA, MAX_TURNOS_BETA) : MAX_TURNS_PER_DAY;
+  const currentTurn = entero(datos.turn, 1, maxTurns, 1);
   const isLastTurn  = currentTurn >= maxTurns;
+  const day         = isBeta ? 1 : entero(datos.day, 1, 7, 1);
+  const tramo       = TRAMOS_VALIDOS.includes(Number(datos.tramo)) ? Number(datos.tramo) : 3;
+  const entry       = datos.entry.slice(0, MAX_CHARS_ENTRADA);
+  const conversationHistory = limpiarHistorial(datos.conversationHistory, maxTurns);
+  const previousEntries     = limpiarDiasAnteriores(datos.previousEntries);
 
   // La pregunta que de verdad vio la usuaria. En la beta (ids beta_*) viene de su propio
   // banco; antes caía al primer elemento del banco "pain" y Alma recibía una pregunta
@@ -104,11 +140,17 @@ exports.handler = async function (event) {
     }
 
     const result = await callAnthropic({
-      system: getAlmaSystemPrompt(day, currentTurn, previousEntries, arrivalMode, essence),
+      system: getAlmaSystemPrompt(day, currentTurn, previousEntries, arrivalMode, essence, {
+        maxTurns, tramo: Math.max(tramo, day), isBeta,
+      }),
       messages,
       maxTokens: 320,
       temperature: 0.85,
-      plan: plan || "free",
+      plan: "free", // nunca lo decide el navegador
+      // Lo que queda hasta los ~9,3 s, descontando la espera a la esencia:
+      // así siempre da tiempo a responder (aunque sea con el mensaje de
+      // reserva) antes de que Netlify corte a los 10 s.
+      timeoutMs: 9300 - (Date.now() - inicio),
     });
 
     const response = cleanIfTruncated(result.text, result.truncated);
@@ -119,7 +161,7 @@ exports.handler = async function (event) {
       body: JSON.stringify({
         response,
         isLastTurn,
-        turnsLeft: MAX_TURNS_PER_DAY - currentTurn,
+        turnsLeft: maxTurns - currentTurn,
       }),
     };
   } catch (error) {
@@ -131,7 +173,7 @@ exports.handler = async function (event) {
       body: JSON.stringify({
         response: fallback,
         isLastTurn,
-        turnsLeft: MAX_TURNS_PER_DAY - currentTurn,
+        turnsLeft: maxTurns - currentTurn,
       }),
     };
   }
