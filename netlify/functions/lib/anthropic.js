@@ -15,15 +15,26 @@ function getModel(plan) {
   return MODELS[plan] || MODELS.free;
 }
 
-// callAnthropic — para summary.js (sin streaming, respuesta completa)
-// Timeout interno de 9s: Netlify mata la función a los 10s, así que cortamos
-// antes nosotros para poder devolver un fallback limpio en vez de un 502 mudo.
-async function callAnthropic({ system, messages, userMessage, maxTokens = 300, temperature = 0.75, plan = "free" }) {
+// Los modelos nuevos (Claude 4.7 en adelante, incluidos Haiku 5.5 y Sonnet 5.5)
+// devuelven error 400 si se les manda «temperature». Solo se envía a los
+// modelos que sabemos que la aceptan. Así, el día que cambies MODELS.free a
+// un modelo nuevo, Alma no se cae: simplemente deja de mandarla.
+const ACEPTAN_TEMPERATURA = new Set([
+  "claude-haiku-4-5-20251001",
+  "claude-sonnet-4-6",
+]);
+
+// callAnthropic — respuesta completa, sin streaming
+// Timeout interno: Netlify mata la función a los 10s, así que cortamos antes
+// nosotros para poder responder limpio en vez de con un 502 mudo. Por defecto
+// 9s; quien ya haya gastado tiempo antes (alma.js espera hasta 0,8s a la
+// esencia del Sanctum) pasa el tiempo que le queda en timeoutMs.
+async function callAnthropic({ system, messages, userMessage, maxTokens = 300, temperature = 0.75, plan = "free", timeoutMs = 9000 }) {
   const model = getModel(plan);
   const finalMessages = messages || [{ role: "user", content: userMessage }];
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 9000);
+  const timeout = setTimeout(() => controller.abort(), Math.max(1000, timeoutMs));
 
   let response;
   try {
@@ -37,7 +48,7 @@ async function callAnthropic({ system, messages, userMessage, maxTokens = 300, t
       body: JSON.stringify({
         model,
         max_tokens: maxTokens,
-        temperature,
+        ...(ACEPTAN_TEMPERATURA.has(model) ? { temperature } : {}),
         system,
         messages: finalMessages,
       }),
