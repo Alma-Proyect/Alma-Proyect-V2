@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- La llave (#llave=…) se recoge y se borra de la dirección antes de que
+       cargue nada más: así no queda a la vista ni llega a la analítica. -->
+  <script>
+    (function () {
+      var m = /[#&]llave=([0-9a-f-]{36})/i.exec(location.hash || '');
+      if (m) {
+        window.__almaLlave = m[1].toLowerCase();
+        try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+      }
+      // Si abre el enlace con la app ya abierta en esta pestaña, solo cambia el #:
+      // recargamos para recogerlo como si llegara de nuevas.
+      window.addEventListener('hashchange', function () {
+        if (/[#&]llave=/i.test(location.hash)) location.reload();
+      });
+    })();
+  </script>
   <!-- Analítica sin cookies (Umami): el ID se configura en /analytics.js -->
   <script src="/analytics.js"></script>
 
@@ -55,6 +71,35 @@ body {
   transition: opacity 0.4s ease;
 }
 #cortina.fuera { opacity: 0; pointer-events: none; }
+
+/* Aviso de la llave: va por encima de la cortina de arranque */
+.llave-aviso {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(28,20,12,0.45);
+  display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+  animation: fadeIn 0.3s ease both;
+}
+.llave-caja {
+  background: var(--bg); border-radius: 1.25rem; max-width: 360px; width: 100%;
+  padding: 2rem 1.6rem 1.6rem; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.llave-simbolo { color: rgba(184,134,11,0.6); font-size: 1.1rem; margin-bottom: 0.8rem; }
+.llave-titulo {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 1.3rem; line-height: 1.45; color: var(--ink); margin-bottom: 0.7rem;
+}
+.llave-texto {
+  font-family: 'Jost', sans-serif; font-size: 0.85rem; font-weight: 300;
+  line-height: 1.65; color: var(--muted); margin-bottom: 1.4rem;
+}
+.llave-botones { display: flex; flex-direction: column; gap: 0.6rem; }
+.llave-btn {
+  min-height: 46px; border-radius: 100px; cursor: pointer;
+  font-family: 'Jost', sans-serif; font-size: 0.88rem; letter-spacing: 0.03em;
+  background: transparent; color: var(--clay); border: 1px solid rgba(168,107,80,0.45);
+}
+.llave-btn.principal { background: var(--clay); color: #FFF8EC; border-color: var(--clay); }
 #cortina .puntos { display: flex; gap: 0.45rem; opacity: 0; animation: cortinaOn 0.4s ease 0.5s forwards; }
 #cortina .puntos span {
   width: 6px; height: 6px; border-radius: 50%;
@@ -342,6 +387,16 @@ body {
 .journal-textarea:focus {
   border-color: rgba(140,80,20,0.35);
   box-shadow: 0 0 0 3px rgba(140,80,20,0.06);
+}
+/* Aviso de dictado: solo en pantallas táctiles (móvil y tableta) y solo
+   mientras el cuadro está vacío. Al escribir o dictar la primera letra desaparece. */
+.dictado-nota {
+  display: none; margin: 0.5rem 0.2rem 0; font-size: 0.72rem; line-height: 1.5;
+  color: var(--muted); font-style: italic; opacity: 0.85;
+}
+@media (hover: none) and (pointer: coarse) {
+  .dictado-nota { display: block; }
+  .journal-textarea:not(:placeholder-shown) + .dictado-nota { display: none; }
 }
 .char-row   { display: flex; justify-content: flex-end; align-items: center; margin-top: 0.5rem; gap: 0.5rem; }
 .char-count { font-size: 0.69rem; color: var(--muted); visibility: hidden; }
@@ -912,6 +967,14 @@ body.beta-limpia .topbar-avatar { display: none !important; }
   font-family: 'Cormorant Garamond', serif; font-style: italic;
   font-size: 0.92rem; color: var(--muted); text-align: center;
 }
+/* Si para en el día 3 o 5: dejar el correo, discreto y opcional */
+.registro-toggle {
+  background: none; border: none; cursor: pointer;
+  font-family: 'Jost', sans-serif; font-size: 0.78rem; font-weight: 300;
+  color: var(--muted); text-decoration: underline; text-underline-offset: 3px;
+  text-align: center; padding: 0.3rem; margin-top: 0.2rem;
+}
+.continuar-tramo-box .registro-box { margin-top: 0.4rem; animation: fadeUp 0.5s ease both; }
 
 /* Cierre final (camino B: para) — envuelve registro, Instagram y feedback */
 .cierre-final-box {
@@ -1491,10 +1554,41 @@ body.beta-limpia .topbar-avatar { display: none !important; }
   display: flex;
 }
 
-/* Formulario de feedback día 1 */
+/* Formulario de feedback día 1 — plegado: primero va «Quiero seguir con Alma» */
 .beta-feedback-form {
-  display: flex; flex-direction: column; gap: 0.6rem;
+  display: none; flex-direction: column; gap: 0.6rem;
   width: 100%; margin-bottom: 0.5rem;
+}
+.beta-feedback-form.abierto { display: flex; }
+.beta-feedback-toggle {
+  background: none; border: none; cursor: pointer;
+  font-family: 'Jost', sans-serif; font-size: 0.78rem; font-weight: 300;
+  color: rgba(245,237,216,0.5); text-decoration: underline; text-underline-offset: 3px;
+  padding: 0.3rem; margin-top: 0.4rem;
+}
+.beta-feedback-toggle:hover { color: rgba(245,237,216,0.75); }
+
+/* Recordatorio para volver mañana (calendario propio, sin correo ni datos) */
+.recordatorio-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 0.45rem;
+  margin-top: 0.4rem; text-align: center;
+}
+.recordatorio-btn {
+  background: transparent; cursor: pointer;
+  border: 1px solid rgba(168,107,80,0.45); border-radius: 100px;
+  padding: 0.6rem 1.3rem; min-height: 44px;
+  font-family: 'Jost', sans-serif; font-size: 0.85rem; letter-spacing: 0.03em;
+  color: var(--clay); transition: all 0.2s;
+}
+.recordatorio-btn:hover { background: rgba(168,107,80,0.06); border-color: rgba(168,107,80,0.7); }
+.recordatorio-otro {
+  background: none; border: none; cursor: pointer; padding: 0.2rem;
+  font-family: 'Jost', sans-serif; font-size: 0.72rem; font-weight: 300;
+  color: var(--muted); text-decoration: underline; text-underline-offset: 3px;
+}
+.recordatorio-hecho {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 1rem; color: var(--muted); line-height: 1.6; max-width: 300px;
 }
 .beta-feedback-label {
   font-family: 'Cormorant Garamond', serif;
@@ -2006,11 +2100,18 @@ body.beta-limpia .topbar-avatar { display: none !important; }
 
     <div class="beta-farewell-actions-wrap" id="beta-farewell-actions">
 
-      <!-- Formulario de feedback — Netlify lo captura y manda email -->
+      <button class="beta-cta" onclick="startFullJourney()">
+        Quiero seguir con Alma →
+      </button>
+      <p class="beta-cta-note">El recorrido completo va más hondo día a día, con un reflejo final y tu carta descargable en PDF.</p>
+
+      <!-- Feedback: opcional y plegado, después del botón para seguir.
+           Netlify lo captura y manda email -->
+      <button type="button" class="beta-feedback-toggle" id="beta-feedback-toggle"
+              onclick="document.getElementById('beta-feedback-form').classList.toggle('abierto')">¿Quieres contarnos cómo te has sentido?</button>
       <form name="alma-feedback" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="beta-feedback-form" id="beta-feedback-form">
         <input type="hidden" name="form-name" value="alma-feedback">
         <input type="hidden" name="bot-field" style="display:none">
-        <p class="beta-feedback-label">¿Cómo te has sentido con Alma hoy?</p>
         <textarea name="feedback" class="beta-feedback-textarea" placeholder="Cuéntanos lo que sea..." rows="3"></textarea>
         <button type="submit" class="beta-feedback-btn">Enviar →</button>
       </form>
@@ -2018,11 +2119,6 @@ body.beta-limpia .topbar-avatar { display: none !important; }
       <div class="beta-feedback-thanks" id="beta-feedback-thanks" style="display:none">
         <p>Gracias. Tu voz nos ayuda a que Alma crezca.</p>
       </div>
-
-      <button class="beta-cta" onclick="startFullJourney()">
-        Quiero seguir con Alma →
-      </button>
-      <p class="beta-cta-note">El recorrido completo va más hondo día a día, con un reflejo final y tu carta descargable en PDF.</p>
     </div>
 
     <!-- Mensaje de transición — visible tras pulsar el botón -->
@@ -2192,6 +2288,7 @@ body.beta-limpia .topbar-avatar { display: none !important; }
         aria-label="Escribe tu entrada del diario"
         placeholder="Empieza por donde te salga…"
         oninput="onType()" rows="6" maxlength="2000"></textarea>
+      <p class="dictado-nota">Si te cuesta escribir, puedes dictarlo con el micrófono del teclado.</p>
       <div class="char-row">
         <span class="autosave" id="autosave-label" style="display:none" title="Solo en este dispositivo. Alma no lo lee hasta que tú lo sueltes.">Borrador guardado</span>
         <span class="char-count" id="char-count">0 / 2000</span>
@@ -2488,6 +2585,7 @@ function saveToLocal(day, text, emotions, almaReply, history, arrivalMode) {
       almaReply: almaReply !== undefined ? almaReply : (existing.almaReply || null),
       history: history || existing.history || [],
       arrivalMode: arrivalMode || existing.arrivalMode || 'pain',
+      question: preguntaFijada(day) || existing.question || null,
     };
     localStorage.setItem(`alma_${day}`, JSON.stringify(payload));
     guardarEnServidor(day, payload, payload.arrivalMode);
@@ -2672,7 +2770,16 @@ function getOrCreateQuestionSet(mode) {
   const yaCubre = saved && Object.keys(saved).length >= totalDays;
   if (yaCubre) return saved;
 
-  const set = buildQuestionSet(mode, totalDays, saved || null);
+  // Las preguntas que ya respondió (fijadas día a día) cuentan como usadas.
+  // El set se borra en cada visita (init), así que sin esto un día nuevo podía
+  // traer una pregunta que ya contestó otro día.
+  const base = Object.assign({}, saved || {});
+  for (let d = 0; d < 7; d++) {
+    const f = preguntaFijada(d);
+    if (f) base[d + 1] = f;
+  }
+
+  const set = buildQuestionSet(mode, totalDays, Object.keys(base).length ? base : null);
   try { localStorage.setItem(key, JSON.stringify(set)); } catch(e) {}
   return set;
 }
@@ -3390,6 +3497,71 @@ function addToHistory(role, htmlContent) {
   setTimeout(() => block.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
 }
 
+// =======================
+// RECORDATORIO — volver mañana
+// =======================
+// Una cita en SU calendario para mañana a esta misma hora: sin correo, sin
+// cuentas y sin que guardemos nada. El título es neutro ("Un rato para ti")
+// porque su calendario puede verlo otra persona.
+// iPhone/Mac: archivo .ics (Safari abre directamente «Añadir al calendario»).
+// Resto (Android, Windows): Google Calendar. Siempre se ofrece la otra vía.
+const RECORDATORIO_TITULO = 'Un rato para ti';
+const RECORDATORIO_URL = 'https://almaproyect.com/tu-espacio';
+
+function esAppleRecordatorio() {
+  return /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
+}
+
+function inicioRecordatorio() {
+  // Mañana a esta misma hora, redondeado al cuarto de hora siguiente
+  const d = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  d.setSeconds(0, 0);
+  d.setMinutes(Math.ceil(d.getMinutes() / 15) * 15);
+  return d;
+}
+
+function recordatorioHTML(donde) {
+  const principal = esAppleRecordatorio() ? 'ics' : 'google';
+  const otro = principal === 'ics' ? 'google' : 'ics';
+  const textoOtro = otro === 'ics' ? 'Otro calendario (.ics)' : 'Prefiero Google Calendar';
+  return `
+    <div class="recordatorio-wrap" data-donde="${donde}">
+      <button class="recordatorio-btn" onclick="anadirRecordatorio(this, '${principal}')">Recuérdamelo mañana</button>
+      <button class="recordatorio-otro" onclick="anadirRecordatorio(this, '${otro}')">${textoOtro}</button>
+    </div>`;
+}
+
+function anadirRecordatorio(btn, via) {
+  const inicio = inicioRecordatorio();
+  const fin = new Date(inicio.getTime() + 20 * 60 * 1000);
+  const wrap = btn.closest('.recordatorio-wrap');
+  trackEvent('recordatorio', { via, donde: wrap?.dataset.donde || '' });
+  // Con la llave, el enlace de la cita abre SU recorrido aunque vuelva desde
+  // otro navegador (p. ej. empezó dentro de Instagram y vuelve en Safari)
+  const llave = anonId();
+  const enlace = llave ? RECORDATORIO_URL + '#llave=' + llave : RECORDATORIO_URL;
+
+  if (via === 'google') {
+    const f = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+      + '&text=' + encodeURIComponent(RECORDATORIO_TITULO)
+      + '&dates=' + f(inicio) + '/' + f(fin)
+      + '&details=' + encodeURIComponent(llave
+          ? 'Alma te espera. Este enlace abre tu recorrido, no lo compartas:\n' + enlace
+          : 'Alma te espera.\n' + enlace);
+    window.open(url, '_blank', 'noopener');
+  } else {
+    window.location.href = '/.netlify/functions/recordatorio?inicio=' + encodeURIComponent(inicio.toISOString())
+      + (llave ? '&llave=' + encodeURIComponent(llave) : '');
+  }
+
+  // No sabemos si al final lo guardó: lo decimos tal cual
+  if (wrap) {
+    const hora = inicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    wrap.innerHTML = `<p class="recordatorio-hecho">Si lo has guardado, mañana a las ${hora} tu calendario te lo recordará.</p>`;
+  }
+}
+
 function showFinalButtons() {
   const container = document.getElementById('conversation-history');
   if (!container) return;
@@ -3419,6 +3591,13 @@ function showFinalButtons() {
     </button>
   `;
   container.appendChild(closingDiv);
+
+  // Volver mañana: solo si el siguiente día es otro día (al final del tramo no se espera)
+  if (!isLastDay) {
+    const rec = document.createElement('div');
+    rec.innerHTML = recordatorioHTML('dia_' + (currentDay + 1));
+    container.appendChild(rec.firstElementChild);
+  }
 
   ['btn-next-m','btn-next-d'].forEach(id => {
     const b = document.getElementById(id);
@@ -3849,12 +4028,47 @@ function showFarewellActions() {
       cont.style.display = 'flex';
     }
     if (cierre) cierre.style.display = 'none';
+    ofrecerRegistroAlParar(cont);
   } else {
     // Camino B: es el final. Despedida completa con registro, Instagram y feedback.
     if (cont) cont.style.display = 'none';
+    // Si el registro se abrió en un tramo anterior, vuelve a su sitio de siempre
+    const caja = document.getElementById('registro-box');
+    if (caja && cierre && caja.parentElement !== cierre) cierre.prepend(caja);
     if (cierre) cierre.style.display = 'flex';
     mostrarRegistro();
   }
+}
+
+// Quien para en el día 3 o en el 5 («O quédate aquí») también puede dejar
+// su correo. Va plegado bajo el botón de continuar: seguir sigue siendo lo
+// principal y no se le pide nada a quien no lo busca. Es la misma caja de
+// registro de siempre (mismo envío, mismos textos), que se mueve aquí.
+function ofrecerRegistroAlParar(cont) {
+  if (!cont) return;
+  const caja = document.getElementById('registro-box');
+  let yaEsta = false;
+  try { yaEsta = !!localStorage.getItem('alma_registro'); } catch(e) {}
+
+  let tgl = document.getElementById('registro-toggle-tramo');
+  if (!tgl) {
+    tgl = document.createElement('button');
+    tgl.id = 'registro-toggle-tramo';
+    tgl.className = 'registro-toggle';
+    tgl.textContent = 'Si te quedas aquí, puedes dejarnos tu correo.';
+    tgl.onclick = () => {
+      tgl.style.display = 'none';
+      if (caja) {
+        cont.appendChild(caja);
+        mostrarRegistro();
+        trackEvent('registro_desde_tramo', { tramo: totalDays });
+        setTimeout(() => caja.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+      }
+    };
+    cont.appendChild(tgl);
+  }
+  const abierto = caja && caja.parentElement === cont;
+  tgl.style.display = (yaEsta || abierto) ? 'none' : '';
 }
 
 // Continuar al siguiente tramo: amplía totalDays, regenera el set conservando
@@ -4154,12 +4368,27 @@ async function showFarewell() {
       replyEl.innerHTML = summaryText
         .split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
       showFarewellActions();
+    } else {
+      reflejoNoDisponible(loadingEl, replyEl);
     }
   } catch(e) {
     clearTimeout(timeoutId);
-    if (loadingEl) loadingEl.style.display = 'none';
-    // La pantalla de cierre sigue completa sin el reflejo
+    reflejoNoDisponible(loadingEl, replyEl);
   }
+}
+
+// Si el reflejo no llega (la función tarda o falla), no puede quedarse
+// atascada: se le dice la verdad y se le dejan los botones para seguir.
+// Al volver a pulsar «Ver mi reflejo» se intenta de nuevo (no hay caché).
+function reflejoNoDisponible(loadingEl, replyEl) {
+  if (loadingEl) loadingEl.style.display = 'none';
+  if (replyEl) {
+    replyEl.style.display = 'block';
+    replyEl.innerHTML = '<p>Hoy no he podido escribirte tu reflejo.</p>' +
+      '<p>Lo que has escrito estos días sigue aquí, entero. Vuelve a pedírmelo en un rato y lo intento de nuevo.</p>';
+  }
+  trackEvent('farewell_failed', { tramo: totalDays });
+  showFarewellActions();
 }
 
 // =======================
@@ -4947,7 +5176,9 @@ function startFullJourney() {
         arrivalMode: betaData.arrivalMode || 'pain',
         migratedFromBeta: true
       };
+      if (BETA_QUESTIONS[day0.arrivalMode]) day0.question = BETA_QUESTIONS[day0.arrivalMode];
       localStorage.setItem('alma_0', JSON.stringify(day0));
+      guardarEnServidor(0, day0, day0.arrivalMode); // antes el día 1 solo vivía en este navegador
       localStorage.setItem('alma_arrival_mode', betaData.arrivalMode || 'pain');
       // La pregunta que de verdad vio el día 1 (para el texto descargable y el reflejo)
       if (BETA_QUESTIONS[betaData.arrivalMode]) localStorage.setItem('alma_q_0', BETA_QUESTIONS[betaData.arrivalMode]);
@@ -5040,14 +5271,15 @@ function startFullJourney() {
           <div style="text-align:center; padding: 2rem 2rem 3rem; display:flex; flex-direction:column; align-items:center; gap:1.1rem; margin-top:0;">
             <div style="color:rgba(184,134,11,0.5); font-size:1.2rem; letter-spacing:0.2em;">✦</div>
             <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.3rem; color:var(--ink); line-height:1.6; font-weight:400; max-width:280px;">
-              Ya diste el primer paso.
+              Hoy has estado contigo.
             </p>
             <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.1rem; color:var(--muted); line-height:1.7; max-width:300px;">
-              El día 2 es otra afirmación<br>de tu compromiso.
+              Mañana habrá otra pregunta<br>esperándote.
             </p>
             <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1rem; color:var(--muted); opacity:0.7; line-height:1.6;">
-              Solo necesitas cinco minutos contigo.
+              Con cinco minutos basta.
             </p>
+            ${recordatorioHTML('tras_beta')}
           </div>`;
       }
 
@@ -5490,13 +5722,176 @@ document.addEventListener('DOMContentLoaded', () => {
       await fetch('/', { method: 'POST', body: data });
     } catch(err) {}
     form.style.display = 'none';
+    const tgl = document.getElementById('beta-feedback-toggle');
+    if (tgl) tgl.style.display = 'none';
     const thanks = document.getElementById('beta-feedback-thanks');
     if (thanks) thanks.style.display = 'block';
     trackEvent('feedback_submitted');
   });
 });
 
-document.addEventListener('DOMContentLoaded', init);
+// =======================
+// LA LLAVE — recuperar su recorrido en otro navegador
+// =======================
+// El enlace de su recordatorio lleva #llave=<su identificador anónimo>. Si lo
+// abre en un navegador donde no está su recorrido, lo traemos del servidor
+// antes de arrancar. Si en este navegador ya hay otro recorrido, se lo
+// preguntamos: nunca se pisa nada sin que ella lo decida.
+
+function avisoLlave(titulo, texto, botones) {
+  // botones: [{ texto, valor, principal }] → devuelve una promesa con el valor elegido
+  return new Promise(resolve => {
+    const fondo = document.createElement('div');
+    fondo.className = 'llave-aviso';
+    fondo.setAttribute('role', 'dialog');
+    fondo.setAttribute('aria-modal', 'true');
+    fondo.innerHTML = `
+      <div class="llave-caja">
+        <div class="llave-simbolo">✦</div>
+        <p class="llave-titulo">${titulo}</p>
+        <p class="llave-texto">${texto}</p>
+        <div class="llave-botones">
+          ${botones.map((b, i) => `<button class="llave-btn${b.principal ? ' principal' : ''}" data-i="${i}">${b.texto}</button>`).join('')}
+        </div>
+      </div>`;
+    fondo.querySelectorAll('.llave-btn').forEach(el => {
+      el.addEventListener('click', () => {
+        fondo.remove();
+        resolve(botones[+el.dataset.i].valor);
+      });
+    });
+    document.body.appendChild(fondo);
+  });
+}
+
+function hayRecorridoLocal() {
+  try {
+    const b = JSON.parse(localStorage.getItem('alma_beta') || '{}');
+    if (b.history && b.history.length) return true;
+    for (let i = 0; i < 7; i++) if (localStorage.getItem('alma_' + i)) return true;
+  } catch(e) {}
+  return false;
+}
+
+function borrarRecorridoLocal() {
+  const fijas = ['alma_beta', 'alma_beta_farewell', 'alma_tramo', 'alma_arrival_mode',
+                 'alma_farewell', 'alma_farewell_3', 'alma_farewell_5', 'alma_farewell_7',
+                 'alma_borrador_beta', 'alma_refugio_camino', 'alma_refugio_frases', 'alma_refugio_reflejos'];
+  try {
+    fijas.forEach(k => localStorage.removeItem(k));
+    for (let i = 0; i < 7; i++) {
+      ['alma_', 'alma_q_', 'alma_borrador_'].forEach(p => localStorage.removeItem(p + i));
+    }
+    ['pain','curiosity','open','depth'].forEach(m => localStorage.removeItem('alma_qset_' + m));
+  } catch(e) {}
+}
+
+function aplicarRecorrido(llave, dias) {
+  const beta = dias.find(d => d.day === 'beta');
+  const numericos = dias.filter(d => /^[0-6]$/.test(d.day));
+
+  if (numericos.length) {
+    numericos.forEach(d => {
+      const data = Object.assign({}, d.data);
+      if (!data.arrivalMode && d.arrivalMode) data.arrivalMode = d.arrivalMode;
+      localStorage.setItem('alma_' + d.day, JSON.stringify(data));
+      if (data.question) localStorage.setItem('alma_q_' + d.day, data.question);
+    });
+    // Recorridos de antes de este arreglo: el día 1 no llegó al servidor,
+    // pero su beta sí. Lo reconstruimos igual que al pasar de la beta.
+    if (!numericos.some(d => d.day === '0') && beta?.data?.history?.length) {
+      const b = beta.data;
+      const modo = b.arrivalMode || beta.arrivalMode || 'beta_unclear';
+      const day0 = {
+        history: b.history,
+        almaReply: b.almaReply || '',
+        text: b.history.filter(t => t.role === 'user').map(t => t.text).join('\n\n'),
+        date: b.date || new Date().toISOString(),
+        arrivalMode: modo,
+        migratedFromBeta: true,
+        question: BETA_QUESTIONS[modo] || null,
+      };
+      localStorage.setItem('alma_0', JSON.stringify(day0));
+      if (day0.question) localStorage.setItem('alma_q_0', day0.question);
+    }
+    // El tramo se deduce del día más lejano al que llegó
+    const maxDia = Math.max(...numericos.map(d => +d.day));
+    setTramo(maxDia >= 5 ? 7 : maxDia >= 3 ? 5 : 3);
+  } else if (beta?.data) {
+    const b = Object.assign({}, beta.data);
+    if (!b.arrivalMode && beta.arrivalMode) b.arrivalMode = beta.arrivalMode;
+    localStorage.setItem('alma_beta', JSON.stringify(b));
+  }
+
+  localStorage.setItem('alma_anon_id', llave);
+  if (!JSON.parse(localStorage.getItem('alma_consent') || '{}').accepted) {
+    // Aceptó las condiciones al empezar, en el otro navegador
+    localStorage.setItem('alma_consent', JSON.stringify({
+      accepted: true, date: new Date().toISOString(), version: 'beta-julio-2026', via: 'llave'
+    }));
+  }
+}
+
+async function recuperarConLlave() {
+  const llave = window.__almaLlave;
+  if (!llave) return;
+  try {
+    if (localStorage.getItem('alma_anon_id') === llave) return; // ya está aquí
+  } catch(e) { return; }
+
+  if (hayRecorridoLocal()) {
+    const elegido = await avisoLlave(
+      'En este navegador ya tienes otro recorrido empezado.',
+      'Puedes abrir el del enlace o seguir con el que tienes aquí. Si abres el del enlace, el de aquí dejará de estar en este navegador.',
+      [{ texto: 'Abrir el del enlace', valor: 'enlace', principal: true },
+       { texto: 'Seguir con el de aquí', valor: 'aqui' }]
+    );
+    if (elegido !== 'enlace') { trackEvent('llave_rechazada'); return; }
+  }
+
+  let dias = null;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const res = await fetch('/.netlify/functions/journey-load', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ anonId: llave }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(t);
+    if (!res.ok) throw new Error('journey-load ' + res.status);
+    dias = (await res.json()).dias || [];
+  } catch(e) {
+    clearTimeout(t);
+    trackEvent('llave_error');
+    await avisoLlave('Ahora mismo no he podido traer tu recorrido.',
+      'Vuelve a abrir el enlace en un rato. Lo que escribiste no se ha perdido.',
+      [{ texto: 'Entendido', valor: 'ok', principal: true }]);
+    return;
+  }
+
+  if (!dias.length) {
+    trackEvent('llave_vacia');
+    await avisoLlave('Este enlace ya no guarda nada.',
+      'Tus palabras se borran solas a los catorce días, como te contamos al empezar. Si quieres, puedes empezar de nuevo.',
+      [{ texto: 'Entendido', valor: 'ok', principal: true }]);
+    return;
+  }
+
+  try {
+    borrarRecorridoLocal();
+    aplicarRecorrido(llave, dias);
+    trackEvent('llave_usada', { dias: dias.length });
+  } catch(e) {}
+}
+
+async function arrancar() {
+  try { await recuperarConLlave(); } catch(e) {}
+  init();
+}
+
+document.addEventListener('DOMContentLoaded', arrancar);
 </script>
 </body>
 </html>
