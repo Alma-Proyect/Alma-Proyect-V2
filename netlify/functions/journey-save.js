@@ -6,7 +6,10 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
-const DIAS_VALIDOS = new Set(['beta', '1', '2', '3']);
+// La app numera los días desde 0 (día 1 = '0') y el recorrido llega a 7 días.
+// Antes solo se aceptaban 'beta', '1', '2' y '3': el día 1 y los días 5 a 7
+// nunca llegaban a guardarse en el servidor.
+const DIAS_VALIDOS = new Set(['beta', '0', '1', '2', '3', '4', '5', '6']);
 const MAX_BYTES = 120000; // tope generoso para el objeto del día completo
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
