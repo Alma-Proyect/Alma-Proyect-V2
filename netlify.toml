@@ -8,6 +8,11 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
+# Borrado automático: cada día, los recorridos sin actividad en 14 días.
+# Es lo que promete el aviso («se borran solas a los catorce días»).
+[functions."borrar-caducados"]
+  schedule = "@daily"
+
 # La raíz (/) ya la sirve public/index.html: es la portada pública, la que se indexa.
 
 # La app. Se entra por /tu-espacio (la portada y beta-aviso.html apuntan aquí);
