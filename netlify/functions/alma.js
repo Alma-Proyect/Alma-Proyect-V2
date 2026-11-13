@@ -5,6 +5,8 @@
 const { getAlmaSystemPrompt } = require("./lib/prompts");
 const { getQuestion, getBetaQuestion, MAX_TURNS_PER_DAY } = require("./lib/questions");
 const { callAnthropic } = require("./lib/anthropic");
+const { getGuardiana, resolverPuerta } = require("./lib/guardianas");
+const { limpiarRespuesta } = require("./lib/sanitize");
 
 // Si la respuesta llegó truncada por tope de tokens, recorta hasta el último
 // signo de puntuación de cierre de frase para no dejar una palabra a medias.
@@ -72,6 +74,11 @@ exports.handler = async function (event) {
     return { statusCode: 400, body: JSON.stringify({ error: "JSON inválido" }) };
   }
   const { arrivalMode, questionSet } = datos;
+  // La puerta por la que entró (nudos, sinsaber, agotada, volver) decide su
+  // guardiana para todo el recorrido. Las opciones antiguas se traducen a la
+  // puerta más cercana.
+  const puerta = resolverPuerta(datos.puerta, arrivalMode);
+  const capaGuardiana = getGuardiana(puerta);
   const isBeta = datos.isBeta === true;
 
   if (typeof datos.entry !== "string" || datos.entry.trim().length === 0) {
@@ -140,9 +147,12 @@ exports.handler = async function (event) {
     }
 
     const result = await callAnthropic({
-      system: getAlmaSystemPrompt(day, currentTurn, previousEntries, arrivalMode, essence, {
+      // Con guardiana, su capa sustituye a la descripción genérica del modo de
+      // llegada (que podía contradecirla: «curiosidad, con ligereza» frente a
+      // Ítaca). Sin guardiana, todo sigue como antes.
+      system: getAlmaSystemPrompt(day, currentTurn, previousEntries, capaGuardiana ? null : arrivalMode, essence, {
         maxTurns, tramo: Math.max(tramo, day), isBeta,
-      }),
+      }) + (capaGuardiana ? "\n\n" + capaGuardiana : ""),
       messages,
       maxTokens: 320,
       temperature: 0.85,
@@ -153,7 +163,7 @@ exports.handler = async function (event) {
       timeoutMs: 9300 - (Date.now() - inicio),
     });
 
-    const response = cleanIfTruncated(result.text, result.truncated);
+    const response = limpiarRespuesta(cleanIfTruncated(result.text, result.truncated));
 
     return {
       statusCode: 200,
