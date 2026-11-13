@@ -1,10 +1,12 @@
 // netlify/functions/summary.js
-// Genera el reflejo final de los tres días — descargable
-// Recibe el historial completo de los tres días con todos los turnos
+// Genera el reflejo de cada tramo (3 o 5 días) y el reflejo final (7 días).
+// Recibe el historial completo de los días con todos los turnos.
 
 const { callAnthropic } = require("./lib/anthropic");
-const { SUMMARY_SYSTEM_PROMPT, SUMMARY_TOTAL_SYSTEM_PROMPT, getSummaryUserMessage } = require("./lib/prompts");
+const { SUMMARY_SYSTEM_PROMPT, SUMMARY_TOTAL_SYSTEM_PROMPT, getSummaryUserMessage, notaReflejo } = require("./lib/prompts");
+const { resolverPuerta } = require("./lib/guardianas");
 const { getQuestion } = require("./lib/questions");
+const { limpiarReflejo } = require("./lib/sanitize");
 
 // Si la respuesta llegó truncada por tope de tokens, recorta hasta el último
 // signo de puntuación de cierre de frase para no dejar una palabra a medias.
@@ -19,20 +21,52 @@ function cleanIfTruncated(text, truncated) {
   return text.slice(0, lastPunct + 1);
 }
 
-const FALLBACKS = [
-  "Algo cambió esta semana. No sé si tú lo notaste, pero estaba en tus palabras.\n\nHay una honestidad en lo que escribiste que no todo el mundo se permite.\n\nEso no es pequeño.",
-  "Escribiste sobre cosas que normalmente se quedan dentro.\n\nEso ya es un acto.\n\nNo sé qué vas a hacer con todo esto, pero me alegra que lo hayas puesto en palabras.",
-  "Tres días. Tres preguntas. Muchas capas.\n\nLo que más me quedó es la forma en que te buscas — aunque a veces no sepas que lo estás haciendo.\n\nSigue así.",
-];
+// ── Límites de lo que se acepta del navegador ───────────────────────────
+// La app nunca manda más que esto. Si llega más, se recorta para que cada
+// llamada cueste como una normal.
+const MAX_CHARS_TEXTO = 8000;   // el día 1 que viene de la beta junta varias entradas
+const MAX_MENSAJES_DIA = 8;     // beta: 4 de ella + 4 de Alma
 
+function limpiarEntradas(entries) {
+  const limpio = {};
+  if (!entries || typeof entries !== "object") return limpio;
+  for (let i = 1; i <= 7; i++) {
+    const d = entries["day" + i];
+    if (d === undefined) continue;
+    if (d === null) { limpio["day" + i] = null; continue; }
+    if (typeof d === "string") { limpio["day" + i] = d.slice(0, MAX_CHARS_TEXTO); continue; }
+    if (Array.isArray(d)) {
+      limpio["day" + i] = d
+        .filter(t => t && (t.role === "user" || t.role === "alma") && typeof t.text === "string")
+        .slice(0, MAX_MENSAJES_DIA)
+        .map(t => ({ role: t.role, text: t.text.slice(0, MAX_CHARS_TEXTO) }));
+    }
+  }
+  return limpio;
+}
+
+// Si el reflejo no se puede escribir, se devuelve un error y NO un texto
+// genérico. Antes se devolvía un «reflejo» de plantilla («Tres días. Tres
+// preguntas…», aunque fueran cinco o siete) que la app guardaba para siempre
+// como lo que Alma vio en ella, y acababa en su carta y en Tu refugio. Ahora la
+// app le dice la verdad («hoy no he podido escribirte tu reflejo») y lo
+// vuelve a intentar cuando ella lo pida.
 exports.handler = async function (event) {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  const { entries, plan, arrivalMode, questionSet, tramo, reflejoTotal } = JSON.parse(event.body || "{}");
+  let datos;
+  try {
+    datos = JSON.parse(event.body || "{}");
+  } catch (e) {
+    return { statusCode: 400, body: JSON.stringify({ error: "JSON inválido" }) };
+  }
+  const { arrivalMode, questionSet, reflejoTotal } = datos;
+  const puerta = resolverPuerta(datos.puerta, arrivalMode); // su guardiana
+  const entries = limpiarEntradas(datos.entries);
 
-  if (!entries || !entries.day1) {
+  if (!entries.day1) {
     return {
       statusCode: 400,
       body: JSON.stringify({ error: "No se recibieron entradas." }),
@@ -42,14 +76,15 @@ exports.handler = async function (event) {
   try {
     const esTotal = reflejoTotal === true;
     const result = await callAnthropic({
-      system: esTotal ? SUMMARY_TOTAL_SYSTEM_PROMPT : SUMMARY_SYSTEM_PROMPT,
+      system: (esTotal ? SUMMARY_TOTAL_SYSTEM_PROMPT : SUMMARY_SYSTEM_PROMPT) + notaReflejo(puerta),
       messages: [{ role: "user", content: getSummaryUserMessage(entries, arrivalMode, questionSet, esTotal) }],
       maxTokens: esTotal ? 520 : 360,
       temperature: 0.78,
-      plan: plan || "free",
+      plan: "free", // nunca lo decide el navegador
     });
 
-    const summary = cleanIfTruncated(result.text, result.truncated);
+    const summary = limpiarReflejo(cleanIfTruncated(result.text, result.truncated));
+    if (!summary || !summary.trim()) throw new Error("Reflejo vacío");
 
     // Generamos también el texto listo para descargar
     const downloadText = buildDownloadText(entries, summary, arrivalMode, questionSet);
@@ -60,13 +95,11 @@ exports.handler = async function (event) {
       body: JSON.stringify({ summary, downloadText }),
     };
   } catch (error) {
-    console.error("Error en summary.js:", error);
-    const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
-    const downloadText = buildDownloadText(entries, fallback, arrivalMode, questionSet);
+    console.error("Error en summary.js:", error.message);
     return {
-      statusCode: 200,
+      statusCode: 503,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ summary: fallback, downloadText }),
+      body: JSON.stringify({ error: "Reflejo no disponible ahora mismo" }),
     };
   }
 };
