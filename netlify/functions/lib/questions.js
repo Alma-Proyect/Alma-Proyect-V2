@@ -17,6 +17,58 @@ const ARRIVAL_QUESTION = {
 
 // ── BANCO DE PREGUNTAS — 10 por estado de ánimo ───────────────────────────
 const QUESTION_BANK = {
+  // ── Las cuatro puertas: un banco por guardiana, escrito con sus reglas
+  //    (Bruma nunca busca la causa ni el «desde cuándo»; Cala, preguntas
+  //    pequeñas y fáciles; Solaz, una sola cosa abierta; Ítaca, sin empujar).
+  nudos: [
+    "¿Qué es lo que más vueltas te da cuando te quedas a solas?",
+    "¿Qué te cuesta decir en voz alta de todo esto?",
+    "¿Hay algo que callas para que los demás estén cómodos?",
+    "¿Qué estás cargando que quizá no te toca cargar?",
+    "¿Qué es lo que más te cuesta soltar?",
+    "Si una amiga te contara lo mismo, ¿qué le dirías?",
+    "¿Qué sientes cuando lo miras de frente, sin darle vueltas?",
+    "¿Qué necesitarías para poder respirar un poco con esto?",
+    "¿Qué necesitas ahora mismo y nadie sabe?",
+    "¿Qué es lo que más te ha dolido de todo lo que ha pasado?",
+  ],
+  sinsaber: [
+    "¿Cómo estás hoy, sin tener que explicarlo?",
+    "¿Cómo se nota hoy en tu cuerpo?",
+    "Si no tuvieras que entender nada, ¿qué te gustaría que pasara hoy?",
+    "¿Qué te ha hecho un poco de compañía estos días, aunque sea algo pequeño?",
+    "¿Qué te gustaría que alguien supiera de cómo estás, aunque no sepas explicarlo?",
+    "¿Qué es lo que más te cuesta de no saber qué te pasa?",
+    "¿Qué te dices a ti misma cuando te sientes así?",
+    "¿Qué necesitas hoy que no has pedido?",
+    "¿Qué te vino a la mente al abrir esto hoy?",
+    "Si pudieras hablar de cualquier cosa hoy, ¿de qué hablarías?",
+  ],
+  agotada: [
+    "¿Qué es lo que más te está costando sostener ahora mismo?",
+    "¿Quién te cuida a ti cuando tú cuidas de todo?",
+    "¿Qué has dejado de hacer para ti por no tener fuerzas?",
+    "¿Qué te gustaría poder dejar de hacer, aunque solo fuera un día?",
+    "¿Con quién puedes dejar de fingir que estás bien?",
+    "¿Qué te daría hoy un poco de descanso, aunque fuera pequeño?",
+    "¿Qué llevas tiempo sin contarle a nadie?",
+    "Si una amiga estuviera tan cansada como tú, ¿qué le dirías?",
+    "¿Qué echas de menos de cuando tenías más fuerzas?",
+    "¿Qué necesitas ahora mismo y nadie sabe?",
+  ],
+  volver: [
+    "¿Qué parte de ti necesita más espacio?",
+    "¿Qué deseo llevas tiempo dejando para después?",
+    "¿En qué momentos te pones la última sin darte cuenta?",
+    "¿Qué te hacía sentir tú misma y hace tiempo que no haces?",
+    "¿Cómo eres cuando nadie te mira?",
+    "¿Qué te sorprendió de ti misma esta semana, aunque fuera algo pequeño?",
+    "¿A qué te gustaría poder decir que no?",
+    "¿Qué sabes de ti que todavía no te has dicho en voz alta?",
+    "¿Cómo te hablas cuando te equivocas?",
+    "¿Qué le dirías a la mujer que eras hace dos años?",
+  ],
+  // ── Bancos de las opciones antiguas (quien ya empezó con ellas)
   pain: [
     "¿Con quién puedes dejar de fingir que estás bien?",
     "¿Hay algo que callas para que los demás estén cómodos?",
@@ -72,6 +124,32 @@ const QUESTION_BANK = {
 // final. Quien hace 1, 3 o 5 días nunca las recibe: se lleva siempre lo más
 // potente del banco normal.
 const CLOSING_BANK = {
+  // ── Cierre de las cuatro puertas (días 6 y 7 del recorrido de 7)
+  nudos: [
+    "Lo que trajiste el primer día pesaba de una forma. ¿Pesa igual ahora?",
+    "De todo lo que has soltado aquí, ¿qué es lo que ya no quieres volver a cargar?",
+    "¿Qué ves hoy de este nudo que el primer día no veías?",
+    "Si la mujer del primer día te viera hoy, ¿qué notaría distinto en ti?",
+  ],
+  sinsaber: [
+    "Después de estos días, ¿cómo te sientes hoy comparado con el primero?",
+    "¿Qué te ha ayudado estos días a estar un poco menos sola con esto?",
+    "¿Qué te gustaría recordarte el próximo día que vuelvas a estar mal sin saber por qué?",
+    "De todo lo que has escrito aquí, ¿qué te gustaría llevarte?",
+  ],
+  agotada: [
+    "Después de estos días, ¿cómo está hoy tu cansancio?",
+    "¿Qué has podido soltar aquí que antes cargabas sola?",
+    "¿Qué quieres cuidar de ti cuando cierres esto?",
+    "De todo lo que has soltado aquí, ¿qué es lo que ya no quieres volver a cargar?",
+  ],
+  volver: [
+    "De todo lo que has descubierto de ti estos días, ¿qué es lo que no quieres olvidar?",
+    "¿Qué parte de ti, que estaba callada al empezar, ha encontrado su voz aquí?",
+    "¿En qué te notas hoy un poco más cerca de ti?",
+    "¿Qué te gustaría seguir cuidando de ti cuando cierres esto?",
+  ],
+  // ── Cierre de las opciones antiguas
   pain: [
       "Después de todos estos días diciendo lo que callabas, ¿qué se ha aflojado por dentro?",
       "Lo que trajiste el primer día pesaba de una forma. ¿Pesa igual ahora?",
@@ -105,11 +183,26 @@ const CLOSING_BANK = {
 // ── PREGUNTAS BETA — una por modo de llegada (ids beta_*, como en index.html) ──
 // Simples. Directas. La profundidad la pone Alma en la respuesta.
 const BETA_QUESTIONS = {
+  // Las cuatro puertas (cada una con su guardiana). Mismas preguntas que puertas.html.
+  nudos:    "¿Qué es eso que te pesa por dentro?",
+  sinsaber: "¿Qué te apetece soltar, aunque no sepas muy bien qué es?",
+  agotada:  "¿Desde cuándo vienes cargando este cansancio?",
+  volver:   "¿Qué parte de ti sientes que has ido perdiendo por el camino?",
+  // Opciones antiguas: se mantienen para quien ya empezó con ellas.
   beta_pain:    "¿Qué es lo que más te pesa hoy?",
   beta_search:  "¿Qué parte de ti quieres escuchar hoy?",
   beta_self:    "¿Qué te está pidiendo atención últimamente?",
   beta_unclear: "¿Qué te ha traído aquí hoy?",
 };
+
+// Cada puerta tiene su propio banco (arriba). Las opciones antiguas usan el
+// banco más cercano.
+const BANCO_DE_PUERTA = {
+  beta_pain: "pain", beta_search: "curiosity", beta_self: "depth", beta_unclear: "open",
+};
+function bancoDe(mode) {
+  return QUESTION_BANK[mode] ? mode : (BANCO_DE_PUERTA[mode] || "pain");
+}
 
 // "open" tiene su propio banco — no cae a pain
 // pain es el fallback solo si el modo no existe
@@ -134,8 +227,8 @@ function shuffle(arr) {
 // potente. Se llama una vez al inicio y se guarda en el frontend; al ampliar
 // de 3 a 5 o de 5 a 7 se vuelve a llamar conservando las ya asignadas.
 function buildQuestionSet(arrivalMode, totalDays, previousSet) {
-  const bank = QUESTION_BANK[arrivalMode] || QUESTION_BANK.pain;
-  const closing = CLOSING_BANK[arrivalMode] || CLOSING_BANK.pain;
+  const bank = QUESTION_BANK[bancoDe(arrivalMode)];
+  const closing = CLOSING_BANK[bancoDe(arrivalMode)];
   const days = totalDays || 3;
 
   const set = {};
@@ -182,7 +275,7 @@ function getQuestion(arrivalMode, day, questionSet) {
   // Si viene un set aleatorio ya generado, úsalo
   if (questionSet && questionSet[day]) return questionSet[day];
   // Fallback: primera del banco en orden
-  const bank = QUESTION_BANK[arrivalMode] || QUESTION_BANK.pain;
+  const bank = QUESTION_BANK[bancoDe(arrivalMode)];
   return bank[day - 1] || bank[0];
 }
 
