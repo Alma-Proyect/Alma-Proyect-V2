@@ -377,6 +377,9 @@ body {
   border-color: rgba(140,80,20,0.35);
   box-shadow: 0 0 0 3px rgba(140,80,20,0.06);
 }
+/* Los teléfonos de ayuda no se parten entre dos líneas */
+.arrival-legal a[href^="tel:"] { white-space: nowrap; }
+
 /* Aviso de dictado: solo en pantallas táctiles (móvil y tableta) y solo
    mientras el cuadro está vacío. Al escribir o dictar la primera letra desaparece. */
 .dictado-nota {
@@ -393,7 +396,7 @@ body {
 /* Primera visita (beta): sin contador de días, barra de progreso ni fecha */
 body.beta-limpia .streak-banner,
 body.beta-limpia .progress-bar-wrap,
-body.beta-limpia .topbar-date,
+body.beta-limpia .topbar-date { display: none !important; }
 .autosave   { font-size: 0.65rem; color: var(--sage); display: flex; align-items: center; gap: 0.3rem; }
 .autosave::before { content: '●'; font-size: 0.36rem; }
 
@@ -933,6 +936,273 @@ body.beta-limpia .topbar-date,
   transform: translateY(-1px);
 }
 .arrival-selector-btn.selected::before { display: none; }
+
+/* ════════════════════════════════
+   LA HABITACIÓN DE SU GUARDIANA
+   Al entrar por una puerta, el espacio toma el color de su guardiana,
+   como en puertas.html, y lo mantiene todo el recorrido.
+   El color llega en --g (lo pone la app en <body>). Lo que se escribe y se
+   lee va en blanco sobre velos oscuros; el cuadro de escribir es claro,
+   como un papel, para que escribir siga siendo cómodo.
+════════════════════════════════ */
+body.en-guardiana {
+  background:
+    radial-gradient(130% 90% at 50% 0%, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.30) 100%),
+    var(--g) !important;
+  background-attachment: fixed !important;
+  color: rgba(255,255,255,0.92);
+  transition: background 0.6s ease;
+}
+body.en-guardiana .app-layout,
+body.en-guardiana .main-content { background: transparent !important; }
+
+/* El logo es dorado: sobre el teja de Cala o el granate de Solaz se funde
+   con el fondo. Un halo oscuro muy suave lo separa sin cambiarlo. */
+body.en-guardiana .topbar-logo img,
+body.en-guardiana .sidebar-logo-zone img {
+  filter: drop-shadow(0 0 8px rgba(0,0,0,0.45)) drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+}
+body.en-guardiana .topbar-logo img { height: 46px; }       /* el ojo solo pide menos alto */
+body.en-guardiana .sidebar-logo-zone img { height: 130px; }
+
+/* Barra superior y navegación */
+body.en-guardiana .topbar {
+  background: rgba(0,0,0,0.16) !important; border-color: rgba(255,255,255,0.12) !important;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+body.en-guardiana .topbar-date { color: rgba(255,255,255,0.7) !important; }
+body.en-guardiana .refugio-nav-btn {
+  background: rgba(255,255,255,0.1) !important; color: #fff !important;
+  border-color: rgba(255,255,255,0.35) !important;
+}
+body.en-guardiana .day-nav { background: rgba(0,0,0,0.14) !important; border-color: rgba(255,255,255,0.1) !important; }
+body.en-guardiana .day-nav-label { color: rgba(255,255,255,0.75) !important; }
+body.en-guardiana .day-nav-item.active { background: rgba(255,255,255,0.12) !important; border-color: rgba(255,255,255,0.3) !important; }
+body.en-guardiana .progress-bar-wrap { background: transparent !important; }
+body.en-guardiana .progress-bar-bg { background: rgba(255,255,255,0.18) !important; }
+body.en-guardiana .progress-bar-fill { background: #E8C77E !important; }
+body.en-guardiana .progress-bar-wrap * { color: rgba(255,255,255,0.8) !important; }
+body.en-guardiana .sidebar {
+  background: linear-gradient(to right, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.22) 70%, rgba(0,0,0,0.06) 100%) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+/* El lateral se fundía hacia el crema; en la habitación, hacia su color */
+body.en-guardiana .sidebar::after { display: none !important; }
+body.en-guardiana .sidebar * { color: rgba(255,255,255,0.85) !important; }
+body.en-guardiana .streak-banner {
+  background: rgba(0,0,0,0.22) !important; border: 1px solid rgba(255,255,255,0.12) !important;
+}
+body.en-guardiana .streak-banner * { color: rgba(255,255,255,0.9) !important; }
+
+/* Cabecera del día */
+body.en-guardiana .day-pill {
+  background: rgba(255,255,255,0.12) !important; color: #E8C77E !important;
+  border-color: rgba(255,255,255,0.2) !important;
+}
+body.en-guardiana .day-title-text, body.en-guardiana .day-title-text em { color: #fff !important; }
+body.en-guardiana .progress-ring-bg { stroke: rgba(255,255,255,0.18) !important; }
+body.en-guardiana .progress-ring-fill { stroke: #E8C77E !important; }
+body.en-guardiana .ring-label { fill: #fff !important; }
+body.en-guardiana .puerta-elegida { color: rgba(255,255,255,0.75); }
+body.en-guardiana .puerta-elegida button { color: #E8C77E; }
+
+/* La pregunta y la nota de la guardiana */
+body.en-guardiana .question-card {
+  background: rgba(0,0,0,0.14) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important; box-shadow: none !important;
+}
+body.en-guardiana .question-main {
+  color: #fff !important; text-shadow: 0 1px 20px rgba(0,0,0,0.25);
+}
+body.en-guardiana .question-intro { color: rgba(255,255,255,0.7) !important; }
+body.en-guardiana .alma-opener {
+  background: rgba(0,0,0,0.22) !important; border: 1px solid rgba(255,255,255,0.14) !important;
+  box-shadow: none !important;
+}
+body.en-guardiana .alma-opener::before { display: none !important; }
+body.en-guardiana .alma-opener-label { color: #E8C77E !important; }
+body.en-guardiana .alma-opener p { color: rgba(255,255,255,0.92) !important; }
+
+/* Escribir: claro como un papel */
+body.en-guardiana .journal-textarea,
+body.en-guardiana .turn-textarea {
+  background: rgba(255,255,255,0.94) !important; color: #2E2618 !important;
+  border: 1px solid rgba(255,255,255,0.22) !important; box-shadow: none !important;
+}
+body.en-guardiana .journal-textarea:focus,
+body.en-guardiana .turn-textarea:focus { background: #fff !important; border-color: rgba(255,255,255,0.5) !important; }
+body.en-guardiana .journal-textarea::placeholder,
+body.en-guardiana .turn-textarea::placeholder { color: #9B8D74 !important; }
+body.en-guardiana .char-row, body.en-guardiana .char-count,
+body.en-guardiana .dictado-nota, body.en-guardiana .autosave { color: rgba(255,255,255,0.6) !important; }
+
+/* Botones */
+body.en-guardiana .btn-save, body.en-guardiana .btn-next, body.en-guardiana .btn-turn-send {
+  background: rgba(255,255,255,0.12) !important; color: rgba(255,255,255,0.75) !important;
+  border: 1px solid rgba(255,255,255,0.28) !important; box-shadow: none !important;
+}
+body.en-guardiana .btn-save.ready, body.en-guardiana .btn-next.ready,
+body.en-guardiana .btn-turn-send.ready, body.en-guardiana .btn-turn-send:not(:disabled) {
+  background: rgba(255,255,255,0.22) !important; color: #fff !important;
+  border-color: rgba(255,255,255,0.45) !important;
+}
+body.en-guardiana .actions-wrap-mobile {
+  background: rgba(0,0,0,0.28) !important; border-color: rgba(255,255,255,0.12) !important;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+
+/* La conversación */
+body.en-guardiana .history-user {
+  background: rgba(255,255,255,0.1) !important; border: 1px solid rgba(255,255,255,0.12) !important;
+  box-shadow: none !important;
+}
+body.en-guardiana .history-user p { color: rgba(255,255,255,0.92) !important; }
+body.en-guardiana .history-user-label { color: rgba(255,255,255,0.6) !important; }
+body.en-guardiana .history-alma, body.en-guardiana .alma-response {
+  background: rgba(0,0,0,0.24) !important; border: 1px solid rgba(255,255,255,0.14) !important;
+  box-shadow: none !important;
+}
+body.en-guardiana .history-alma::before, body.en-guardiana .alma-response::before { display: none !important; }
+body.en-guardiana .history-alma *, body.en-guardiana .alma-response * { color: rgba(255,255,255,0.95) !important; }
+body.en-guardiana .history-alma-label, body.en-guardiana .alma-response-label { color: #E8C77E !important; }
+body.en-guardiana .typing-dot { background: rgba(255,255,255,0.8) !important; }
+body.en-guardiana .turn-reply {
+  background: rgba(0,0,0,0.16) !important; border: 1px solid rgba(255,255,255,0.14) !important;
+  box-shadow: none !important;
+}
+body.en-guardiana .turn-reply-label { color: rgba(255,255,255,0.7) !important; }
+
+/* Cierre del día, frase y recordatorio */
+body.en-guardiana .day-frase-block {
+  background: rgba(0,0,0,0.22) !important; border: 1px solid rgba(255,255,255,0.14) !important;
+  box-shadow: none !important;
+}
+body.en-guardiana .day-frase-block * { color: rgba(255,255,255,0.92) !important; }
+body.en-guardiana .day-frase-label { color: #E8C77E !important; }
+body.en-guardiana .conversation-history p,
+body.en-guardiana .conversation-history em { color: rgba(255,255,255,0.88); }
+body.en-guardiana .recordatorio-btn {
+  color: #fff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.08);
+}
+body.en-guardiana .recordatorio-otro, body.en-guardiana .recordatorio-hecho { color: rgba(255,255,255,0.7); }
+body.en-guardiana .registro-toggle { color: rgba(255,255,255,0.7); }
+
+/* El color se queda en la habitación: las pantallas propias (reflejo,
+   refugio, despedida) mantienen su diseño. */
+
+/* ════════════════════════════════
+   PUERTAS: nombre y una línea que ayuda a elegir
+════════════════════════════════ */
+.puerta-btn { flex-direction: column; gap: 0.25rem; text-align: center; }
+.puerta-nombre { font-size: 1.08rem; }
+.puerta-linea {
+  font-family: 'Jost', sans-serif; font-style: normal; font-weight: 300;
+  font-size: 0.74rem; line-height: 1.45; opacity: 0.72;
+}
+
+/* ════════════════════════════════
+   ENTRADA (primera visita): la puerta oscura de Instagram.
+   Ocupa toda la pantalla; al elegir puerta se desvanece y deja ver el
+   espacio claro donde se escribe.
+════════════════════════════════ */
+body.entrada-abierta { overflow: hidden; }
+#beta-arrival-selector-wrap.entrada-oscura {
+  position: fixed; inset: 0; z-index: 900;
+  margin: 0; border-radius: 0; box-shadow: none;
+  background:
+    radial-gradient(110% 55% at 50% 12%, rgba(232,184,75,0.13) 0%, transparent 60%),
+    #0E0B08;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: calc(env(safe-area-inset-top, 0px) + 1.6rem) 1.4rem calc(env(safe-area-inset-bottom, 0px) + 2rem);
+  transition: opacity 0.6s ease;
+}
+#beta-arrival-selector-wrap.entrada-oscura.saliendo { opacity: 0; pointer-events: none; }
+.entrada-col { max-width: 460px; margin: 0 auto; text-align: center; }
+@media (min-width: 620px) and (min-height: 760px) {
+  #beta-arrival-selector-wrap.entrada-oscura { padding-top: 9vh; }
+  .entrada-verso { font-size: 2.4rem; }
+}
+#beta-arrival-selector-wrap:not(.entrada-oscura) .entrada-logo,
+#beta-arrival-selector-wrap:not(.entrada-oscura) .entrada-verso,
+#beta-arrival-selector-wrap:not(.entrada-oscura) .entrada-verso-suave { display: none; }
+.entrada-logo {
+  width: 76px; height: auto; margin: 0 auto 0.8rem; display: block;
+  filter: drop-shadow(0 0 22px rgba(232,184,75,0.25));
+}
+.entrada-verso {
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500;
+  font-size: clamp(1.55rem, 6.4vw, 2.2rem); line-height: 1.22;
+  color: #F2D488; margin-bottom: 0.6rem;
+  text-shadow: 0 0 28px rgba(242,212,136,0.35);
+}
+.entrada-verso-suave {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 1.05rem; line-height: 1.5; color: rgba(232,199,126,0.72);
+  margin: 0 auto 1rem; max-width: 32ch;
+}
+.entrada-como {
+  font-family: 'Jost', sans-serif; font-weight: 300; font-size: 0.86rem; line-height: 1.65;
+  color: var(--ink); opacity: 0.75; margin: 0 auto 1.1rem; max-width: 40ch;
+}
+.entrada-oscura .entrada-como { color: rgba(245,237,216,0.78); opacity: 1; }
+.entrada-oscura .arrival-selector-title {
+  color: #E8B84B; opacity: 1; font-size: 1.15rem; margin-bottom: 0.7rem;
+}
+.entrada-oscura .arrival-selector-options { grid-template-columns: 1fr; gap: 0.55rem; }
+@media (min-width: 620px) {
+  .entrada-oscura .arrival-selector-options { grid-template-columns: 1fr 1fr; }
+}
+.entrada-oscura .arrival-selector-btn {
+  background: rgba(255,248,236,0.035);
+  border: 1px solid rgba(232,184,75,0.2);
+  border-radius: 14px; box-shadow: inset 4px 0 0 var(--guardiana, #E8B84B);
+  color: #F2D488; padding: 0.8rem 1rem; min-height: 58px;
+}
+.entrada-oscura .arrival-selector-btn .puerta-linea { color: rgba(245,237,216,0.7); opacity: 1; }
+.entrada-oscura .arrival-selector-btn:hover,
+.entrada-oscura .arrival-selector-btn:focus-visible {
+  background: color-mix(in srgb, var(--guardiana, #E8B84B) 16%, transparent);
+  border-color: rgba(232,184,75,0.45);
+  color: #F2D488; transform: none; box-shadow: inset 4px 0 0 var(--guardiana, #E8B84B); outline: none;
+}
+.entrada-oscura .arrival-selector-btn:focus-visible { box-shadow: inset 4px 0 0 var(--guardiana, #E8B84B), 0 0 0 2px rgba(242,212,136,0.6); }
+.entrada-calma {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 1rem; color: var(--ink); opacity: 0.7; margin-top: 1.2rem;
+}
+.entrada-oscura .entrada-calma { color: rgba(232,199,126,0.75); opacity: 1; }
+.entrada-oscura .arrival-legal {
+  color: rgba(245,237,216,0.5); border-top-color: rgba(232,184,75,0.14);
+  margin-top: 0.9rem;
+}
+.entrada-oscura .arrival-legal a { color: rgba(245,237,216,0.8); }
+.entrada-oscura .arrival-guia { color: rgba(232,199,126,0.6); }
+.entrada-oscura .arrival-guia:hover { color: #F2D488; }
+/* Una sola entrada orquestada: el verso, luego lo demás */
+.entrada-oscura .entrada-logo,
+.entrada-oscura .entrada-verso,
+.entrada-oscura .entrada-verso-suave,
+.entrada-oscura .entrada-como { opacity: 0; animation: entradaAparece 1s ease forwards; }
+.entrada-oscura .entrada-logo { animation-delay: 0.1s; }
+.entrada-oscura .entrada-verso { animation-delay: 0.35s; }
+.entrada-oscura .entrada-verso-suave { animation-delay: 0.9s; }
+.entrada-oscura .entrada-como { animation-delay: 1.3s; }
+@keyframes entradaAparece { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .entrada-oscura .entrada-logo, .entrada-oscura .entrada-verso,
+  .entrada-oscura .entrada-verso-suave, .entrada-oscura .entrada-como { animation: none; opacity: 1; }
+  #beta-arrival-selector-wrap.entrada-oscura { transition: none; }
+}
+
+/* Puerta elegida (en el espacio claro), con opción de cambiar antes de escribir */
+.puerta-elegida {
+  text-align: center; font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 0.98rem; color: var(--muted); margin: 0.2rem 0 0.8rem;
+}
+.puerta-elegida button {
+  background: none; border: none; cursor: pointer; padding: 0.2rem;
+  font: inherit; color: var(--clay); text-decoration: underline; text-underline-offset: 3px;
+}
 
 /* Registro al terminar los tres días */
 /* Continuar al siguiente tramo (camino A: sigue) */
@@ -2219,37 +2489,61 @@ body.beta-limpia .topbar-date,
 
     <!-- Selector de llegada BETA integrado -->
     <div class="arrival-selector-wrap" id="beta-arrival-selector-wrap" style="display:none">
-      <p class="arrival-promesa">Una pregunta al día.<br>Nadie te va a <em>evaluar</em>, ni aconsejar, ni pedirte nada.</p>
-      <div class="arrival-selector-title">Alma se ajusta a cómo llegas hoy.</div>
-      <div class="arrival-selector-options">
-        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_pain')">Con algo que pesa</button>
-        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_search')">Buscándome</button>
-        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_self')">Con una inquietud</button>
-        <button class="arrival-selector-btn" onclick="selectBetaArrival(this,'beta_unclear')">Sin saber por qué</button>
+      <div class="entrada-col">
+        <img class="entrada-logo" src="/images/logo-web.png" alt="Alma">
+        <p class="entrada-verso">Aquí no tienes que ganarte un lugar.</p>
+        <p class="entrada-verso-suave">Puedes llegar entera, o en pedazos: las dos versiones son bienvenidas por igual.</p>
+        <p class="entrada-como">Eliges cómo llegas, escribes lo que salga y Alma te responde. Unos minutos, sin prisa.</p>
+        <div class="arrival-selector-title">¿Cómo llegas hoy?</div>
+        <div class="arrival-selector-options">
+        <button class="arrival-selector-btn puerta-btn" style="--guardiana:#A34A66" onclick="selectBetaArrival(this,'nudos')">
+          <span class="puerta-nombre">Con nudos</span><span class="puerta-linea">Sé lo que me pasa, pero no consigo ordenarlo.</span>
+        </button>
+        <button class="arrival-selector-btn puerta-btn" style="--guardiana:#3E6B67" onclick="selectBetaArrival(this,'sinsaber')">
+          <span class="puerta-nombre">Sin saber por qué</span><span class="puerta-linea">Estoy mal y no sé de dónde viene.</span>
+        </button>
+        <button class="arrival-selector-btn puerta-btn" style="--guardiana:#A65A2E" onclick="selectBetaArrival(this,'agotada')">
+          <span class="puerta-nombre">Agotada</span><span class="puerta-linea">Llevo demasiado tiempo aguantando.</span>
+        </button>
+        <button class="arrival-selector-btn puerta-btn" style="--guardiana:#3F5578" onclick="selectBetaArrival(this,'volver')">
+          <span class="puerta-nombre">Volver a mí</span><span class="puerta-linea">Siento que me he ido perdiendo por el camino.</span>
+        </button>
+        </div>
+        <p class="entrada-calma">Tus palabras se borran solas a los catorce días.</p>
+        <p class="arrival-legal">
+          Alma no es terapia. Si necesitas ayuda ahora, llama al <a href="tel:024">024</a>
+          o al <a href="tel:717003717">717 003 717</a>, a cualquier hora.<br>
+          Al elegir confirmas que eres mayor de edad y aceptas la <a href="privacidad.html">política de privacidad</a>.
+        </p>
+        <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
+           onclick="if(typeof almaTrack==='function') almaTrack('guia_descargada');">De dónde viene Alma</a>
       </div>
-      <p class="arrival-legal">
-        Alma no es terapia ni sustituye a un profesional. Si necesitas ayuda ahora:
-        <a href="tel:717003717">717 003 717</a> (Teléfono de la Esperanza, 24h).<br>
-        Al elegir confirmas que eres mayor de 18 años y aceptas la
-        <a href="privacidad.html">política de privacidad</a>. Tus palabras se guardan
-        mientras dura tu recorrido y se borran solas a los catorce días.
-      </p>
-      <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
-         onclick="if(typeof almaTrack==='function') almaTrack('guia_descargada');">De dónde viene Alma →</a>
     </div>
+
+    <!-- Tras elegir, antes de soltar nada: puede cambiar de puerta -->
+    <p class="puerta-elegida" id="puerta-elegida" style="display:none"></p>
 
     <!-- Selector de llegada 3 DÍAS integrado -->
     <div class="arrival-selector-wrap" id="arrival-selector-wrap">
       <div class="arrival-selector-title">Alma se ajusta a cómo llegas hoy.</div>
       <div class="arrival-selector-options">
-        <button class="arrival-selector-btn" onclick="selectArrival(this,'pain')">Con algo que pesa</button>
-        <button class="arrival-selector-btn" onclick="selectArrival(this,'curiosity')">Buscándome</button>
-        <button class="arrival-selector-btn" onclick="selectArrival(this,'depth')">Con una inquietud</button>
-        <button class="arrival-selector-btn" onclick="selectArrival(this,'open')">Sin saber por qué</button>
+        <button class="arrival-selector-btn puerta-btn" style="--guardiana:#A34A66" onclick="selectArrival(this,'nudos')">
+          <span class="puerta-nombre">Con nudos</span><span class="puerta-linea">Sé lo que me pasa, pero no consigo ordenarlo.</span>
+        </button>
+        <button class="arrival-selector-btn puerta-btn" style="--guardiana:#3E6B67" onclick="selectArrival(this,'sinsaber')">
+          <span class="puerta-nombre">Sin saber por qué</span><span class="puerta-linea">Estoy mal y no sé de dónde viene.</span>
+        </button>
+        <button class="arrival-selector-btn puerta-btn" style="--guardiana:#A65A2E" onclick="selectArrival(this,'agotada')">
+          <span class="puerta-nombre">Agotada</span><span class="puerta-linea">Llevo demasiado tiempo aguantando.</span>
+        </button>
+        <button class="arrival-selector-btn puerta-btn" style="--guardiana:#3F5578" onclick="selectArrival(this,'volver')">
+          <span class="puerta-nombre">Volver a mí</span><span class="puerta-linea">Siento que me he ido perdiendo por el camino.</span>
+        </button>
       </div>
       <p class="arrival-legal">
         Alma no es terapia ni sustituye a un profesional. Si necesitas ayuda ahora:
-        <a href="tel:717003717">717 003 717</a> (Teléfono de la Esperanza, 24h).<br>
+        <a href="tel:024">024</a> (atención a la conducta suicida, 24 h) o
+        <a href="tel:717003717">717 003 717</a> (Teléfono de la Esperanza, 24 h).<br>
         Al elegir confirmas que eres mayor de 18 años y aceptas la
         <a href="privacidad.html">política de privacidad</a>. Tus palabras se guardan
         mientras dura tu recorrido y se borran solas a los catorce días.
@@ -2614,6 +2908,58 @@ function trackEvent(name, params) {
 
 // ── BANCO DE PREGUNTAS — 10 por estado de ánimo ───────────────────────────
 const QUESTION_BANK = {
+  // ── Las cuatro puertas: un banco por guardiana, escrito con sus reglas
+  //    (Bruma nunca busca la causa ni el «desde cuándo»; Cala, preguntas
+  //    pequeñas y fáciles; Solaz, una sola cosa abierta; Ítaca, sin empujar).
+  nudos: [
+    "¿Qué es lo que más vueltas te da cuando te quedas a solas?",
+    "¿Qué te cuesta decir en voz alta de todo esto?",
+    "¿Hay algo que callas para que los demás estén cómodos?",
+    "¿Qué estás cargando que quizá no te toca cargar?",
+    "¿Qué es lo que más te cuesta soltar?",
+    "Si una amiga te contara lo mismo, ¿qué le dirías?",
+    "¿Qué sientes cuando lo miras de frente, sin darle vueltas?",
+    "¿Qué necesitarías para poder respirar un poco con esto?",
+    "¿Qué necesitas ahora mismo y nadie sabe?",
+    "¿Qué es lo que más te ha dolido de todo lo que ha pasado?",
+  ],
+  sinsaber: [
+    "¿Cómo estás hoy, sin tener que explicarlo?",
+    "¿Cómo se nota hoy en tu cuerpo?",
+    "Si no tuvieras que entender nada, ¿qué te gustaría que pasara hoy?",
+    "¿Qué te ha hecho un poco de compañía estos días, aunque sea algo pequeño?",
+    "¿Qué te gustaría que alguien supiera de cómo estás, aunque no sepas explicarlo?",
+    "¿Qué es lo que más te cuesta de no saber qué te pasa?",
+    "¿Qué te dices a ti misma cuando te sientes así?",
+    "¿Qué necesitas hoy que no has pedido?",
+    "¿Qué te vino a la mente al abrir esto hoy?",
+    "Si pudieras hablar de cualquier cosa hoy, ¿de qué hablarías?",
+  ],
+  agotada: [
+    "¿Qué es lo que más te está costando sostener ahora mismo?",
+    "¿Quién te cuida a ti cuando tú cuidas de todo?",
+    "¿Qué has dejado de hacer para ti por no tener fuerzas?",
+    "¿Qué te gustaría poder dejar de hacer, aunque solo fuera un día?",
+    "¿Con quién puedes dejar de fingir que estás bien?",
+    "¿Qué te daría hoy un poco de descanso, aunque fuera pequeño?",
+    "¿Qué llevas tiempo sin contarle a nadie?",
+    "Si una amiga estuviera tan cansada como tú, ¿qué le dirías?",
+    "¿Qué echas de menos de cuando tenías más fuerzas?",
+    "¿Qué necesitas ahora mismo y nadie sabe?",
+  ],
+  volver: [
+    "¿Qué parte de ti necesita más espacio?",
+    "¿Qué deseo llevas tiempo dejando para después?",
+    "¿En qué momentos te pones la última sin darte cuenta?",
+    "¿Qué te hacía sentir tú misma y hace tiempo que no haces?",
+    "¿Cómo eres cuando nadie te mira?",
+    "¿Qué te sorprendió de ti misma esta semana, aunque fuera algo pequeño?",
+    "¿A qué te gustaría poder decir que no?",
+    "¿Qué sabes de ti que todavía no te has dicho en voz alta?",
+    "¿Cómo te hablas cuando te equivocas?",
+    "¿Qué le dirías a la mujer que eras hace dos años?",
+  ],
+  // ── Bancos de las opciones antiguas (quien ya empezó con ellas)
   pain: [
     "¿Con quién puedes dejar de fingir que estás bien?",
     "¿Hay algo que callas para que los demás estén cómodos?",
@@ -2668,6 +3014,32 @@ const QUESTION_BANK = {
 // Banco de cierre: solo para los dos últimos días de un recorrido de 7.
 // Recogen en vez de excavar. Quien hace 3 o 5 días nunca los ve.
 const CLOSING_BANK = {
+  // ── Cierre de las cuatro puertas (días 6 y 7 del recorrido de 7)
+  nudos: [
+    "Lo que trajiste el primer día pesaba de una forma. ¿Pesa igual ahora?",
+    "De todo lo que has soltado aquí, ¿qué es lo que ya no quieres volver a cargar?",
+    "¿Qué ves hoy de este nudo que el primer día no veías?",
+    "Si la mujer del primer día te viera hoy, ¿qué notaría distinto en ti?",
+  ],
+  sinsaber: [
+    "Después de estos días, ¿cómo te sientes hoy comparado con el primero?",
+    "¿Qué te ha ayudado estos días a estar un poco menos sola con esto?",
+    "¿Qué te gustaría recordarte el próximo día que vuelvas a estar mal sin saber por qué?",
+    "De todo lo que has escrito aquí, ¿qué te gustaría llevarte?",
+  ],
+  agotada: [
+    "Después de estos días, ¿cómo está hoy tu cansancio?",
+    "¿Qué has podido soltar aquí que antes cargabas sola?",
+    "¿Qué quieres cuidar de ti cuando cierres esto?",
+    "De todo lo que has soltado aquí, ¿qué es lo que ya no quieres volver a cargar?",
+  ],
+  volver: [
+    "De todo lo que has descubierto de ti estos días, ¿qué es lo que no quieres olvidar?",
+    "¿Qué parte de ti, que estaba callada al empezar, ha encontrado su voz aquí?",
+    "¿En qué te notas hoy un poco más cerca de ti?",
+    "¿Qué te gustaría seguir cuidando de ti cuando cierres esto?",
+  ],
+  // ── Cierre de las opciones antiguas
   pain: [
     "Después de todos estos días diciendo lo que callabas, ¿qué se ha aflojado por dentro?",
     "Lo que trajiste el primer día pesaba de una forma. ¿Pesa igual ahora?",
@@ -2708,8 +3080,8 @@ function shuffleQ(arr) {
 // Devuelve { 1:..., 2:..., ... }. Las de cierre solo entran en los dos últimos
 // días de un recorrido de 7. Conserva lo ya asignado si se amplía de tramo.
 function buildQuestionSet(mode, totalDays, previousSet) {
-  const bank = QUESTION_BANK[mode] || QUESTION_BANK.pain;
-  const closing = CLOSING_BANK[mode] || CLOSING_BANK.pain;
+  const bank = QUESTION_BANK[MODO_BETA_A_BANCO[mode] || mode] || QUESTION_BANK.pain;
+  const closing = CLOSING_BANK[MODO_BETA_A_BANCO[mode] || mode] || CLOSING_BANK.pain;
   const days = totalDays || 3;
 
   const set = {};
@@ -2774,8 +3146,23 @@ function getOrCreateQuestionSet(mode) {
 // La beta usa sus propios ids (beta_*); el recorrido usa los bancos pain/curiosity/open/depth.
 // Emparejamiento (el mismo que ya usan los openers): search = curiosity, self = depth, unclear = open.
 const MODO_BETA_A_BANCO = {
+  // Las cuatro puertas tienen su propio banco
+  nudos: 'nudos', agotada: 'agotada', sinsaber: 'sinsaber', volver: 'volver',
+  // Opciones antiguas (quien ya empezó con ellas)
   beta_pain: 'pain', beta_search: 'curiosity', beta_self: 'depth', beta_unclear: 'open'
 };
+
+// La puerta por la que entró decide su guardiana durante todo el recorrido.
+// Se guarda al elegir (alma_puerta); si no está (venía de la beta, o se
+// recuperó con la llave), sale del día 1. El servidor traduce las opciones
+// antiguas a la puerta más cercana.
+function puertaDelRecorrido() {
+  try {
+    const p = localStorage.getItem('alma_puerta');
+    if (p) return p;
+  } catch(e) {}
+  return loadFromLocal(0)?.arrivalMode || null;
+}
 
 // El modo de llegada del recorrido es el del primer día guardado (mapeado desde la beta).
 // Antes se reiniciaba siempre a 'pain' al volver, y las preguntas de los días 2 en adelante
@@ -2885,6 +3272,11 @@ const ALMA_OPENERS = {
   curiosity: "Es solo una guía. Cuéntame lo que te preocupa o necesitas y lo vamos viendo juntas.",
   open:      "Si la pregunta no te resuena, no importa. Cuéntame lo que sea.",
   depth:     "Es solo una guía; pásala por alto si no va contigo. Cuéntame qué necesitas ordenar o soltar.",
+  // Puertas: la nota de puertas.html
+  nudos:    "La pregunta es solo una guía. Lo que importa es soltar, empieza por lo que salga aunque sea desordenado.",
+  sinsaber: "La pregunta es solo una guía. Lo que importa es soltar, empieza por lo que salga aunque sea desordenado.",
+  agotada:  "La pregunta es solo una guía. Lo que importa es soltar, empieza por lo que salga aunque sea desordenado.",
+  volver:   "La pregunta es solo una guía. Lo que importa es soltar, empieza por lo que salga aunque sea desordenado.",
   // Beta (mismo emparejamiento: search = curiosity, self = depth, unclear = open)
   beta_pain:    "Es solo una guía. Empieza por lo que salga, aunque sea desordenado.",
   beta_search:  "Es solo una guía. Cuéntame lo que te preocupa o necesitas y lo vamos viendo juntas.",
@@ -3380,6 +3772,7 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
         arrivalMode: currentArrivalMode,
         questionSet: getFixedQuestionSet(),
         tramo: totalDays, // para que Alma sepa si este día cierra el tramo o sigue
+        puerta: puertaDelRecorrido(), // su guardiana
         plan: 'free',
       }),
       signal: controller.signal,
@@ -4408,8 +4801,13 @@ function selectArrival(btn, mode) {
   guardarConsentimiento();
   document.querySelectorAll('#arrival-selector-wrap .arrival-selector-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
-  currentArrivalMode = mode;
-  try { localStorage.setItem('alma_arrival_mode', mode); } catch(e) {}
+  // mode es la puerta; las preguntas salen de su banco
+  currentArrivalMode = MODO_BETA_A_BANCO[mode] || mode;
+  aplicarColorGuardiana(mode);
+  try {
+    localStorage.setItem('alma_arrival_mode', currentArrivalMode);
+    localStorage.setItem('alma_puerta', mode);
+  } catch(e) {}
 
   // Mostrar la pregunta con animación
   const qCard = document.getElementById('question-card');
@@ -4590,7 +4988,8 @@ function init() {
 
   const savedForOpener = loadFromLocal(currentDay);
   const savedArrivalMode = (() => { try { return localStorage.getItem('alma_arrival_mode') || currentArrivalMode; } catch(e) { return currentArrivalMode; } })();
-  if (savedArrivalMode && savedArrivalMode !== 'pain') currentArrivalMode = savedArrivalMode;
+  // Puede venir guardada como puerta o como modo antiguo: siempre se usa su banco
+  if (savedArrivalMode && savedArrivalMode !== 'pain') currentArrivalMode = MODO_BETA_A_BANCO[savedArrivalMode] || savedArrivalMode;
 
   if (savedForOpener?.text || savedForOpener?.almaReply) {
     hideOpener();
@@ -4679,6 +5078,8 @@ function init() {
   // Beta en curso: devolverle su conversación (va aquí, al final, para que
   // nada de lo anterior la pise: pregunta, cuadro de texto, historial)
   if (hasBetaSession && !goToFarewell) restaurarBeta();
+  // Recorrido en marcha: su habitación, del color de su guardiana
+  else if (hasActiveDays) aplicarColorGuardiana(puertaDelRecorrido());
 
   // Registrar día de uso
   trackUsageDay();
@@ -4704,6 +5105,12 @@ function startJourney() {
 
 const BETA_MAX_TURNS = 4;
 const BETA_QUESTIONS = {
+  // Las cuatro puertas (mismas preguntas que puertas.html y questions.js)
+  nudos:    "¿Qué es eso que te pesa por dentro?",
+  sinsaber: "¿Qué te apetece soltar, aunque no sepas muy bien qué es?",
+  agotada:  "¿Desde cuándo vienes cargando este cansancio?",
+  volver:   "¿Qué parte de ti sientes que has ido perdiendo por el camino?",
+  // Opciones antiguas: quien ya empezó con ellas
   beta_pain:    "¿Qué es lo que más te pesa hoy?",
   beta_search:  "¿Qué parte de ti quieres escuchar hoy?",
   beta_self:    "¿Qué te está pidiendo atención últimamente?",
@@ -4738,6 +5145,7 @@ function restaurarBeta() {
 
   isBetaMode = true;
   betaMode = data.arrivalMode || 'beta_unclear';
+  aplicarColorGuardiana(betaMode);
 
   // Su pregunta (no la del recorrido) y la cabecera limpia, como en la primera visita
   const questionEl = document.getElementById('question-text');
@@ -4807,8 +5215,7 @@ function chooseMode(mode) {
     const titleEl = document.getElementById('day-title');
     if (titleEl) titleEl.style.display = 'none';
     // Mostrar selector beta integrado, ocultar el de 3 días
-    const betaWrap = document.getElementById('beta-arrival-selector-wrap');
-    if (betaWrap) betaWrap.style.display = 'block';
+    abrirEntrada();
     const wrap = document.getElementById('arrival-selector-wrap');
     if (wrap) wrap.style.display = 'none';
     const qCard = document.getElementById('question-card');
@@ -4846,6 +5253,80 @@ function chooseMode(mode) {
 }
 
 // Selección de estado de llegada en beta
+// Color de cada guardiana (el mismo de puertas.html)
+const COLOR_PUERTA = { nudos: '#A34A66', sinsaber: '#3E6B67', agotada: '#A65A2E', volver: '#3F5578' };
+// Quien empezó con las opciones antiguas ve la habitación de la guardiana
+// que ahora la acompaña (la misma correspondencia que usa el servidor).
+const PUERTA_DE_MODO_ANTIGUO = {
+  beta_pain: 'nudos', pain: 'nudos', beta_unclear: 'sinsaber', open: 'sinsaber',
+  beta_search: 'volver', curiosity: 'volver',
+};
+
+// Pone (o quita) el color de su guardiana en toda la habitación
+function aplicarColorGuardiana(modo) {
+  const puerta = COLOR_PUERTA[modo] ? modo : PUERTA_DE_MODO_ANTIGUO[modo];
+  const color = COLOR_PUERTA[puerta];
+  if (color) {
+    document.body.style.setProperty('--g', color);
+    document.body.classList.add('en-guardiana');
+    document.body.dataset.guardiana = puerta;
+    document.documentElement.style.background = color; // sin franjas crema al hacer scroll
+  } else {
+    document.documentElement.style.background = '';
+    document.body.classList.remove('en-guardiana');
+    document.body.style.removeProperty('--g');
+    delete document.body.dataset.guardiana;
+  }
+  // En las habitaciones de color, solo el ojo del logo: a tamaño pequeño el
+  // texto «ALMA proyeCT» no se lee, el ojo sí. Fuera de ellas, el logo completo.
+  document.querySelectorAll('.topbar-logo img, .sidebar-logo-zone img').forEach(img => {
+    if (!img.dataset.logoCompleto) img.dataset.logoCompleto = img.getAttribute('src');
+    const src = color ? '/images/logo-ojo.png' : img.dataset.logoCompleto;
+    if (img.getAttribute('src') !== src) img.setAttribute('src', src);
+  });
+
+  // La barra del navegador del móvil, del mismo color
+  let meta = document.querySelector('meta[name="theme-color"]');
+  if (!meta) { meta = document.createElement('meta'); meta.name = 'theme-color'; document.head.appendChild(meta); }
+  meta.content = color || '#F5EDD8';
+}
+
+// Nombre visible de cada puerta (para «Has entrado por…»)
+const NOMBRE_PUERTA = { nudos: 'Con nudos', sinsaber: 'Sin saber por qué', agotada: 'Agotada', volver: 'Volver a mí' };
+
+function abrirEntrada() {
+  const w = document.getElementById('beta-arrival-selector-wrap');
+  if (!w) return;
+  w.classList.remove('saliendo');
+  w.classList.add('entrada-oscura');
+  w.style.display = 'block';
+  w.scrollTop = 0;
+  document.body.classList.add('entrada-abierta');
+  const pe = document.getElementById('puerta-elegida');
+  if (pe) pe.style.display = 'none';
+}
+
+function cerrarEntrada(conTransicion) {
+  const w = document.getElementById('beta-arrival-selector-wrap');
+  document.body.classList.remove('entrada-abierta');
+  if (!w) return;
+  if (!conTransicion) { w.classList.remove('entrada-oscura', 'saliendo'); w.style.display = 'none'; return; }
+  w.classList.add('saliendo');
+  setTimeout(() => {
+    w.style.display = 'none';
+    w.classList.remove('entrada-oscura', 'saliendo');
+  }, 600);
+}
+
+// «Has entrado por Agotada. Elegir otra puerta»: solo mientras no haya soltado nada
+function mostrarPuertaElegida(mode) {
+  const pe = document.getElementById('puerta-elegida');
+  if (!pe) return;
+  if (!NOMBRE_PUERTA[mode] || betaHistory.length > 0) { pe.style.display = 'none'; return; }
+  pe.innerHTML = `Has entrado por «${NOMBRE_PUERTA[mode]}». <button type="button" onclick="abrirEntrada()">Elegir otra puerta</button>`;
+  pe.style.display = 'block';
+}
+
 function selectBetaArrival(btn, mode) {
   guardarConsentimiento();
   document.querySelectorAll('#beta-arrival-selector-wrap .arrival-selector-btn').forEach(b => b.classList.remove('selected'));
@@ -4890,6 +5371,10 @@ function selectBetaArrival(btn, mode) {
     }, 200);
   }
 
+  aplicarColorGuardiana(mode);
+  cerrarEntrada(true);
+  mostrarPuertaElegida(mode);
+
   trackEvent('beta_arrival_selected', { mode });
   trackEvent('beta_started', { mode });
 }
@@ -4920,6 +5405,8 @@ async function saveBetaEntry() {
   betaTurn = 1;
   saveBetaToLocal(betaHistory, undefined);
   borrarBorrador('alma_borrador_beta'); // ya es la entrada de la beta
+  const pe = document.getElementById('puerta-elegida');
+  if (pe) pe.style.display = 'none';
 
   const histContainer = document.getElementById('conversation-history');
   if (histContainer) histContainer.innerHTML = '';
@@ -4983,6 +5470,7 @@ async function callBeta({ btns, text, isFirstTurn }) {
         conversationHistory: betaHistory.slice(0, -1),
         previousEntries: {},
         arrivalMode: betaMode,
+        puerta: betaMode, // su guardiana
         plan: 'free',
         isBeta: true,
         betaMaxTurns: BETA_MAX_TURNS,
@@ -5171,7 +5659,7 @@ function startFullJourney() {
       if (BETA_QUESTIONS[day0.arrivalMode]) day0.question = BETA_QUESTIONS[day0.arrivalMode];
       localStorage.setItem('alma_0', JSON.stringify(day0));
       guardarEnServidor(0, day0, day0.arrivalMode); // antes el día 1 solo vivía en este navegador
-      localStorage.setItem('alma_arrival_mode', betaData.arrivalMode || 'pain');
+      localStorage.setItem('alma_arrival_mode', MODO_BETA_A_BANCO[betaData.arrivalMode] || betaData.arrivalMode || 'pain');
       // La pregunta que de verdad vio el día 1 (para el texto descargable y el reflejo)
       if (BETA_QUESTIONS[betaData.arrivalMode]) localStorage.setItem('alma_q_0', BETA_QUESTIONS[betaData.arrivalMode]);
     }
@@ -5766,7 +6254,7 @@ function hayRecorridoLocal() {
 }
 
 function borrarRecorridoLocal() {
-  const fijas = ['alma_beta', 'alma_beta_farewell', 'alma_tramo', 'alma_arrival_mode',
+  const fijas = ['alma_beta', 'alma_beta_farewell', 'alma_tramo', 'alma_arrival_mode', 'alma_puerta',
                  'alma_farewell', 'alma_farewell_3', 'alma_farewell_5', 'alma_farewell_7',
                  'alma_borrador_beta', 'alma_refugio_camino', 'alma_refugio_frases', 'alma_refugio_reflejos'];
   try {
