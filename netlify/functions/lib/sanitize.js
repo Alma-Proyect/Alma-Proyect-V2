@@ -65,18 +65,84 @@ function sanitizeEspana(text) {
     .replace(/\badentro\b/g, "dentro").replace(/\bAdentro\b/g, "Dentro");
 }
 
-// Pregunta con opciones dentro («¿es esto, o es aquello?»). No se corrige
-// (reescribir una pregunta cambia lo que Alma quería decir): solo se avisa en
-// los registros de Netlify, sin copiar el texto, para poder medir cuántas
-// veces se cuela.
+// ── PREGUNTAS ──────────────────────────────────────────────────────────────
+// La regla «una sola pregunta, abierta y sin opciones» está dos veces en el
+// prompt y aun así se cuela (pruebas de noviembre con Haiku 5.5: en las cuatro
+// guardianas). Aquí se corrige sin reescribir nada: solo se recorta.
+//   · Si hay varias preguntas, se queda la primera y se quita la frase entera
+//     de las demás («Y, al pensarlo ahora, ¿…?»).
+//   · Si la que queda ofrece opciones («¿…, o fue más bien…?») o encadena dos
+//     («¿Cómo estás, con quién hablas?»), se corta en la primera opción.
+// Si un recorte dejaría la pregunta demasiado corta, se deja como estaba.
+
+const PALABRA_OPCION = "(?:es|era|son|fue|más|solo|sólo|hay|si|lo|la|el|está|estás|te|eres|sientes|tienes|cuando|algo|quizá|quizás|tal|prefieres|crees|notas|parece|pasa|viene|lo)";
+const RE_OPCION_COMA = /,\s+o\s+/i;
+const RE_OPCION = new RegExp("\\s+o\\s+" + PALABRA_OPCION + "\\b", "i");
+const RE_SEGUNDA_PREGUNTA = /,\s+(?:y\s+)?(?:qué|cómo|cuándo|dónde|quién|quiénes|cuál|cuáles|cuánto|cuánta|por qué|con quién|para qué|de qué)\s/i;
+const MIN_PREGUNTA = 10;
+
+function opcionEn(q) {
+  // q incluye ¿ y ?; devuelve la posición donde cortar, o -1
+  const coma = q.search(RE_OPCION_COMA);
+  if (coma !== -1) return coma;
+  const segunda = q.search(RE_SEGUNDA_PREGUNTA);
+  const o = q.search(RE_OPCION);
+  if (o === -1) return segunda;
+  // «¿…con más fuerza, cuando estás sola o cuando…?» → se corta en la coma
+  // que abre la primera opción, si la hay y está cerca.
+  const antes = q.slice(0, o);
+  const ultimaComa = antes.lastIndexOf(",");
+  const corte = (ultimaComa !== -1 && o - ultimaComa < 45) ? ultimaComa : o;
+  return segunda !== -1 ? Math.min(segunda, corte) : corte;
+}
+
+function recortarPreguntas(text) {
+  if (!text || text.indexOf("?") === -1) return text;
+  let t = text;
+
+  // 1. Solo la primera pregunta
+  const preguntas = [...t.matchAll(/¿[^¿?]*\?/g)];
+  if (preguntas.length > 1) {
+    for (let i = preguntas.length - 1; i >= 1; i--) {
+      const m = preguntas[i];
+      const fin = m.index + m[0].length;
+      // inicio de la frase que contiene la pregunta
+      let ini = m.index;
+      while (ini > 0 && !/[.!?\n]/.test(t[ini - 1])) ini--;
+      t = t.slice(0, ini) + t.slice(fin);
+    }
+    t = t.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").replace(/[ \t]{2,}/g, " ").trim();
+  }
+
+  // 2. Sin opciones ni pregunta encadenada
+  const m = t.match(/¿[^¿?]*\?/);
+  if (m) {
+    const q = m[0];
+    const corte = opcionEn(q);
+    if (corte !== -1 && corte >= MIN_PREGUNTA) {
+      const nueva = q.slice(0, corte).replace(/[\s,;:]+$/, "") + "?";
+      t = t.slice(0, m.index) + nueva + t.slice(m.index + q.length);
+    }
+  }
+  return t;
+}
+
+// Para los registros: ¿se coló una pregunta con opciones? (sin copiar el texto)
 function tienePreguntaConOpciones(text) {
   if (!text) return false;
-  return /¿[^?]{3,240}?,?\s+o\s+(?:es|son|más|solo|sólo|hay|si|lo|la|el|está|te|eres|sientes|tienes)\b[^?]*\?/i.test(text);
+  const preguntas = text.match(/¿[^¿?]*\?/g) || [];
+  return preguntas.length > 1 || preguntas.some(q => opcionEn(q) !== -1);
+}
+
+// «Te entiendo.» como frase suelta al principio: es de manual.
+function sanitizeManual(text) {
+  if (!text) return text;
+  return text.replace(/^\s*Te entiendo\.\s*/, "").replace(/^([a-záéíóúñ])/, c => c.toUpperCase());
 }
 
 // Respuesta de conversación: todas las redes, en el mismo orden que el original.
 function limpiarRespuesta(text) {
-  return sanitizeEspana(sanitizeTrailingQuestion(sanitizeMuletillas(sanitizeDashes(sanitizeFirma(text)))));
+  return recortarPreguntas(sanitizeManual(sanitizeEspana(sanitizeTrailingQuestion(sanitizeMuletillas(sanitizeDashes(sanitizeFirma(text)))))));
 }
 
 // Reflejo: guiones y muletillas (sin tocar sus preguntas, que no las lleva).
@@ -86,6 +152,6 @@ function limpiarReflejo(text) {
 
 module.exports = {
   sanitizeDashes, sanitizeMuletillas, sanitizeTrailingQuestion, sanitizeFirma,
-  sanitizeEspana, tienePreguntaConOpciones,
+  sanitizeEspana, tienePreguntaConOpciones, recortarPreguntas, sanitizeManual,
   limpiarRespuesta, limpiarReflejo,
 };
