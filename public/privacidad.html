@@ -1,12 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Analítica sin cookies (Plausible) -->
-  <script async src="https://plausible.io/js/pa-ZuDBA5p-0URIKR_khQmjM.js"></script>
-  <script>
-    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-    plausible.init()
-  </script>
+  <!-- Analítica sin cookies (Umami): el ID se configura en /analytics.js -->
+  <script src="/analytics.js"></script>
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -68,7 +64,7 @@
     <div class="doc-header">
       <span class="badge">Documento Legal</span>
       <h1>Política de <em>Privacidad</em></h1>
-      <p class="doc-meta">Alma Proyect<br>Última actualización: julio de 2026</p>
+      <p class="doc-meta">Alma Proyect<br>Última actualización: noviembre de 2026</p>
       <div class="doc-intro">Alma Proyect está en desarrollo activo. Esta política describe cómo se tratan los datos hoy y se actualizará cuando el servicio cambie. Si algo aquí no coincide con lo que ves en la web, escríbenos y lo corregimos.</div>
     </div>
     <div class="section">
@@ -81,25 +77,31 @@
       <h2>Qué datos se tratan y por qué</h2>
       <p><strong>Para entrar y usar Alma no se te pide ningún dato personal:</strong> ni nombre, ni email, ni teléfono. No hay registro ni cuenta.</p>
       <p>Los datos que se generan al usar el servicio son los textos que tú escribes libremente. Estos textos son procesados en tiempo real por sistemas de inteligencia artificial para generar las respuestas de acompañamiento.</p>
-      <p>Mientras dura tu recorrido, esos textos se guardan asociados a un identificador aleatorio que genera tu propio navegador (sin nombre, sin email, sin ningún dato que te identifique), con una única finalidad: que no se pierda lo escrito mientras completas los tres días.</p>
-      <p>Al terminar el recorrido de tres días te ofrecemos dejarnos tu correo electrónico para avisarte cuando puedas volver y seguir escribiendo. Ese paso es <strong>voluntario</strong> y no condiciona nada de lo anterior. Si lo das, guardamos el correo junto al identificador aleatorio de tu navegador, para poder reunirte con lo que escribiste cuando exista el acceso con cuenta.</p>
+      <p>Mientras dura tu recorrido (de uno a siete días, según decidas), esos textos se guardan asociados a un identificador aleatorio que genera tu propio navegador (sin nombre, sin email, sin ningún dato que te identifique), con una única finalidad: que no se pierda lo escrito mientras lo completas.</p>
+      <p><strong>Recordatorio y enlace de tu recorrido.</strong> Si pulsas «Recuérdamelo mañana», la cita se crea en tu propio calendario; nosotras no guardamos ni la cita ni la hora. Esa cita incluye un enlace con tu identificador aleatorio que abre tu recorrido en cualquier navegador, por ejemplo si empezaste dentro de Instagram y vuelves desde el móvil. Quien tenga ese enlace puede ver lo que escribiste mientras siga guardado, así que no lo compartas. El enlace deja de funcionar cuando tus textos se borran (ver apartado 04).</p>
+      <p>Al terminar tu recorrido (en el día 3, 5 o 7, cuando decidas parar) te ofrecemos dejarnos tu correo electrónico para avisarte cuando puedas volver y seguir escribiendo. Ese paso es <strong>voluntario</strong> y no condiciona nada de lo anterior. Si lo das, guardamos tu correo, junto al identificador aleatorio de tu navegador, solo para escribirte sobre Alma. <strong>Dejar el correo no hace que se guarden tus textos:</strong> se borran igualmente en el plazo del apartado 04.</p>
+      <p><strong>Después de los siete días.</strong> Si terminas el recorrido, puedes volver a escribir con Alma cuando lo necesites, con un número limitado de mensajes al día. Lo que escribes en esas conversaciones se guarda solo en tu móvil; a nuestro servidor solo llega un contador de cuántos mensajes has enviado cada día, asociado a tu identificador aleatorio, para poder aplicar ese límite. Los textos sí pasan por Anthropic para que Alma pueda responderte (apartado 03).</p>
+      <p>Si al terminar nos cuentas cómo te has sentido, en el formulario opcional de opinión, ese mensaje nos llega por correo a través de Netlify y lo usamos solo para mejorar Alma.</p>
       <p>La base jurídica del tratamiento es el consentimiento que prestas al aceptar las condiciones antes de entrar y, en el caso del correo, al enviarlo tú misma.</p>
     </div>
     <div class="section">
       <span class="section-num">03</span>
-      <h2>Uso de inteligencia artificial (Anthropic / Claude)</h2>
+      <h2>Inteligencia artificial y otros proveedores</h2>
       <p>Los textos que introduces son enviados a la API de Anthropic para generar las respuestas del acompañante. Esto implica que Anthropic procesa ese contenido de acuerdo con su propia política de privacidad y sus condiciones de uso.</p>
       <p>Anthropic actúa como encargado del tratamiento. Puedes consultar su política en <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">anthropic.com/privacy</a>.</p>
       <p>El almacenamiento temporal de los textos se realiza en Supabase, y el alojamiento de la web en Netlify. Ambos actúan igualmente como encargados del tratamiento: <a href="https://supabase.com/privacy" target="_blank" rel="noopener">supabase.com/privacy</a> y <a href="https://www.netlify.com/privacy/" target="_blank" rel="noopener">netlify.com/privacy</a>.</p>
+      <p>Para saber cuántas personas visitan la web y en qué punto la dejan usamos Umami Cloud, una analítica <strong>sin cookies</strong> que no guarda tu dirección IP ni datos que te identifiquen, y que no recibe lo que escribes: <a href="https://umami.is/privacy" target="_blank" rel="noopener">umami.is/privacy</a>.</p>
+      <p>Si dictas con el micrófono del teclado de tu móvil, ese dictado lo hace tu propio teléfono (Apple o Google, según el caso) con sus condiciones; a Alma solo llega el texto resultante.</p>
       <p>Algunos de estos proveedores están radicados fuera de la Unión Europea. Las transferencias internacionales se amparan en las cláusulas contractuales tipo de la Comisión Europea y en los marcos de adecuación aplicables en cada caso.</p>
       <p><strong>Te recomendamos no introducir tu nombre real, datos de terceras personas ni información sensible que permita identificarte.</strong> Alma no lo necesita para acompañarte.</p>
     </div>
     <div class="section">
       <span class="section-num">04</span>
       <h2>Cuánto tiempo se conservan los datos</h2>
-      <p>Los textos guardados durante tu recorrido se eliminan automáticamente a los catorce días de su creación. No se realiza ninguna copia adicional ni se usan para ningún otro fin.</p>
-      <p>Si nos has dejado tu correo, lo conservamos hasta que nos pidas darte de baja, cosa que puedes hacer en cualquier momento escribiendo a la dirección de contacto o respondiendo a cualquiera de nuestros mensajes.</p>
-      <p>Lo que escribes también queda guardado en el almacenamiento de tu propio navegador, en tu dispositivo. Eso no lo controlamos nosotras: puedes borrarlo cuando quieras vaciando los datos del sitio desde los ajustes de tu navegador.</p>
+      <p>Los textos guardados durante tu recorrido se eliminan automáticamente, todos a la vez, cuando pasan catorce días sin actividad en él (sin que escribas nada nuevo). Un proceso automático lo revisa cada día. No se realiza ninguna copia adicional ni se usan para ningún otro fin.</p>
+      <p>Si nos has dejado tu correo, lo conservamos hasta que nos pidas darte de baja, cosa que puedes hacer en cualquier momento escribiendo a la dirección de contacto o respondiendo a cualquiera de nuestros mensajes. Tus textos se borran igualmente a los catorce días.</p>
+      <p>Los mensajes del formulario de opinión se conservan mientras nos sirvan para mejorar Alma; puedes pedirnos que los borremos cuando quieras.</p>
+      <p>Lo que escribes también queda guardado en el almacenamiento de tu propio navegador, en tu dispositivo, incluido lo que dejas a medias antes de enviarlo (ese borrador nunca sale de tu dispositivo y se descarta solo a los catorce días). Eso no lo controlamos nosotras: puedes borrarlo cuando quieras vaciando los datos del sitio desde los ajustes de tu navegador.</p>
     </div>
     <div class="section">
       <span class="section-num">05</span>
@@ -125,7 +127,7 @@
       <p>Para cualquier consulta sobre privacidad o para ejercer tus derechos, escríbenos a <a href="mailto:almaproyect11@gmail.com">almaproyect11@gmail.com</a>.</p>
     </div>
     <div class="doc-footer">
-      Alma Proyect · Julio 2026<br>
+      Alma Proyect · Noviembre 2026<br>
       Este documento no constituye asesoramiento jurídico definitivo<br>
       <a href="beta-aviso.html" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-light);">Condiciones antes de entrar</a>
     </div>

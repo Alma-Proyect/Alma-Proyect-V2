@@ -1212,6 +1212,102 @@ body.entrada-abierta { overflow: hidden; }
   font: inherit; color: var(--clay); text-decoration: underline; text-underline-offset: 3px;
 }
 
+/* El círculo del porcentaje sonaba a tarea por completar: fuera */
+.day-header-ring { display: none !important; }
+
+/* ════ FINAL DEL DÍA 7 ════ */
+.cierre-camino, .cierre-palabras, .cierre-volver {
+  border-radius: 14px; padding: 1.2rem 1.25rem; text-align: left;
+  background: rgba(168,107,80,0.06); border: 1px solid rgba(168,107,80,0.16);
+}
+.cierre-camino-label {
+  font-family: 'Jost', sans-serif; font-size: 0.66rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #8B4F38; margin-bottom: 0.35rem;
+}
+.cierre-camino-cita {
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.08rem;
+  line-height: 1.55; color: var(--ink); margin-bottom: 1rem;
+}
+.cierre-camino-cita:last-child { margin-bottom: 0; }
+.cierre-palabras-titulo, .cierre-volver-titulo {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--ink); margin-bottom: 0.5rem;
+}
+.cierre-palabras p:not(.cierre-palabras-titulo), .cierre-volver-texto {
+  font-family: 'Jost', sans-serif; font-size: 0.88rem; font-weight: 300; line-height: 1.7; color: #6B5240;
+}
+.cierre-palabras a { color: #8B4F38; }
+.cierre-volver { text-align: center; }
+.cierre-volver .btn-continuar-tramo { margin-top: 0.9rem; width: 100%; }
+#registro-toggle-final { align-self: center; }
+
+/* ════ CUANDO LO NECESITES (conversación libre) ════ */
+body.libre-abierta { overflow: hidden; }
+.libre-screen {
+  display: none; position: fixed; inset: 0; z-index: 950; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background:
+    radial-gradient(130% 90% at 50% 0%, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.32) 100%),
+    var(--g, #3a2a1c);
+  color: rgba(255,255,255,0.92);
+  padding: calc(env(safe-area-inset-top, 0px) + 1rem) 1.2rem calc(env(safe-area-inset-bottom, 0px) + 2rem);
+}
+.libre-screen.visible { display: block; animation: fadeIn 0.4s ease both; }
+.libre-col { max-width: 620px; margin: 0 auto; }
+.libre-cabecera { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
+.libre-volver {
+  background: none; border: none; cursor: pointer; padding: 0.4rem 0;
+  font-family: 'Jost', sans-serif; font-size: 0.86rem; color: rgba(255,255,255,0.78);
+}
+.libre-volver:hover { color: #fff; }
+.libre-ojo { height: 40px; width: auto; filter: drop-shadow(0 0 8px rgba(0,0,0,0.45)); }
+.libre-titulo {
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400;
+  font-size: clamp(1.6rem, 6vw, 2rem); color: #fff; text-align: center; margin-bottom: 0.3rem;
+  text-shadow: 0 1px 20px rgba(0,0,0,0.25);
+}
+.libre-intro {
+  font-family: 'Jost', sans-serif; font-size: 0.88rem; font-style: italic; font-weight: 300;
+  color: rgba(255,255,255,0.75); text-align: center; margin-bottom: 1.6rem;
+}
+.libre-hilo { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.2rem; }
+.libre-msg { border-radius: 14px; padding: 1rem 1.15rem; }
+.libre-msg p + p { margin-top: 0.7rem; }
+.libre-yo {
+  align-self: flex-end; max-width: 88%;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.12);
+}
+.libre-yo p { font-family: 'Jost', sans-serif; font-weight: 300; font-size: 0.98rem; line-height: 1.7; white-space: pre-wrap; color: rgba(255,255,255,0.92); }
+.libre-alma { background: rgba(0,0,0,0.24); border: 1px solid rgba(255,255,255,0.14); }
+.libre-alma p { font-family: 'Cormorant Garamond', serif; font-size: 1.14rem; line-height: 1.7; color: rgba(255,255,255,0.95); }
+.libre-pensando p { opacity: 0.6; letter-spacing: 0.3em; }
+.libre-nota p { font-style: italic; font-size: 1rem; opacity: 0.85; }
+.libre-campo {
+  width: 100%; border-radius: 12px; padding: 1rem 1.1rem; resize: vertical;
+  background: rgba(255,255,255,0.94); color: #2E2618; border: 1px solid rgba(255,255,255,0.22);
+  font-family: 'Jost', sans-serif; font-size: 16px; font-weight: 300; line-height: 1.7; outline: none;
+}
+.libre-campo:focus { background: #fff; border-color: rgba(255,255,255,0.5); }
+.libre-campo::placeholder { color: #9B8D74; font-style: italic; }
+.libre-pie { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 0.7rem; }
+.libre-quedan { font-family: 'Jost', sans-serif; font-size: 0.76rem; color: rgba(255,255,255,0.68); }
+.libre-btn {
+  min-height: 46px; padding: 0 1.6rem; border-radius: 100px; cursor: pointer;
+  background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.45);
+  font-family: 'Jost', sans-serif; font-size: 0.92rem; letter-spacing: 0.03em;
+}
+.libre-btn:hover { background: rgba(255,255,255,0.3); }
+.libre-btn:disabled { opacity: 0.5; cursor: default; }
+.libre-limite {
+  background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 14px; padding: 1.3rem 1.2rem; display: flex; flex-direction: column; gap: 0.7rem;
+}
+.libre-limite p { font-family: 'Jost', sans-serif; font-size: 0.9rem; font-weight: 300; line-height: 1.65; color: rgba(255,255,255,0.86); }
+.libre-limite .libre-limite-titulo { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.3rem; color: #fff; }
+.libre-limite .libre-btn { align-self: flex-end; }
+.libre-limite .libre-notas-ok { text-align: right; color: #E8C77E; }
+.libre-limite .libre-ayuda { font-size: 0.8rem; color: rgba(255,255,255,0.72); }
+.libre-ayuda a { color: #E8C77E; white-space: nowrap; }
+
 /* Registro al terminar los tres días */
 /* Continuar al siguiente tramo (camino A: sigue) */
 .continuar-tramo-box {
@@ -2190,7 +2286,37 @@ body.entrada-abierta { overflow: hidden; }
 <div id="cortina" aria-hidden="true"><div class="puntos"><span></span><span></span><span></span></div></div>
 
 <!-- PANTALLA DE CIERRE -->
-<div class="farewell-screen" id="farewell-screen">
+  <!-- CUANDO LO NECESITES — conversación libre después de los siete días -->
+  <div class="libre-screen" id="libre-screen" aria-hidden="true" role="dialog" aria-label="Cuando lo necesites">
+    <div class="libre-col">
+      <div class="libre-cabecera">
+        <button type="button" class="libre-volver" onclick="cerrarLibre()">← Mi recorrido</button>
+        <img class="libre-ojo" src="/images/logo-ojo.png" alt="Alma">
+      </div>
+      <h2 class="libre-titulo">Cuando lo necesites</h2>
+      <p class="libre-intro">Sin pregunta del día. Escribe lo que traigas hoy, como salga.</p>
+      <div class="libre-hilo" id="libre-hilo"></div>
+      <div class="libre-escribir" id="libre-escribir">
+        <textarea class="libre-campo" id="libre-text" rows="5" maxlength="2000"
+          placeholder="Empieza por donde te salga…"></textarea>
+        <div class="libre-pie">
+          <span class="libre-quedan" id="libre-quedan"></span>
+          <button type="button" class="libre-btn" id="libre-btn" onclick="enviarLibre()">Soltar</button>
+        </div>
+      </div>
+      <div class="libre-limite" id="libre-limite" style="display:none">
+        <p class="libre-limite-titulo">Hoy ya no puedo responderte más.</p>
+        <p>Mañana vuelvo a estar aquí.</p>
+        <p>Si necesitas seguir soltando, puedes escribir igualmente: se queda solo en tu móvil, sin respuesta.</p>
+        <textarea class="libre-campo" id="libre-notas-text" rows="4" maxlength="2000" placeholder="Lo que necesites dejar aquí…"></textarea>
+        <button type="button" class="libre-btn" onclick="guardarNotaLibre()">Guardar en mi móvil</button>
+        <p class="libre-notas-ok" id="libre-notas-ok" style="display:none">Guardado en tu móvil.</p>
+        <p class="libre-ayuda">Si estás mal ahora mismo, llama al <a href="tel:024">024</a> o al <a href="tel:717003717">717 003 717</a>, a cualquier hora.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="farewell-screen" id="farewell-screen">
   <div class="farewell-card">
 
     <div class="farewell-symbol">✦ ✦ ✦</div>
@@ -2211,36 +2337,7 @@ body.entrada-abierta { overflow: hidden; }
     </div>
     <div id="farewell-alma-text" class="farewell-alma" style="display:none"></div>
 
-    <div class="farewell-body">
-      <p>
-        Estos días te hiciste algo difícil y valioso a la vez:
-        te detuviste. Te preguntaste. Te escuchaste.
-        <strong>No todo el mundo se atreve a hacer eso.</strong>
-      </p>
-      <p>
-        Lo que has escrito aquí no es poco. Es el comienzo de una relación
-        más honesta contigo misma: con lo que sientes, con lo que necesitas,
-        con lo que mereces recibir de la vida y de ti.
-      </p>
-
-      <div class="farewell-quote">
-        Escucharse es el primer acto de respeto hacia una misma.
-        Y tú acabas de elegir hacerlo.
-      </div>
-
-      <p>
-        Estas semanas nos has ayudado a construir algo real.
-        Tu tiempo, tus palabras y tu confianza han dado forma a Alma —
-        no la versión que imaginamos, sino la que de verdad se necesita.
-        <strong>Eso tiene un valor que no se puede calcular.</strong>
-      </p>
-
-      <p>
-        Cuando Alma esté lista de verdad, queremos que seas de las primeras
-        en volver. No como usuaria, sino como parte de lo que esto es.
-        <strong>Aquí tendrás siempre un lugar.</strong>
-      </p>
-    </div>
+    
 
     <!-- Botones copiar / descargar -->
     <div class="farewell-actions" id="farewell-actions" style="display:none">
@@ -2248,13 +2345,13 @@ body.entrada-abierta { overflow: hidden; }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
         </svg>
-        Copiar reflejo
+        Copiar todo
       </button>
       <button class="btn-farewell" onclick="downloadFarewell()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
-        Descargar reflejo
+        Descargar tu carta
       </button>
     </div>
 
@@ -2269,14 +2366,33 @@ body.entrada-abierta { overflow: hidden; }
     <!-- CAMINO B — es su final (paró, o llegó al día 7). Despedida completa. -->
     <div class="cierre-final-box" id="cierre-final-box">
 
+        <!-- Su primer día y el último, con sus propias palabras -->
+        <div class="cierre-camino" id="cierre-camino" style="display:none"></div>
+
+        <!-- Qué pasa con lo que escribió, sin rodeos -->
+        <div class="cierre-palabras">
+          <p class="cierre-palabras-titulo">Lo que has escrito</p>
+          <p>Todo sigue en este móvil, en <a href="#" onclick="abrirRefugio(); return false;">Tu refugio</a>.</p>
+          <p>La copia de nuestro servidor se borra sola a los catorce días sin actividad.</p>
+          <p>Si quieres conservarlo, descarga tu carta: lleva el reflejo y tus palabras de cada día.</p>
+        </div>
+
+        <!-- Volver cuando lo necesite, con su guardiana -->
+        <div class="cierre-volver">
+          <p class="cierre-volver-titulo">Cuando lo necesites, sigo aquí.</p>
+          <p class="cierre-volver-texto">Puedes volver a escribir siempre que quieras, sin pregunta del día. Hasta cinco mensajes al día.</p>
+          <button class="btn-continuar-tramo" onclick="abrirLibre('cierre')">Volver a escribir</button>
+        </div>
+
+        <!-- Lo demás, plegado -->
+        <button type="button" class="registro-toggle" id="registro-toggle-final">Si quieres, déjanos tu correo.</button>
+
       <!-- Registro: lo que de verdad importa, protagonista -->
       <div class="registro-box" id="registro-box" style="display:flex">
-        <div class="registro-titulo">¿Quieres que Alma te acompañe cada día?</div>
+        <div class="registro-titulo">¿Te escribimos de vez en cuando?</div>
         <p class="registro-texto">
-          Estamos construyendo el espacio donde podrás volver y escribir
-          siempre que lo necesites. Déjanos tu correo y serás de las primeras
-          en entrar cuando esté listo.
-        </p>
+            Solo para contarte novedades de Alma. Nada de boletines.
+          </p>
         <div class="registro-fila">
           <input class="registro-input" id="registro-email" type="email"
                  inputmode="email" autocomplete="email"
@@ -2673,7 +2789,33 @@ function _wrapText(text, font, size, maxWidth){
   return lines;
 }
 
-async function generarReflejoPDF(reflejo, fechaTexto){
+// Times (la fuente del PDF) no sabe dibujar emojis ni algunos símbolos: se quitan
+function _paraPdf(t) {
+  const extra = '\u20ac\u201a\u0192\u201e\u2026\u2020\u2021\u02c6\u2030\u0160\u2039\u0152\u017d\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u02dc\u2122\u0161\u203a\u0153\u017e\u0178';
+  return Array.from(String(t || '').replace(/[\u00a0\u2000-\u200b\u202f\u205f\u3000]/g, ' '))
+    .filter(c => { const k = c.codePointAt(0); return (k >= 32 && k <= 126) || (k >= 160 && k <= 255) || k === 10 || extra.includes(c); })
+    .join('');
+}
+
+// Sus días, para la carta: [{ dia, pregunta, textos: [lo que escribió] }]
+function diasParaCarta() {
+  const dias = [];
+  for (let i = 0; i < totalDays; i++) {
+    const d = loadFromLocal(i);
+    if (!d) continue;
+    const textos = d.history?.length
+      ? d.history.filter(t => t.role === 'user').map(t => t.text)
+      : (d.text ? [d.text] : []);
+    if (!textos.length) continue;
+    const modo = MODO_BETA_A_BANCO[d.arrivalMode] || d.arrivalMode || 'pain';
+    let pregunta = d.question || preguntaFijada(i) || '';
+    if (!pregunta) { try { pregunta = getOrCreateQuestionSet(modo)[i + 1] || ''; } catch(e) {} }
+    dias.push({ dia: i + 1, pregunta, textos });
+  }
+  return dias;
+}
+
+async function generarReflejoPDF(reflejo, fechaTexto, dias){
   await cargarPdfLib();
   const { PDFDocument, rgb, StandardFonts, PDFName, PDFOperator, PDFString } = PDFLib;
   const doc = await PDFDocument.create();
@@ -2756,7 +2898,7 @@ async function generarReflejoPDF(reflejo, fechaTexto){
   const fondoY = 96;
 
   // limpiar espacios Unicode que la fuente Times no sabe codificar
-  const reflejoLimpio = (reflejo||'').replace(/[\u00a0\u2000-\u200b\u202f\u205f\u3000]/g, ' ');
+  const reflejoLimpio = _paraPdf(reflejo);
   const parrafos = reflejoLimpio.replace(/\r/g,'').split(/\n\n+/);
   for(const par of parrafos){
     const lineas = _wrapText(par, serif, cuerpoSize, anchoTexto);
@@ -2766,6 +2908,45 @@ async function generarReflejoPDF(reflejo, fechaTexto){
       y -= interlinea;
     }
     y -= gapParrafo;
+  }
+
+  // ── Lo que escribiste: sus palabras de cada día, tal cual ──
+  if (dias && dias.length) {
+    page = doc.addPage([W,H]); papel(page); y = H - 80;
+    const tit = 'LO QUE ESCRIBISTE';
+    const tW = serifBold.widthOfTextAtSize(tit, 10);
+    page.drawText(tit, { x:(W-tW)/2, y, size:10, font:serifBold, color:verde });
+    y -= 18;
+    page.drawLine({start:{x:W/2-27,y}, end:{x:W/2+27,y}, thickness:0.8, color:filete});
+    y -= 34;
+    const tSize = 11.5, tInter = tSize * 1.6;
+    const pSize = 12, pInter = pSize * 1.5;
+    const nuevaSiHace = alto => { if (y - alto < fondoY) { page = doc.addPage([W,H]); papel(page); y = H - 70; } };
+    for (const d of dias) {
+      nuevaSiHace(16 + pInter * 2);
+      page.drawText('DÍA ' + d.dia, { x:margen, y, size:9, font:serifBold, color:verde });
+      y -= 18;
+      if (d.pregunta) {
+        for (const l of _wrapText(_paraPdf(d.pregunta), serifIt, pSize, anchoTexto)) {
+          nuevaSiHace(pInter);
+          page.drawText(l, { x:margen, y, size:pSize, font:serifIt, color:filete });
+          y -= pInter;
+        }
+        y -= 6;
+      }
+      for (const texto of d.textos) {
+        for (const par of _paraPdf(texto).replace(/\r/g,'').split(/\n+/).filter(x => x.trim())) {
+          for (const l of _wrapText(par, serif, tSize, anchoTexto)) {
+            nuevaSiHace(tInter);
+            page.drawText(l, { x:margen, y, size:tSize, font:serif, color:tinta });
+            y -= tInter;
+          }
+          y -= 5;
+        }
+        y -= 6;
+      }
+      y -= 16;
+    }
   }
 
   // cierre de carta anclado abajo
@@ -4316,7 +4497,7 @@ function buildWeekText() {
 
   // Reflejo final
   try {
-    const farewell = JSON.parse(localStorage.getItem('alma_farewell') || '{}');
+    const farewell = { summary: leerReflejoGuardado() };
     if (farewell.summary) {
       lines.push("\nREFLEJO FINAL DE ALMA\n");
       lines.push(farewell.summary);
@@ -4337,7 +4518,7 @@ function copyFarewell() {
       btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg> Copiado`;
       setTimeout(() => {
         btn.classList.remove('copied');
-        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar reflejo`;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar todo`;
       }, 2500);
     }
   }).catch(() => {
@@ -4349,7 +4530,7 @@ function copyFarewell() {
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
-    if (btn) { btn.classList.add('copied'); btn.textContent = '✓ Copiado'; setTimeout(() => { btn.classList.remove('copied'); btn.textContent = 'Copiar reflejo'; }, 2500); }
+    if (btn) { btn.classList.add('copied'); btn.textContent = '✓ Copiado'; setTimeout(() => { btn.classList.remove('copied'); btn.textContent = 'Copiar todo'; }, 2500); }
   });
 }
 
@@ -4378,12 +4559,12 @@ async function downloadFarewell() {
 
   try {
     const fecha = new Date().toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' });
-    const bytes = await generarReflejoPDF(reflejo, fecha);
+    const bytes = await generarReflejoPDF(reflejo, fecha, diasParaCarta());
     const blob  = new Blob([bytes], { type: 'application/pdf' });
     const url   = URL.createObjectURL(blob);
     const a     = document.createElement('a');
     a.href      = url;
-    a.download  = 'mi-reflejo-alma.pdf';
+    a.download  = 'mi-carta-alma.pdf';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -4421,14 +4602,232 @@ function showFarewellActions() {
     if (cierre) cierre.style.display = 'none';
     ofrecerRegistroAlParar(cont);
   } else {
-    // Camino B: es el final. Despedida completa con registro, Instagram y feedback.
+    // Camino B: es el final. Primero el reflejo y su carta; luego sus
+    // palabras y la vuelta; el correo, Instagram y la opinión, plegados.
     if (cont) cont.style.display = 'none';
-    // Si el registro se abrió en un tramo anterior, vuelve a su sitio de siempre
+    pintarCaminoFinal();
     const caja = document.getElementById('registro-box');
-    if (caja && cierre && caja.parentElement !== cierre) cierre.prepend(caja);
+    const tgl = document.getElementById('registro-toggle-final');
+    if (caja && tgl && tgl.nextElementSibling !== caja) tgl.after(caja);
+    let yaEsta = false;
+    try { yaEsta = !!localStorage.getItem('alma_registro'); } catch(e) {}
+    if (caja) caja.style.display = 'none';
+    if (tgl) {
+      tgl.style.display = yaEsta ? 'none' : '';
+      tgl.onclick = () => { tgl.style.display = 'none'; mostrarRegistro(); };
+    }
     if (cierre) cierre.style.display = 'flex';
-    mostrarRegistro();
   }
+}
+
+// El reflejo guardado de su tramo (o del más largo que tenga)
+function leerReflejoGuardado() {
+  try {
+    for (const k of ['alma_farewell_' + totalDays, 'alma_farewell_7', 'alma_farewell_5', 'alma_farewell_3', 'alma_farewell']) {
+      const f = JSON.parse(localStorage.getItem(k) || '{}');
+      if (f.summary) return f.summary;
+    }
+  } catch(e) {}
+  return '';
+}
+
+// Su primer día y el último, con sus propias palabras (sin interpretar nada)
+function pintarCaminoFinal() {
+  const el = document.getElementById('cierre-camino');
+  if (!el) return;
+  const primeraFrase = d => {
+    const t = (d?.history || []).find(x => x.role === 'user')?.text || d?.text || '';
+    const limpio = t.replace(/\s+/g, ' ').trim();
+    if (limpio.length <= 260) return limpio;
+    const corte = limpio.slice(0, 260);
+    return corte.slice(0, corte.lastIndexOf(' ')) + '…';
+  };
+  const primero = primeraFrase(loadFromLocal(0));
+  const ultimo = primeraFrase(loadFromLocal(totalDays - 1));
+  if (!primero || !ultimo || totalDays < 2) { el.style.display = 'none'; return; }
+  el.innerHTML = `
+    <p class="cierre-camino-label">Tu primer día escribiste</p>
+    <p class="cierre-camino-cita">«${escaparHTML(primero)}»</p>
+    <p class="cierre-camino-label">Tu último día escribiste</p>
+    <p class="cierre-camino-cita">«${escaparHTML(ultimo)}»</p>`;
+  el.style.display = 'block';
+}
+
+// ═══════════════════════════════════════════════════
+// CONVERSACIÓN LIBRE — volver cuando lo necesite
+// ═══════════════════════════════════════════════════
+// Después de los siete días puede volver a escribir con su guardiana,
+// sin pregunta del día ni turnos, hasta LIMITE_LIBRE_DIA mensajes al día
+// (el servidor lleva la cuenta de verdad: lib/limite.js). Lo que escribe se
+// guarda solo en su móvil; al servidor solo llega el contador.
+const LIMITE_LIBRE_DIA = 5; // igual que en netlify/functions/lib/limite.js
+
+function recorridoCompleto() {
+  try {
+    return parseInt(localStorage.getItem('alma_tramo'), 10) === 7 &&
+      !!JSON.parse(localStorage.getItem('alma_farewell_7') || '{}').summary;
+  } catch(e) { return false; }
+}
+
+function hoyEnEspana() {
+  try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(new Date()); }
+  catch(e) { return new Date().toISOString().slice(0, 10); }
+}
+
+function leerLibre() {
+  try {
+    const l = JSON.parse(localStorage.getItem('alma_libre') || '{}');
+    return { historial: Array.isArray(l.historial) ? l.historial : [], notas: Array.isArray(l.notas) ? l.notas : [] };
+  } catch(e) { return { historial: [], notas: [] }; }
+}
+function guardarLibre(l) {
+  try {
+    l.historial = l.historial.slice(-60);
+    localStorage.setItem('alma_libre', JSON.stringify(l));
+  } catch(e) {}
+}
+function usadosHoy() {
+  try { return Number(JSON.parse(localStorage.getItem('alma_libre_uso') || '{}')[hoyEnEspana()]) || 0; }
+  catch(e) { return 0; }
+}
+function fijarUsadosHoy(n) {
+  try { localStorage.setItem('alma_libre_uso', JSON.stringify({ [hoyEnEspana()]: Math.max(0, Math.min(LIMITE_LIBRE_DIA, n)) })); } catch(e) {}
+}
+
+function pintarMensajeLibre(t) {
+  const hilo = document.getElementById('libre-hilo');
+  if (!hilo) return null;
+  const div = document.createElement('div');
+  if (t.role === 'user') {
+    div.className = 'libre-msg libre-yo';
+    div.innerHTML = `<p>${escaparHTML(t.text)}</p>`;
+  } else {
+    div.className = 'libre-msg libre-alma' + (t.nota ? ' libre-nota' : '');
+    div.innerHTML = String(t.text || '').split('\n').filter(x => x.trim()).map(x => `<p>${escaparHTML(x)}</p>`).join('');
+  }
+  hilo.appendChild(div);
+  return div;
+}
+
+function actualizarCupoLibre() {
+  const quedan = Math.max(0, LIMITE_LIBRE_DIA - usadosHoy());
+  const q = document.getElementById('libre-quedan');
+  if (q) q.textContent = quedan === 1 ? 'Hoy te queda 1 mensaje.' : `Hoy te quedan ${quedan} mensajes.`;
+  const escribir = document.getElementById('libre-escribir');
+  const limite = document.getElementById('libre-limite');
+  if (escribir) escribir.style.display = quedan > 0 ? '' : 'none';
+  if (limite) limite.style.display = quedan > 0 ? 'none' : '';
+  return quedan;
+}
+
+function abrirLibre(origen) {
+  const pantalla = document.getElementById('libre-screen');
+  if (!pantalla) return;
+  aplicarColorGuardiana(puertaDelRecorrido());
+  const hilo = document.getElementById('libre-hilo');
+  if (hilo) {
+    hilo.innerHTML = '';
+    leerLibre().historial.forEach(pintarMensajeLibre);
+  }
+  actualizarCupoLibre();
+  pantalla.classList.add('visible');
+  pantalla.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('libre-abierta');
+  setTimeout(() => { pantalla.scrollTop = pantalla.scrollHeight; }, 30);
+  trackEvent('libre_abierto', { origen: origen || '' });
+}
+
+function cerrarLibre() {
+  const pantalla = document.getElementById('libre-screen');
+  if (!pantalla) return;
+  pantalla.classList.remove('visible');
+  pantalla.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('libre-abierta');
+}
+
+async function enviarLibre() {
+  const ta = document.getElementById('libre-text');
+  const btn = document.getElementById('libre-btn');
+  const texto = (ta?.value || '').trim();
+  if (!texto) { ta?.focus(); return; }
+  if (actualizarCupoLibre() <= 0) return;
+
+  const libre = leerLibre();
+  const anterior = libre.historial.filter(t => !t.nota).slice(-20).map(t => ({ role: t.role, text: t.text }));
+  libre.historial.push({ role: 'user', text: texto, at: Date.now() });
+  guardarLibre(libre);
+  pintarMensajeLibre({ role: 'user', text: texto });
+  ta.value = '';
+  btn.disabled = true;
+  const pensando = pintarMensajeLibre({ role: 'alma', text: '…' });
+  if (pensando) pensando.classList.add('libre-pensando');
+  const pantalla = document.getElementById('libre-screen');
+  if (pantalla) pantalla.scrollTop = pantalla.scrollHeight;
+
+  // Si Alma no responde, su mensaje no se pierde: vuelve al cuadro
+  const devolverMensaje = (aviso) => {
+    const l = leerLibre(); l.historial.pop(); guardarLibre(l);
+    pensando?.remove();
+    document.getElementById('libre-hilo')?.lastElementChild?.remove();
+    ta.value = texto;
+    if (aviso) pintarMensajeLibre({ role: 'alma', text: aviso, nota: true });
+  };
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 11000);
+  try {
+    const res = await fetch('/.netlify/functions/alma', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        modo: 'libre', entry: texto, conversationHistory: anterior,
+        puerta: puertaDelRecorrido(), arrivalMode: currentArrivalMode,
+        anonId: anonId(), reflejo: leerReflejoGuardado(),
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    const data = await res.json();
+    if (data.limite) {
+      // El servidor dice que hoy ya no quedan: lo que escribió pasa a la nota
+      fijarUsadosHoy(LIMITE_LIBRE_DIA);
+      devolverMensaje('');
+      ta.value = '';
+      actualizarCupoLibre();
+      const notas = document.getElementById('libre-notas-text');
+      if (notas) notas.value = texto;
+    } else if (data.response) {
+      pensando?.remove();
+      const l = leerLibre(); l.historial.push({ role: 'alma', text: data.response, at: Date.now() }); guardarLibre(l);
+      const div = pintarMensajeLibre({ role: 'alma', text: data.response });
+      fijarUsadosHoy(Number.isFinite(data.restantes) ? LIMITE_LIBRE_DIA - data.restantes : usadosHoy() + 1);
+      actualizarCupoLibre();
+      div?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      trackEvent('libre_mensaje');
+    } else {
+      throw new Error('sin respuesta');
+    }
+  } catch(e) {
+    clearTimeout(timeoutId);
+    if (paginaSaliendo) return;
+    devolverMensaje('Ahora mismo no he podido responderte. Tu mensaje sigue en el cuadro: vuelve a enviarlo en un rato.');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// Cuando ya no quedan mensajes hoy, puede seguir soltando: se queda en su móvil
+function guardarNotaLibre() {
+  const ta = document.getElementById('libre-notas-text');
+  const texto = (ta?.value || '').trim();
+  if (!texto) { ta?.focus(); return; }
+  const l = leerLibre();
+  l.notas.push({ text: texto, at: Date.now() });
+  guardarLibre(l);
+  ta.value = '';
+  const ok = document.getElementById('libre-notas-ok');
+  if (ok) { ok.style.display = 'block'; setTimeout(() => { ok.style.display = 'none'; }, 3500); }
+  trackEvent('libre_nota');
 }
 
 // Quien para en el día 3 o en el 5 («O quédate aquí») también puede dejar
@@ -4533,7 +4932,7 @@ function mostrarRegistro() {
   let yaEsta = false;
   try { yaEsta = !!localStorage.getItem('alma_registro'); } catch(e) {}
   if (yaEsta) {
-    caja.innerHTML = '<div class="registro-hecho">Ya tenemos tu correo.<br>Te escribiremos cuando Alma esté lista para quedarse.</div>';
+    caja.innerHTML = '<div class="registro-hecho">Ya tenemos tu correo.<br>Solo te escribiremos para contarte novedades de Alma.</div>';
   }
   caja.style.display = 'flex';
   trackEvent('registro_mostrado');
@@ -5098,6 +5497,7 @@ function init() {
   // Farewell al final — después de que todo el estado esté limpio
   // Evita el flash de bienvenida y la restauración incompleta
   if (goToFarewell) showFarewell();
+  else if (recorridoCompleto()) setTimeout(() => abrirLibre('vuelta'), 400);
 }
 
 function startJourney() {
@@ -5695,7 +6095,7 @@ function startFullJourney() {
   const transitionMsg = document.getElementById('beta-transition-msg');
   const transitionText = transitionMsg?.querySelector('.beta-transition-text');
   if (transitionText) {
-    transitionText.innerHTML = 'Gracias por confiar en Alma.<br><br>Querer escucharte ya es un acto de valentía.<br>El día 1 es tuyo.<br><br>Mañana te esperamos en el día 2.';
+    transitionText.innerHTML = 'Gracias por quedarte.<br><br>Lo de hoy ya es tuyo.<br><br>Mañana seguimos.';
   }
   if (transitionMsg) transitionMsg.style.display = 'block';
 
@@ -6278,7 +6678,7 @@ function hayRecorridoLocal() {
 }
 
 function borrarRecorridoLocal() {
-  const fijas = ['alma_beta', 'alma_beta_farewell', 'alma_tramo', 'alma_arrival_mode', 'alma_puerta',
+  const fijas = ['alma_beta', 'alma_beta_farewell', 'alma_tramo', 'alma_arrival_mode', 'alma_puerta', 'alma_libre', 'alma_libre_uso',
                  'alma_farewell', 'alma_farewell_3', 'alma_farewell_5', 'alma_farewell_7',
                  'alma_borrador_beta', 'alma_refugio_camino', 'alma_refugio_frases', 'alma_refugio_reflejos'];
   try {
