@@ -9,7 +9,7 @@
 // devolver una etiqueta de su estado («VACÍO») ni una causa. El modelo sale
 // de lib/anthropic.js, para que cambiarlo sea una sola línea en un solo sitio.
 
-const { getModel } = require("./lib/anthropic");
+const { callAnthropic } = require("./lib/anthropic");
 const { resolverPuerta } = require("./lib/guardianas");
 
 const MAX_CHARS_TEXTO = 2000;
@@ -46,6 +46,7 @@ exports.handler = async function (event) {
     .join("\n\n");
 
   if (!userTurns.trim()) {
+    console.warn("alma-palabra: reserva porque no llegó texto suyo (mensajes recibidos: " + conversationHistory.length + ")");
     return { statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify(PALABRA_RESERVA) };
   }
 
@@ -78,46 +79,28 @@ No uses ningún formato distinto de "palabra" o "emocion".
 Español de España siempre.${nota}`;
 
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 9000);
-
-    // Sin «prefill» (empezar la respuesta por el modelo): los modelos nuevos
-    // no siempre lo admiten. Se pide solo JSON y se busca el JSON en la respuesta.
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: getModel("free"),
-        max_tokens: 80,
-        system: SYSTEM,
-        messages: [{
-          role: "user",
-          content: `Conversación:\n\n${userTurns}\n\nElige el formato y devuelve solo el JSON.`,
-        }],
-      }),
-      signal: controller.signal,
+    // Misma llamada que el resto de Alma (modelo, pensamiento y tope de
+    // tokens se ajustan solos en lib/anthropic.js). Sin «prefill»: los modelos
+    // nuevos lo rechazan.
+    const { text: raw } = await callAnthropic({
+      system: SYSTEM,
+      messages: [{ role: "user", content: `Conversación:\n\n${userTurns}\n\nElige el formato y devuelve solo el JSON.` }],
+      maxTokens: 80,
+      plan: "free",
     });
-    clearTimeout(timeout);
 
-    if (!res.ok) throw new Error(`API error ${res.status}`);
-
-    const data = await res.json();
-    const raw = data.content?.[0]?.text || "";
-
-    let parsed = PALABRA_RESERVA;
+    let parsed = null;
     try {
       const ini = raw.indexOf("{"), fin = raw.lastIndexOf("}");
       if (ini !== -1 && fin > ini) parsed = JSON.parse(raw.slice(ini, fin + 1));
     } catch (e) {
-      parsed = PALABRA_RESERVA;
+      parsed = null;
     }
 
     // Validar campos y tamaño (una palabra o un patrón corto, nunca un párrafo)
     if (!parsed || typeof parsed.contenido !== "string" || !parsed.contenido.trim() || parsed.contenido.length > 80) {
+      // Solo el motivo, nunca el texto
+      console.warn(`alma-palabra: reserva porque la respuesta no traía un JSON válido (largo ${raw.length}, empieza por llave: ${raw.trim().startsWith("{")})`);
       parsed = PALABRA_RESERVA;
     }
     // Solo se aceptan los dos formatos vivos. Cualquier otro se trata como emoción.

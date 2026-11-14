@@ -191,8 +191,8 @@ exports.handler = async function (event) {
     const cierraTramo = !isBeta && day >= Math.max(tramo, day);
     const lastTurnNote = !isLastTurn ? ""
       : cierraTramo
-        ? "\n\n[INSTRUCCIÓN DE CIERRE: Este es el último intercambio de hoy y también el último de estos días juntas. No hay más turnos. Sigue tus instrucciones de cierre. No hables de mañana ni de seguir otro día: lo que viene ahora es su reflejo. Nada de frases de app.]"
-        : "\n\n[INSTRUCCIÓN DE CIERRE: Este es el último intercambio de hoy. No hay más turnos. Sigue tus instrucciones de cierre: como una amiga que se queda pensando en lo que acaba de escuchar, con ganas de mañana. Nada de frases de app ni de despedidas mecánicas.]";
+        ? "\n\n[INSTRUCCIÓN DE CIERRE: Este es el último intercambio de hoy y también el último de estos días juntas. No hay más turnos. Sigue tus instrucciones de cierre. No hables de mañana ni de seguir otro día: lo que viene ahora es su reflejo. Nada de frases de app. Breve: dos párrafos cortos como mucho, sin pregunta.]"
+        : "\n\n[INSTRUCCIÓN DE CIERRE: Este es el último intercambio de hoy. No hay más turnos. Sigue tus instrucciones de cierre: como una amiga que se queda pensando en lo que acaba de escuchar, con ganas de mañana. Nada de frases de app ni de despedidas mecánicas. Breve: dos párrafos cortos como mucho, sin pregunta. Que el cierre salga de algo concreto que ha escrito hoy, no de una fórmula que valdría para cualquiera (nada de «mañana, si quieres, seguimos por ahí» ni «hay algo ahí que todavía no has…»).]";
     messages.push({ role: "user", content: entry + lastTurnNote });
   } else {
     messages.push({
