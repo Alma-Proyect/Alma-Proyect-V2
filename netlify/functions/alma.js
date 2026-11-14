@@ -66,6 +66,7 @@ async function atenderLibre(datos, inicio, puerta, capaGuardiana, arrivalMode) {
     return json({ response, restantes, limiteDia: LIMITE_LIBRE_DIA });
   } catch (e) {
     console.error("Error en alma.js (libre):", e.message);
+    if (e.rechazo) return json({ response: RESPUESTA_SI_RECHAZO, restantes: Math.max(0, LIMITE_LIBRE_DIA - estado.usados) });
     // No se cuenta: si Alma no respondió, el mensaje no gasta
     return json({ error: true, restantes: Math.max(0, LIMITE_LIBRE_DIA - estado.usados) });
   }
@@ -117,6 +118,11 @@ function limpiarDiasAnteriores(prev) {
   }
   return limpio;
 }
+
+// Si el filtro de seguridad de la API no deja responder (suele pasar cuando
+// ella habla de hacerse daño o de no querer seguir), no se le da un mensaje
+// genérico: se le dicen los teléfonos de ayuda.
+const RESPUESTA_SI_RECHAZO = "Lo que me cuentas es importante, y ahora mismo no sé responderte como mereces.\n\nSi lo estás pasando muy mal, llama al 024 o al 717 003 717, a cualquier hora. Hay alguien al otro lado.\n\nYo sigo aquí.";
 
 const FALLBACKS = [
   "Algo en lo que escribiste me hizo pararme.\n\nNecesito un momento para estar con esto contigo.\n\nEstoy aquí.",
@@ -248,8 +254,8 @@ exports.handler = async function (event) {
       }),
     };
   } catch (error) {
-    console.error("Error en alma.js:", error);
-    const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
+    console.error("Error en alma.js:", error.message);
+    const fallback = error.rechazo ? RESPUESTA_SI_RECHAZO : FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },

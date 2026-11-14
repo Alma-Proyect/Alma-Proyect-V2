@@ -2,6 +2,8 @@
 // Conversación viva entre la guardiana y Alma.
 // Alma responde desde la esencia destilada y decide si tiene algo real que observar.
 
+const { callAnthropic, RechazoError } = require('./lib/anthropic');
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const SANCTUM_SECRET = process.env.SANCTUM_SECRET;
@@ -51,7 +53,7 @@ exports.handler = async function (event) {
     return { statusCode: 400, body: JSON.stringify({ error: 'JSON inválido' }) };
   }
 
-  if (!message) {
+  if (typeof message !== 'string' || !message.trim()) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Sin mensaje' }) };
   }
 
@@ -154,15 +156,25 @@ Si tienes una observación real que hacer, pon el espejo:
 El espejo empieza siempre con "Lo que veo:" y va separado de la respuesta. Es una observación, no un juicio. Directa, sin suavizar.`;
 
   // Construir historial de mensajes para Claude
-  // El historial llega del frontend como [{role, content}]
-  const conversationHistory = (history || []).slice(-12); // últimas 12 para no rebasar tokens
+  // El historial llega del frontend como [{role, content}]. Se normaliza:
+  // la API solo acepta "user" y "assistant" (el Sanctum guarda "alma"), el
+  // contenido tiene que ser texto, y la conversación tiene que empezar por
+  // ella. Los modelos nuevos rechazan con error lo que el 4.5 dejaba pasar.
+  const conversationHistory = (Array.isArray(history) ? history : [])
+    .filter(m => m && typeof m.content === 'string' && m.content.trim())
+    .slice(-12) // últimas 12 para no rebasar tokens
+    .map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content.slice(0, 4000) }));
+  while (conversationHistory.length && conversationHistory[0].role !== 'user') conversationHistory.shift();
 
-  const messages = [
-    ...conversationHistory,
-    { role: 'user', content: message }
-  ];
+  const messages = [...conversationHistory];
+  // Si el último del historial ya es suyo, se juntan: la API no admite dos seguidos
+  if (messages.length && messages[messages.length - 1].role === 'user') {
+    messages[messages.length - 1] = { role: 'user', content: messages[messages.length - 1].content + '\n\n' + message };
+  } else {
+    messages.push({ role: 'user', content: message });
+  }
 
-  // Llamada a Claude
+  // Llamada a Claude (mismo modelo que el resto de Alma, vía lib/anthropic.js)
   // Presupuesto total: Netlify mata la función a los 10s. Reservamos margen
   // para parsear y devolver, y restamos lo que ya se gastó cargando la esencia.
   let claudeText = '';
@@ -172,38 +184,24 @@ El espejo empieza siempre con "Lo que veo:" y va separado de la respuesta. Es un
     const remaining = 9300 - elapsed; // colchón de 700ms para el resto del proceso
     const claudeTimeout = Math.max(remaining, 3000); // nunca menos de 3s, aunque vaya muy justo
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), claudeTimeout);
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 480,
-        system: systemPrompt,
-        messages,
-      }),
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error ? err.error.message : `API error ${res.status}`);
-    }
-
-    const data = await res.json();
-    claudeText = data.content && data.content[0] ? data.content[0].text : '';
-    truncated = data.stop_reason === 'max_tokens';
-    if (truncated) {
-      console.warn('sanctum-chat: respuesta truncada por max_tokens. Final:', claudeText.slice(-80));
-    }
+    ({ text: claudeText, truncated } = await callAnthropic({
+      system: systemPrompt,
+      messages,
+      maxTokens: 480,
+      plan: 'free',
+      timeoutMs: claudeTimeout,
+    }));
   } catch (e) {
+    if (e instanceof RechazoError || e.rechazo) {
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          respuesta: 'Lo que me cuentas es importante, y ahora mismo no sé responderte como mereces.\n\nSi lo estás pasando muy mal, llama al 024 o al 717 003 717, a cualquier hora. Hay alguien al otro lado.\n\nYo sigo aquí.',
+          espejo: null
+        })
+      };
+    }
     console.error('Claude error:', e.message);
     return {
       statusCode: 500,
@@ -228,8 +226,11 @@ El espejo empieza siempre con "Lo que veo:" y va separado de la respuesta. Es un
   // Parse del JSON de respuesta
   let parsed;
   try {
-    const clean = claudeText.replace(/```json|```/g, '').trim();
+    let clean = claudeText.replace(/```json|```/g, '').trim();
+    const ini = clean.indexOf('{'), fin = clean.lastIndexOf('}');
+    if (ini !== -1 && fin > ini) clean = clean.slice(ini, fin + 1);
     parsed = JSON.parse(clean);
+    if (!parsed || typeof parsed.respuesta !== 'string') throw new Error('Sin respuesta');
   } catch (e) {
     // JSON incompleto o mal formado. Intentamos rescatar el contenido de "respuesta"
     // tanto si el cierre ("espejo", llave final) está presente como si no.

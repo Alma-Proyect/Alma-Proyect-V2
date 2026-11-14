@@ -30,14 +30,14 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  let conversationHistory, day, arrivalMode, plan;
+  let conversationHistory, day;
   try {
-    ({ conversationHistory, day, arrivalMode, plan } = JSON.parse(event.body || "{}"));
+    ({ conversationHistory, day } = JSON.parse(event.body || "{}"));
   } catch (e) {
     return { statusCode: 400, body: JSON.stringify({ error: "JSON inválido" }) };
   }
 
-  if (!conversationHistory || !conversationHistory.length) {
+  if (!Array.isArray(conversationHistory) || !conversationHistory.length) {
     const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
     return {
       statusCode: 200,
@@ -47,12 +47,22 @@ exports.handler = async function (event) {
   }
 
   // Solo los turnos de la usuaria para que Alma observe desde lo que hay
+  // Con tope: como mucho 8 mensajes de 2000 caracteres. Un día tiene 3 o 4
+  // turnos, así que nunca se recorta nada real, pero nadie puede mandar un
+  // texto enorme y hacer que pague Alma.
   const userTurns = conversationHistory
-    .filter(t => t.role === "user")
-    .map(t => t.text)
+    .filter(t => t && t.role === "user" && typeof t.text === "string")
+    .slice(-8)
+    .map(t => t.text.slice(0, 2000))
     .join("\n\n");
 
-  const userMessage = `Día ${day || 1}. Esto es lo que escribió hoy:\n\n${userTurns}\n\nEscribe la frase para su libreta.`;
+  if (!userTurns.trim()) {
+    const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
+    return { statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ frase: fallback }) };
+  }
+
+  const diaNum = Number.isInteger(Number(day)) && Number(day) >= 1 && Number(day) <= 7 ? Number(day) : 1;
+  const userMessage = `Día ${diaNum}. Esto es lo que escribió hoy:\n\n${userTurns}\n\nEscribe la frase para su libreta.`;
 
   try {
     const result = await callAnthropic({
@@ -60,14 +70,16 @@ exports.handler = async function (event) {
       messages: [{ role: "user", content: userMessage }],
       maxTokens: 90,
       temperature: 0.8,
-      plan: plan || "free",
+      plan: "free", // nunca se acepta del navegador: cualquiera podría pedir el modelo caro
     });
 
     // Limpiar por si Claude añade comillas o puntuación extra
     const clean = result.text
+      .split("\n")[0]
       .replace(/^["«»""]|["«»""]$/g, "")
       .replace(/\.$/, "")
       .trim();
+    if (!clean || clean.length > 200) throw new Error("Frase vacía o demasiado larga");
 
     return {
       statusCode: 200,
@@ -76,7 +88,7 @@ exports.handler = async function (event) {
     };
 
   } catch (error) {
-    console.error("Error en day-card.js:", error);
+    console.error("Error en day-card.js:", error.message);
     const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
     return {
       statusCode: 200,

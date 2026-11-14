@@ -1,5 +1,7 @@
 // netlify/functions/sanctum-distill.js
 
+const { callAnthropic } = require('./lib/anthropic');
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const SANCTUM_SECRET = process.env.SANCTUM_SECRET;
@@ -106,7 +108,10 @@ exports.handler = async function (event) {
 
   const totalWords = entries.reduce((sum, e) => sum + (e.words || 0), 0);
 
-  // Prefill — Claude solo completa, mucho más rápido
+  // Antes se usaba «prefill» (empezar nosotros la respuesta con
+  // {"tono_central":" para que Claude solo completara). Haiku 5.5 no lo admite
+  // y devuelve error, así que ahora se le pide el JSON entero y se recorta
+  // desde la primera llave.
   // Presupuesto total: Netlify mata la función a los 10s. Calculamos lo que
   // queda tras las llamadas a Supabase ya hechas, con colchón para el resto.
   let claudeText = '';
@@ -115,42 +120,18 @@ exports.handler = async function (event) {
     const remaining = 8000 - elapsed; // deja margen para las 3 llamadas a Supabase posteriores
     const claudeTimeout = Math.max(remaining, 3000);
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), claudeTimeout);
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 900,
-        system: 'Destilas la VOZ de una guardiana a partir de su escritura reflexiva: cómo acompaña, cómo sostiene, desde dónde mira. No resumes su vida ni sus problemas, destilas su manera de escuchar. Todo en primera persona o en modo de cualidad, nunca dirigiéndote a nadie en segunda persona. JSON puro, sin markdown. Cada valor de string, máximo 5 palabras, sin comas dentro. Las etapas son memoria y solo crecen: copia las anteriores tal cual y añade una nueva solo si el momento vital es claramente distinto. Si ya hay 6, fusiona las dos más parecidas. Completa el objeto JSON.',
-        messages: [
-          {
-            role: 'user',
-            content: `${contexto}${etapasTexto}\n\nLO QUE ESCRIBIÓ AHORA:\n${entriesText}\n\nCompleta este JSON con valores MUY CORTOS (máximo 5 palabras por valor de string, sin comas dentro de los strings):\n{"tono_central":"[3-5 palabras]","sostiene_dolor":"[3-5 palabras]","valores":["[3 palabras]","[3 palabras]","[3 palabras]"],"nunca":["[3 palabras]","[3 palabras]"],"preguntas":["[pregunta corta]","[pregunta corta]"],"palabra_semana":"[1 palabra]","hilo_conductor":"[4-5 palabras]","etapas":[{"nombre":"[3-5 palabras]","aprendizaje":"[5-8 palabras]"}]}`
-          },
-          {
-            role: 'assistant',
-            content: '{"tono_central":"'
-          }
-        ],
-      }),
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error ? err.error.message : `API error ${res.status}`);
-    }
-
-    const data = await res.json();
-    claudeText = data.content && data.content[0] ? data.content[0].text : '';
+    ({ text: claudeText } = await callAnthropic({
+      system: 'Destilas la VOZ de una guardiana a partir de su escritura reflexiva: cómo acompaña, cómo sostiene, desde dónde mira. No resumes su vida ni sus problemas, destilas su manera de escuchar. Todo en primera persona o en modo de cualidad, nunca dirigiéndote a nadie en segunda persona. Cada valor de string, máximo 5 palabras, sin comas dentro. Las etapas son memoria y solo crecen: copia las anteriores tal cual y añade una nueva solo si el momento vital es claramente distinto. Si ya hay 6, fusiona las dos más parecidas. Responde ÚNICAMENTE con el objeto JSON: tu respuesta empieza por { y acaba por }. Nada antes ni después, sin markdown, sin explicaciones.',
+      messages: [
+        {
+          role: 'user',
+          content: `${contexto}${etapasTexto}\n\nLO QUE ESCRIBIÓ AHORA:\n${entriesText}\n\nDevuelve este JSON relleno con valores MUY CORTOS (máximo 5 palabras por valor de string, sin comas dentro de los strings):\n{"tono_central":"[3-5 palabras]","sostiene_dolor":"[3-5 palabras]","valores":["[3 palabras]","[3 palabras]","[3 palabras]"],"nunca":["[3 palabras]","[3 palabras]"],"preguntas":["[pregunta corta]","[pregunta corta]"],"palabra_semana":"[1 palabra]","hilo_conductor":"[4-5 palabras]","etapas":[{"nombre":"[3-5 palabras]","aprendizaje":"[5-8 palabras]"}]}`
+        }
+      ],
+      maxTokens: 900,
+      plan: 'free',
+      timeoutMs: claudeTimeout,
+    }));
   } catch (e) {
     console.error('Claude error:', e.message);
     return {
@@ -215,13 +196,17 @@ exports.handler = async function (event) {
     return s;
   }
 
-  // Parse blindado — reconstruye el JSON desde el prefill
+  // Parse blindado: desde la primera llave, sin vallas de markdown
   let essenceData;
   try {
-    const fullJson = '{"tono_central":"' + claudeText;
+    let fullJson = claudeText.replace(/```json|```/g, '').trim();
+    const ini = fullJson.indexOf('{');
+    if (ini === -1) throw new Error('La respuesta no trae JSON');
+    fullJson = fullJson.slice(ini);
+    const fin = fullJson.lastIndexOf('}');
 
     try {
-      essenceData = JSON.parse(fullJson);
+      essenceData = JSON.parse(fin !== -1 ? fullJson.slice(0, fin + 1) : fullJson);
     } catch (e) {
       // Reparar el corte y volver a intentar
       essenceData = JSON.parse(repararJson(fullJson));
@@ -254,11 +239,11 @@ exports.handler = async function (event) {
       if (essenceData.etapas.length === 0) essenceData.etapas = etapasPrevias;
     }
   } catch (e) {
-    console.error('JSON parse error:', e.message, '| Raw:', claudeText.slice(0, 200));
+    console.error('JSON parse error:', e.message, '| Largo de la respuesta:', claudeText.length);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Parse fallido', raw: claudeText.slice(0, 200) })
+      body: JSON.stringify({ error: 'Parse fallido' })
     };
   }
 
