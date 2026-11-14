@@ -3843,6 +3843,14 @@ function onTurnType() {
   if (btn) btn.classList.toggle('ready', text.trim().length > 0);
 }
 
+// Todo lo que ella escribió ese día (todos sus turnos), para que Alma lo
+// recuerde los días siguientes. Antes solo viajaba la primera entrada.
+function textoDelDia(entry) {
+  if (!entry) return '';
+  const suyos = (entry.history || []).filter(t => t.role === 'user').map(t => t.text).filter(Boolean);
+  return suyos.length ? suyos.join('\n\n') : (entry.text || '');
+}
+
 async function saveEntry() {
   if (isBetaMode) { await saveBetaEntry(); return; }
   const btns = ['btn-save-d','btn-save-m'].map(id => document.getElementById(id)).filter(Boolean);
@@ -3862,7 +3870,8 @@ async function saveEntry() {
   const previousEntries = {};
   for (let i = 0; i < currentDay; i++) {
     const entry = loadFromLocal(i);
-    if (entry?.text) previousEntries[`day${i + 1}`] = entry.text;
+    const escrito = textoDelDia(entry);
+    if (escrito) previousEntries[`day${i + 1}`] = escrito;
   }
 
   // Limpiar historial visual del día anterior
@@ -3912,7 +3921,8 @@ async function sendTurn() {
   const previousEntries = {};
   for (let i = 0; i < currentDay; i++) {
     const entry = loadFromLocal(i);
-    if (entry?.text) previousEntries[`day${i + 1}`] = entry.text;
+    const escrito = textoDelDia(entry);
+    if (escrito) previousEntries[`day${i + 1}`] = escrito;
   }
 
   await callAlma({
