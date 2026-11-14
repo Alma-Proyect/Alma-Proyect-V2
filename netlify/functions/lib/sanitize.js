@@ -57,17 +57,35 @@ function sanitizeFirma(text) {
   return text.replace(firmaPattern, "").trimEnd();
 }
 
+// «afuera» y «adentro» suenan latinoamericanos: en España, «fuera» y «dentro».
+function sanitizeEspana(text) {
+  if (!text) return text;
+  return text
+    .replace(/\bafuera\b/g, "fuera").replace(/\bAfuera\b/g, "Fuera")
+    .replace(/\badentro\b/g, "dentro").replace(/\bAdentro\b/g, "Dentro");
+}
+
+// Pregunta con opciones dentro («¿es esto, o es aquello?»). No se corrige
+// (reescribir una pregunta cambia lo que Alma quería decir): solo se avisa en
+// los registros de Netlify, sin copiar el texto, para poder medir cuántas
+// veces se cuela.
+function tienePreguntaConOpciones(text) {
+  if (!text) return false;
+  return /¿[^?]{3,240}?,?\s+o\s+(?:es|son|más|solo|sólo|hay|si|lo|la|el|está|te|eres|sientes|tienes)\b[^?]*\?/i.test(text);
+}
+
 // Respuesta de conversación: todas las redes, en el mismo orden que el original.
 function limpiarRespuesta(text) {
-  return sanitizeTrailingQuestion(sanitizeMuletillas(sanitizeDashes(sanitizeFirma(text))));
+  return sanitizeEspana(sanitizeTrailingQuestion(sanitizeMuletillas(sanitizeDashes(sanitizeFirma(text)))));
 }
 
 // Reflejo: guiones y muletillas (sin tocar sus preguntas, que no las lleva).
 function limpiarReflejo(text) {
-  return sanitizeMuletillas(sanitizeDashes(text));
+  return sanitizeEspana(sanitizeMuletillas(sanitizeDashes(text)));
 }
 
 module.exports = {
   sanitizeDashes, sanitizeMuletillas, sanitizeTrailingQuestion, sanitizeFirma,
+  sanitizeEspana, tienePreguntaConOpciones,
   limpiarRespuesta, limpiarReflejo,
 };
