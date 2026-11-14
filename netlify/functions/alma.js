@@ -180,9 +180,13 @@ exports.handler = async function (event) {
       });
     }
     // Si es el último turno, indicárselo explícitamente en el mensaje
-    const lastTurnNote = isLastTurn
-      ? "\n\n[INSTRUCCIÓN DE CIERRE: Este es el último intercambio del día. No hay más turnos después de este. Cierra como una amiga que se queda pensando en lo que acaba de escuchar — con ganas reales de mañana. Nada de frases de app. Nada de hasta mañana mecánico. Solo presencia y algo que la llame de vuelta.]"
-      : "";
+    // Antes esta nota pedía siempre «ganas reales de mañana», también el día 7
+    // y al cerrar cada tramo, cuando lo que viene es su reflejo y no otro día.
+    const cierraTramo = !isBeta && day >= Math.max(tramo, day);
+    const lastTurnNote = !isLastTurn ? ""
+      : cierraTramo
+        ? "\n\n[INSTRUCCIÓN DE CIERRE: Este es el último intercambio de hoy y también el último de estos días juntas. No hay más turnos. Sigue tus instrucciones de cierre. No hables de mañana ni de seguir otro día: lo que viene ahora es su reflejo. Nada de frases de app.]"
+        : "\n\n[INSTRUCCIÓN DE CIERRE: Este es el último intercambio de hoy. No hay más turnos. Sigue tus instrucciones de cierre: como una amiga que se queda pensando en lo que acaba de escuchar, con ganas de mañana. Nada de frases de app ni de despedidas mecánicas.]";
     messages.push({ role: "user", content: entry + lastTurnNote });
   } else {
     messages.push({
