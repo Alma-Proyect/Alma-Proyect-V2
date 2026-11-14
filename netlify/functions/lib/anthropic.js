@@ -61,15 +61,18 @@ class RechazoError extends Error {
   constructor() { super("La API rechazó responder (stop_reason: refusal)"); this.rechazo = true; }
 }
 
-// callAnthropic — respuesta completa, sin streaming
-// Timeout interno: Netlify mata la función a los 10s, así que cortamos antes
-// nosotros para poder responder limpio en vez de con un 502 mudo. Por defecto
-// 9s; quien ya haya gastado tiempo antes (alma.js espera hasta 0,8s a la
-// esencia del Sanctum) pasa el tiempo que le queda en timeoutMs.
-async function callAnthropic({ system, messages, userMessage, maxTokens = 300, temperature = 0.75, plan = "free", timeoutMs = 9000 }) {
-  const model = getModel(plan);
-  const finalMessages = messages || [{ role: "user", content: userMessage }];
+// Red de seguridad: si el modelo nuevo da error (por ejemplo, la cuenta aún no
+// tiene acceso a él o la API rechaza algún parámetro), se repite UNA vez con
+// Haiku 4.5 para que ella reciba respuesta igualmente. El motivo queda en el
+// registro de Netlify («Haiku 5.5 falló…»), sin nada de lo que escribió.
+// No se reintenta si el fallo fue por tiempo ni por el filtro de seguridad.
+const MODELO_RESERVA = "claude-haiku-4-5-20251001";
 
+class ApiError extends Error {
+  constructor(msg, status) { super(msg); this.status = status; }
+}
+
+async function llamar({ model, maxTokens, temperature, system, messages, timeoutMs }) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), Math.max(1000, timeoutMs));
 
@@ -82,12 +85,14 @@ async function callAnthropic({ system, messages, userMessage, maxTokens = 300, t
         "x-api-key": process.env.ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
       },
-      body: JSON.stringify(cuerpoPeticion({ model, maxTokens, temperature, system, messages: finalMessages })),
+      body: JSON.stringify(cuerpoPeticion({ model, maxTokens, temperature, system, messages })),
       signal: controller.signal,
     });
   } catch (err) {
     if (err.name === "AbortError") {
-      throw new Error("Timeout: la API de Anthropic no respondió a tiempo");
+      const e = new Error("Timeout: la API de Anthropic no respondió a tiempo");
+      e.timeout = true;
+      throw e;
     }
     throw err;
   } finally {
@@ -98,11 +103,11 @@ async function callAnthropic({ system, messages, userMessage, maxTokens = 300, t
   try {
     data = await response.json();
   } catch (err) {
-    throw new Error(`Respuesta no válida de la API (status ${response.status})`);
+    throw new ApiError(`Respuesta no válida de la API (status ${response.status})`, response.status);
   }
 
   if (!response.ok) {
-    throw new Error(data.error?.message || "Error en la API de Anthropic");
+    throw new ApiError(`${response.status} ${data.error?.type || ""}: ${data.error?.message || "Error en la API de Anthropic"}`, response.status);
   }
 
   if (data.stop_reason === "refusal") throw new RechazoError();
@@ -120,9 +125,30 @@ async function callAnthropic({ system, messages, userMessage, maxTokens = 300, t
     // Sin copiar el texto: es una respuesta a lo que ella escribió
     console.warn(`Respuesta truncada por max_tokens (modelo ${model}, límite ${maxTokens})`);
   }
-  if (!text) throw new Error("La API devolvió una respuesta sin texto");
+  if (!text) throw new ApiError(`La API devolvió una respuesta sin texto (modelo ${model}, stop_reason ${data.stop_reason})`, 200);
 
   return { text, truncated };
+}
+
+// callAnthropic — respuesta completa, sin streaming
+// Timeout interno: Netlify mata la función a los 10s, así que cortamos antes
+// nosotros para poder responder limpio en vez de con un 502 mudo. Por defecto
+// 9s; quien ya haya gastado tiempo antes (alma.js espera hasta 0,8s a la
+// esencia del Sanctum) pasa el tiempo que le queda en timeoutMs.
+async function callAnthropic({ system, messages, userMessage, maxTokens = 300, temperature = 0.75, plan = "free", timeoutMs = 9000 }) {
+  const model = getModel(plan);
+  const finalMessages = messages || [{ role: "user", content: userMessage }];
+  const inicio = Date.now();
+
+  try {
+    return await llamar({ model, maxTokens, temperature, system, messages: finalMessages, timeoutMs });
+  } catch (err) {
+    const quedan = timeoutMs - (Date.now() - inicio);
+    const reintentable = !err.timeout && !err.rechazo && !MODELOS_ANTIGUOS.has(model) && quedan > 2500;
+    console.error(`${model} falló: ${err.message}${reintentable ? ` · reintento con ${MODELO_RESERVA}` : ""}`);
+    if (!reintentable) throw err;
+    return await llamar({ model: MODELO_RESERVA, maxTokens, temperature, system, messages: finalMessages, timeoutMs: quedan });
+  }
 }
 
 module.exports = { callAnthropic, MODELS, getModel, RechazoError };
