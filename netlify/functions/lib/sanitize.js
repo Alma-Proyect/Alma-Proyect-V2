@@ -134,10 +134,26 @@ function tienePreguntaConOpciones(text) {
   return preguntas.length > 1 || preguntas.some(q => opcionEn(q) !== -1);
 }
 
-// «Te entiendo.» como frase suelta al principio: es de manual.
+// Frases de manual con «entiendo»: se quita la frase entera si es corta y
+// empieza por «(Te/Lo) entiendo» o acaba en «lo entiendo.» («Entiendo que
+// quieras algo concreto.», «Lo de no quejarte lo entiendo.»). Si la frase es
+// larga, se deja: quitarla podría llevarse algo que importa.
 function sanitizeManual(text) {
   if (!text) return text;
-  return text.replace(/^\s*Te entiendo\.\s*/, "").replace(/^([a-záéíóúñ])/, c => c.toUpperCase());
+  const frases = text.split(/(?<=[.!?])(?=\s)/);
+  const quedan = frases.map(f => {
+    const t = f.trim();
+    if (t.length > 90 || /\?$/.test(t)) return f;
+    const manual = /^(?:Te |Lo )?[Ee]ntiendo\b/.test(t) || /\blo entiendo\.$/i.test(t) || /^Y entiendo que\b/.test(t)
+      || /^(?:Y )?[Ee]s (?:muy |lo más )?normal(?: del mundo)? que\b/.test(t) || /^(?:Y )?[Ee]so ya es algo\.$/.test(t);
+    // si se quita, se conserva el salto de párrafo que llevaba delante
+    return manual ? (f.match(/^\s*/)[0].includes("\n") ? "\n\n" : "") : f;
+  });
+  let r = quedan.join("");
+  // limpiar huecos y poner mayúscula al inicio de cada párrafo
+  r = r.replace(/^[ \t]+/gm, "").replace(/\n\s*\n\s*\n+/g, "\n\n").trim();
+  r = r.replace(/(^|\n)([a-záéíóúñ])/g, (m, p1, c) => p1 + c.toUpperCase());
+  return r || text;
 }
 
 // Respuesta de conversación: todas las redes, en el mismo orden que el original.
@@ -146,8 +162,21 @@ function limpiarRespuesta(text) {
 }
 
 // Reflejo: guiones y muletillas (sin tocar sus preguntas, que no las lleva).
+// El reflejo no pregunta ni pide nada. Si aun así termina en un párrafo que
+// es una pregunta («¿Qué es lo que más echas de menos…?») o una petición
+// («Cuando puedas, dime…»), ese último párrafo se quita.
+function quitarCierreQuePregunta(text) {
+  if (!text) return text;
+  const parrafos = text.trim().split(/\n\s*\n/);
+  if (parrafos.length < 2) return text;
+  const ultimo = parrafos[parrafos.length - 1].trim();
+  const pregunta = /\?\s*$/.test(ultimo);
+  const peticion = ultimo.length < 120 && /\b(dime|cuéntame|me cuentas|escríbeme)\b/i.test(ultimo);
+  return (pregunta || peticion) ? parrafos.slice(0, -1).join("\n\n") : text;
+}
+
 function limpiarReflejo(text) {
-  return sanitizeEspana(sanitizeMuletillas(sanitizeDashes(text)));
+  return quitarCierreQuePregunta(sanitizeEspana(sanitizeMuletillas(sanitizeDashes(text))));
 }
 
 module.exports = {
