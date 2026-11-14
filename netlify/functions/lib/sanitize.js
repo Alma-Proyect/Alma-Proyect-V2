@@ -134,21 +134,23 @@ function tienePreguntaConOpciones(text) {
   return preguntas.length > 1 || preguntas.some(q => opcionEn(q) !== -1);
 }
 
-// Frases de manual con «entiendo»: se quita la frase entera si es corta y
-// empieza por «(Te/Lo) entiendo» o acaba en «lo entiendo.» («Entiendo que
-// quieras algo concreto.», «Lo de no quejarte lo entiendo.»). Si la frase es
-// larga, se deja: quitarla podría llevarse algo que importa.
-function sanitizeManual(text) {
+// ── FRASES CORTAS QUE SOBRAN ───────────────────────────────────────────────
+// Quita las frases enteras (cortas y que no son pregunta) que cumplan «esSobra».
+// Si la frase es larga, se deja: quitarla podría llevarse algo que importa.
+// Si no quedara nada, se devuelve el texto como estaba.
+function quitarFrasesCortas(text, esSobra) {
   if (!text) return text;
   const frases = text.split(/(?<=[.!?])(?=\s)/);
+  let quitadas = 0;
   const quedan = frases.map(f => {
-    const t = f.trim();
+    const t = f.trim().replace(/^¡/, "");
     if (t.length > 90 || /\?$/.test(t)) return f;
-    const manual = /^(?:Te |Lo )?[Ee]ntiendo\b/.test(t) || /\blo entiendo\.$/i.test(t) || /^Y entiendo que\b/.test(t)
-      || /^(?:Y )?[Ee]s (?:muy |lo más )?normal(?: del mundo)? que\b/.test(t) || /^(?:Y )?[Ee]so ya es algo\.$/.test(t);
+    if (!esSobra(t)) return f;
+    quitadas++;
     // si se quita, se conserva el salto de párrafo que llevaba delante
-    return manual ? (f.match(/^\s*/)[0].includes("\n") ? "\n\n" : "") : f;
+    return f.match(/^\s*/)[0].includes("\n") ? "\n\n" : "";
   });
+  if (!quitadas) return text;
   let r = quedan.join("");
   // limpiar huecos y poner mayúscula al inicio de cada párrafo
   r = r.replace(/^[ \t]+/gm, "").replace(/\n\s*\n\s*\n+/g, "\n\n").trim();
@@ -156,9 +158,87 @@ function sanitizeManual(text) {
   return r || text;
 }
 
+// Frases de manual con «entiendo»: «Entiendo que quieras algo concreto.»,
+// «Lo de no quejarte lo entiendo.», «Es normal que…», «Eso ya es algo.».
+function esManual(t) {
+  return /^(?:Te |Lo )?[Ee]ntiendo\b/.test(t) || /\blo entiendo[.!]$/i.test(t) || /^Y entiendo que\b/.test(t)
+    || /^(?:Y )?[Ee]s (?:muy |lo más )?normal(?: del mundo)? que\b/.test(t) || /^(?:Y )?[Ee]so ya es algo[.!]$/.test(t)
+    || /^(?:Y )?[Gg]racias por (?:contármelo|contarme|compartir|decírmelo|decirme|confiar|escribir)/.test(t);
+}
+
+function sanitizeManual(text) {
+  return quitarFrasesCortas(text, esManual);
+}
+
+// Frases que la evalúan, aunque sea para bien: «Me parece muy honesto.»,
+// «Qué valiente.», «Es muy bonito lo que dices.», «Has sido muy sincera.»,
+// «Eso dice mucho de ti.». Una amiga no le pone nota a cómo cuenta las cosas.
+// «Me parece que…» (una opinión con cuidado) NO se toca: solo «me parece»
+// seguido de un adjetivo que la valora.
+// («Eso es muy honesto.» llega aquí como «Muy honesto.», porque la red de
+// muletillas ya ha quitado el «Eso es».)
+const ADJ_EVAL = "(?:honest[oa]s?|valientes?|bonit[oa]s?|precios[oa]s?|admirables?|sincer[oa]s?|valios[oa]s?|generos[oa]s?|lúcid[oa]s?|madur[oa]s?|sabi[oa]s?|bien|genial|estupendo|de valientes)";
+const INTENSIF = "(?:muy |tan |súper |super |realmente |bastante |algo |lo más |de lo más )?";
+const RE_EVALUA = [
+  new RegExp(`^(?:Y |Pero )?(?:Me parece|Es|Eso es|Lo que (?:dices|cuentas|has escrito|haces) es|Has sido|Estás siendo) ${INTENSIF}${ADJ_EVAL}\\b`, "i"),
+  // «Muy honesto.», «Qué valiente.», «Qué bonito que…»; pero no «Muy bien no estás…»
+  new RegExp(`^(?:Muy |Tan |Qué )${ADJ_EVAL}(?:[.!]$|,? (?:que|lo que|cómo)\\b)`, "i"),
+  /^(?:Y )?(?:Eso )?[Dd]ice mucho de ti\b/,
+  /^(?:Y )?Me alegra (?:que|mucho|leerte|saber)\b/,
+];
+
+function esEvaluacion(t) {
+  return RE_EVALUA.some(re => re.test(t));
+}
+
+function sanitizeEvaluacion(text) {
+  const r = quitarFrasesCortas(text, esEvaluacion);
+  if (r !== text) console.warn("sanitize: frase que la evalúa recortada");
+  return r;
+}
+
+// ── PREGUNTAS DE DATOS ─────────────────────────────────────────────────────
+// Alma guía con preguntas, y eso no se toca. Aquí solo se quitan las que piden
+// los hechos de una pérdida o un suceso: «¿Cuánto tiempo hacía que no os
+// veíais?», «¿Cuándo fue?», «¿Qué edad tenía?», «¿Cómo murió?». No la ayudan a
+// ordenar nada y en un duelo hacen daño. Las que pueden servir para profundizar
+// («¿Desde cuándo sientes que te pones la última?», «¿Cuántas veces te has
+// dicho eso?») se dejan: ahí decide el prompt de cada guardiana.
+// Se quita la frase entera de la pregunta. Si no quedara nada, se deja.
+const RE_PREGUNTA_DATOS = new RegExp(
+  "^¿\\s*(?:y,?\\s+)?(?:" + [
+    "cuánto tiempo hac(?:e|ía) que", "hace cuánto (?:que |fue|pasó|murió|falleció|os|lo|la)", "cuánto hac(?:e|ía) que no",
+    "cuántos años tenía", "qué edad",
+    "cuándo (?:fue|pasó|ocurrió|murió|falleció|lo supiste|te enteraste|os visteis|os habíais visto|la viste|lo viste|hablasteis)",
+    "cómo (?:murió|falleció)", "de qué murió",
+    "cómo (?:fue|pasó|ocurrió)\\s*\\?",
+  ].join("|") + ")",
+  "i"
+);
+
+function quitarPreguntasDeDatos(text) {
+  if (!text || text.indexOf("?") === -1) return text;
+  const preguntas = [...text.matchAll(/¿[^¿?]*\?/g)].filter(m => RE_PREGUNTA_DATOS.test(m[0]));
+  if (!preguntas.length) return text;
+  let t = text;
+  for (let i = preguntas.length - 1; i >= 0; i--) {
+    const m = preguntas[i];
+    const fin = m.index + m[0].length;
+    let ini = m.index;
+    while (ini > 0 && !/[.!?\n]/.test(t[ini - 1])) ini--;
+    t = t.slice(0, ini) + t.slice(fin);
+  }
+  t = t.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").replace(/[ \t]{2,}/g, " ").trim();
+  if (!t) return text;
+  console.warn("sanitize: pregunta de datos recortada");
+  return t;
+}
+
 // Respuesta de conversación: todas las redes, en el mismo orden que el original.
+// Las preguntas de datos se quitan antes de recortar a una sola pregunta: así,
+// si la primera era de datos, se queda la siguiente.
 function limpiarRespuesta(text) {
-  return recortarPreguntas(sanitizeManual(sanitizeEspana(sanitizeTrailingQuestion(sanitizeMuletillas(sanitizeDashes(sanitizeFirma(text)))))));
+  return recortarPreguntas(quitarPreguntasDeDatos(sanitizeEvaluacion(sanitizeManual(sanitizeEspana(sanitizeTrailingQuestion(sanitizeMuletillas(sanitizeDashes(sanitizeFirma(text)))))))));
 }
 
 // Reflejo: guiones y muletillas (sin tocar sus preguntas, que no las lleva).
@@ -176,11 +256,12 @@ function quitarCierreQuePregunta(text) {
 }
 
 function limpiarReflejo(text) {
-  return quitarCierreQuePregunta(sanitizeEspana(sanitizeMuletillas(sanitizeDashes(text))));
+  return quitarCierreQuePregunta(sanitizeEvaluacion(sanitizeEspana(sanitizeMuletillas(sanitizeDashes(text)))));
 }
 
 module.exports = {
   sanitizeDashes, sanitizeMuletillas, sanitizeTrailingQuestion, sanitizeFirma,
   sanitizeEspana, tienePreguntaConOpciones, recortarPreguntas, sanitizeManual,
+  sanitizeEvaluacion, quitarPreguntasDeDatos,
   limpiarRespuesta, limpiarReflejo,
 };
