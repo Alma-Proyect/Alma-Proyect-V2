@@ -65,13 +65,16 @@ Devuelve: {"formato":"palabra","contenido":"PALABRA_EN_MAYÚSCULAS"}
 
 FORMATO 2 — Una emoción o patrón:
 Cuando es más específico que una palabra pero más corto que una frase larga.
-Ejemplos: "El miedo a decepcionar", "La necesidad de controlarlo todo", "El cansancio de sostener sola"
-Devuelve: {"formato":"emocion","contenido":"La emoción o patrón en minúsculas, máximo 8 palabras"}
+En la pantalla va detrás de «Hoy volviste varias veces a…», así que tiene que continuar esa frase: empieza en minúscula, con artículo.
+Ejemplos: "el miedo a decepcionar", "la necesidad de controlarlo todo", "el cansancio de sostener sola", "lo que le dijiste a tu hermano"
+Devuelve: {"formato":"emocion","contenido":"la emoción o patrón en minúsculas, máximo 8 palabras"}
 
 REGLAS:
 Solo JSON. Sin markdown. Sin texto fuera del JSON.
 Elige el formato más revelador para esta conversación concreta.
 Nunca inventes algo que no esté en la conversación.
+Se lo dices a ella: si nombras a alguien o algo suyo, es «tu» («tu hermano», «tu madre»), nunca «su». Nunca hables de ella en tercera persona.
+Corto de verdad: como mucho 8 palabras. Si necesitas más, elige otra cosa.
 Nunca escribas una frase completa sobre lo que viste en ella: eso ya lo dice
 la tarjeta del día y repetirlo resta fuerza a las dos. Aquí solo cabe una
 palabra o un patrón corto.
@@ -106,7 +109,16 @@ Español de España siempre.${nota}`;
     // Solo se aceptan los dos formatos vivos. Cualquier otro se trata como emoción.
     if (parsed.formato !== "palabra" && parsed.formato !== "emocion") parsed.formato = "emocion";
     // Sin etiquetas ni código: la app lo pinta tal cual
-    parsed = { formato: parsed.formato, contenido: parsed.contenido.replace(/[<>]/g, "").trim() };
+    let contenido = parsed.contenido.replace(/[<>]/g, "").trim();
+    if (parsed.formato === "emocion") {
+      // Se le habla a ella: «su hermano» → «tu hermano». Y continúa la frase
+      // «Hoy volviste varias veces a…», así que empieza en minúscula.
+      contenido = contenido
+        .replace(/\bsus\b/g, "tus").replace(/\bsu\b/g, "tu")
+        .replace(/^[A-ZÁÉÍÓÚÑ](?=[a-záéíóúñ])/, c => c.toLowerCase())
+        .replace(/\.$/, "");
+    }
+    parsed = { formato: parsed.formato, contenido };
 
     return { statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify(parsed) };
   } catch (e) {
