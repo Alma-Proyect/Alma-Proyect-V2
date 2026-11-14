@@ -6,7 +6,70 @@ const { getAlmaSystemPrompt } = require("./lib/prompts");
 const { getQuestion, getBetaQuestion, MAX_TURNS_PER_DAY } = require("./lib/questions");
 const { callAnthropic } = require("./lib/anthropic");
 const { getGuardiana, resolverPuerta } = require("./lib/guardianas");
-const { limpiarRespuesta } = require("./lib/sanitize");
+const { limpiarRespuesta, tienePreguntaConOpciones } = require("./lib/sanitize");
+const { RECORDATORIO_FINAL } = require("./lib/prompts");
+const { consultarLibre, sumarLibre, LIMITE_LIBRE_DIA } = require("./lib/limite");
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MAX_MENSAJES_LIBRES_EN_HILO = 10; // pares ella/Alma que se le recuerdan
+
+// Esencia del Sanctum: si tarda más de 0,8 s, Alma responde sin ella
+async function leerEsencia() {
+  try {
+    const c = new AbortController();
+    const t = setTimeout(() => c.abort(), 800);
+    const r = await fetch(`${process.env.URL}/.netlify/functions/sanctum-essence`, {
+      headers: { "x-sanctum-key": process.env.SANCTUM_SECRET }, signal: c.signal,
+    });
+    clearTimeout(t);
+    if (r.ok) return (await r.json()).essence || null;
+  } catch (e) {}
+  return null;
+}
+
+// ── CONVERSACIÓN LIBRE (después de los 7 días) ─────────────────────────
+// Vuelve con su guardiana cuando lo necesita. Sin días ni turnos, con un
+// límite de mensajes al día (lib/limite.js). Lo que escribe no se guarda en
+// el servidor: solo el contador.
+async function atenderLibre(datos, inicio, puerta, capaGuardiana, arrivalMode) {
+  const json = (o) => ({ statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify(o) });
+  const anonId = String(datos.anonId || "");
+  if (!UUID_RE.test(anonId)) {
+    return { statusCode: 400, body: JSON.stringify({ error: "Identificador inválido" }) };
+  }
+  const estado = await consultarLibre(anonId);
+  if (!estado.permitido) return json({ limite: true, restantes: 0, limiteDia: LIMITE_LIBRE_DIA });
+
+  const entry = datos.entry.slice(0, MAX_CHARS_ENTRADA);
+  const historial = limpiarHistorial(datos.conversationHistory, MAX_MENSAJES_LIBRES_EN_HILO);
+  const reflejo = typeof datos.reflejo === "string" ? datos.reflejo.slice(0, 4000) : "";
+  const messages = historial.map(t => ({ role: t.role === "alma" ? "assistant" : "user", content: t.text }));
+  // La conversación tiene que empezar por ella
+  while (messages.length && messages[0].role !== "user") messages.shift();
+  messages.push({ role: "user", content: messages.length ? entry : `Vuelve a escribirte. Esto es lo que escribe:\n\n"${entry}"` });
+
+  try {
+    const essence = await leerEsencia();
+    const result = await callAnthropic({
+      system: getAlmaSystemPrompt(1, 1, {}, capaGuardiana ? null : arrivalMode, essence, { libre: true, reflejo })
+        + (capaGuardiana ? "\n\n" + capaGuardiana : "") + "\n\n" + RECORDATORIO_FINAL,
+      messages,
+      maxTokens: 320,
+      temperature: 0.85,
+      plan: "free",
+      timeoutMs: 8800 - (Date.now() - inicio), // deja margen para guardar el contador
+    });
+    const response = limpiarRespuesta(cleanIfTruncated(result.text, result.truncated));
+    if (!response.trim()) throw new Error("Respuesta vacía");
+    if (tienePreguntaConOpciones(response)) console.warn(`Pregunta con opciones (puerta: ${puerta || "ninguna"}, libre)`);
+    const restantes = await sumarLibre(anonId, estado);
+    return json({ response, restantes, limiteDia: LIMITE_LIBRE_DIA });
+  } catch (e) {
+    console.error("Error en alma.js (libre):", e.message);
+    // No se cuenta: si Alma no respondió, el mensaje no gasta
+    return json({ error: true, restantes: Math.max(0, LIMITE_LIBRE_DIA - estado.usados) });
+  }
+}
 
 // Si la respuesta llegó truncada por tope de tokens, recorta hasta el último
 // signo de puntuación de cierre de frase para no dejar una palabra a medias.
@@ -88,6 +151,8 @@ exports.handler = async function (event) {
     };
   }
 
+  if (datos.modo === "libre") return atenderLibre(datos, inicio, puerta, capaGuardiana, arrivalMode);
+
   const maxTurns    = isBeta ? entero(datos.betaMaxTurns, 1, MAX_TURNOS_BETA, MAX_TURNOS_BETA) : MAX_TURNS_PER_DAY;
   const currentTurn = entero(datos.turn, 1, maxTurns, 1);
   const isLastTurn  = currentTurn >= maxTurns;
@@ -152,7 +217,7 @@ exports.handler = async function (event) {
       // Ítaca). Sin guardiana, todo sigue como antes.
       system: getAlmaSystemPrompt(day, currentTurn, previousEntries, capaGuardiana ? null : arrivalMode, essence, {
         maxTurns, tramo: Math.max(tramo, day), isBeta,
-      }) + (capaGuardiana ? "\n\n" + capaGuardiana : ""),
+      }) + (capaGuardiana ? "\n\n" + capaGuardiana : "") + "\n\n" + RECORDATORIO_FINAL,
       messages,
       maxTokens: 320,
       temperature: 0.85,
@@ -164,6 +229,10 @@ exports.handler = async function (event) {
     });
 
     const response = limpiarRespuesta(cleanIfTruncated(result.text, result.truncated));
+    if (tienePreguntaConOpciones(response)) {
+      // Solo el aviso, nunca el texto: lo que escribe ella es privado
+      console.warn(`Pregunta con opciones (puerta: ${puerta || "ninguna"}, día ${day}, turno ${currentTurn})`);
+    }
 
     return {
       statusCode: 200,
