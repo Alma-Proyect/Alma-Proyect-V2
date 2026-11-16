@@ -174,7 +174,7 @@ body {
   height: 100%; background: var(--clay); border-radius: 99px;
   transition: width 0.6s ease; width: 0%;
 }
-.progress-bar-pct { font-size: 0.63rem; color: var(--clay); font-weight: 600; min-width: 26px; text-align: right; }
+.progress-bar-pct { font-size: 0.63rem; color: var(--clay); font-weight: 600; min-width: 26px; text-align: right; white-space: nowrap; }
 
 /* Streak banner móvil */
 .streak-banner {
@@ -1240,6 +1240,97 @@ body.entrada-abierta { overflow: hidden; }
 .cierre-volver .btn-continuar-tramo { margin-top: 0.9rem; width: 100%; }
 #registro-toggle-final { align-self: center; }
 
+/* ════ SALIR RÁPIDO ════ */
+.salir-rapido {
+  position: fixed; z-index: 3000; top: calc(env(safe-area-inset-top, 0px) + 0.5rem); right: 0.5rem;
+  background: rgba(46,38,24,0.55); color: #fff; border: none; border-radius: 100px; cursor: pointer;
+  font-family: 'Jost', sans-serif; font-size: 0.72rem; letter-spacing: 0.04em; padding: 0.35rem 0.8rem;
+}
+.salir-rapido:hover { background: rgba(46,38,24,0.8); }
+.topbar-right { padding-right: 3.6rem; }
+
+/* ════ ENLACES BAJO LA PREGUNTA (soltar, escribir sin respuesta, falta el aire) ════ */
+.dia-soltar { text-align: center; margin: 0.9rem 0 0; font-family: 'Jost', sans-serif; font-size: 0.8rem; line-height: 1.9; }
+.dia-soltar button {
+  background: none; border: none; cursor: pointer; padding: 0.1rem 0.2rem; font: inherit;
+  color: #8A7356; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(138,115,86,0.4);
+}
+.dia-soltar .sep { color: #B9A88C; margin: 0 0.25rem; }
+.dia-soltar .soltar-activo { font-style: italic; color: #8A7356; margin-bottom: 0.1rem; }
+body.en-guardiana .dia-soltar button, body.en-guardiana .dia-soltar .soltar-activo { color: rgba(255,255,255,0.8); text-decoration-color: rgba(255,255,255,0.35); }
+body.en-guardiana .dia-soltar .sep { color: rgba(255,255,255,0.45); }
+.entrada-seguridad { text-align: center; margin-top: 0.6rem; font-family: 'Jost', sans-serif; font-size: 0.78rem; }
+.entrada-seguridad button {
+  background: none; border: none; cursor: pointer; font: inherit; padding: 0.2rem 0.3rem;
+  color: inherit; opacity: 0.8; text-decoration: underline; text-underline-offset: 3px;
+}
+.puerta-blanco {
+  display: block; margin: 0.2rem auto 0; background: none; border: none; cursor: pointer;
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem;
+  color: #8A7356; text-decoration: underline; text-underline-offset: 4px;
+  text-decoration-color: rgba(138,115,86,0.4); padding: 0.4rem 0.8rem;
+}
+.entrada-oscura .entrada-seguridad button { color: rgba(255,255,255,0.78); opacity: 1; }
+.entrada-oscura .puerta-blanco { color: rgba(255,255,255,0.8); text-decoration-color: rgba(255,255,255,0.4); }
+.borrar-todo-link {
+  display: block; margin: 2.5rem auto 1rem; background: none; border: none; cursor: pointer;
+  font-family: 'Jost', sans-serif; font-size: 0.78rem; color: #9B8D74; text-decoration: underline; text-underline-offset: 3px;
+}
+.libre-screen .borrar-todo-link { color: rgba(255,255,255,0.6); }
+.aviso-iphone { display: none; font-family: 'Jost', sans-serif; font-size: 0.78rem; line-height: 1.6; color: #7A6A52; background: rgba(168,107,80,0.08); border-radius: 10px; padding: 0.8rem 1rem; margin: 1rem 0; }
+body.ios-safari .aviso-iphone { display: block; }
+.libre-screen .aviso-iphone { color: rgba(255,255,255,0.82); background: rgba(0,0,0,0.18); }
+
+/* ════ ESCRIBIR SIN RESPUESTA (página en blanco, tipo diario) ════ */
+body.blanco-abierta { overflow: hidden; }
+.blanco-screen {
+  display: none; position: fixed; inset: 0; z-index: 960; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: #FBF7EE; color: #2E2618;
+  padding: calc(env(safe-area-inset-top, 0px) + 1rem) 1.2rem calc(env(safe-area-inset-bottom, 0px) + 2rem);
+}
+.blanco-screen.visible { display: block; animation: fadeIn 0.4s ease both; }
+.blanco-col { max-width: 640px; margin: 0 auto; }
+.blanco-cabecera { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; padding-right: 3.6rem; }
+.blanco-volver { background: none; border: none; cursor: pointer; padding: 0.4rem 0; font-family: 'Jost', sans-serif; font-size: 0.86rem; color: #8A7356; }
+.blanco-titulo { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: clamp(1.6rem, 6vw, 2rem); text-align: center; margin-bottom: 0.4rem; }
+.blanco-intro { font-family: 'Jost', sans-serif; font-size: 0.86rem; font-style: italic; font-weight: 300; color: #7A6A52; text-align: center; margin-bottom: 1.4rem; line-height: 1.6; }
+.blanco-campo {
+  width: 100%; min-height: 46vh; border: none; outline: none; resize: vertical; padding: 0.4rem 0.2rem;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(168,107,80,0.16) 31px, rgba(168,107,80,0.16) 32px);
+  line-height: 32px; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: #2E2618;
+}
+.blanco-campo::placeholder { color: #B5A68C; font-style: italic; }
+.blanco-pie { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 0.8rem; }
+.blanco-quedan { font-family: 'Jost', sans-serif; font-size: 0.76rem; color: #8A7356; }
+.blanco-btn {
+  min-height: 46px; padding: 0 1.6rem; border-radius: 100px; cursor: pointer;
+  background: #2E2618; color: #FBF7EE; border: none; font-family: 'Jost', sans-serif; font-size: 0.92rem;
+}
+.blanco-btn:disabled { opacity: 0.45; cursor: default; }
+.blanco-ok { font-family: 'Jost', sans-serif; font-size: 0.8rem; color: #8A7356; text-align: right; margin-top: 0.4rem; }
+.blanco-limite { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15rem; color: #5C4E3A; text-align: center; padding: 1.4rem 0; line-height: 1.6; }
+.blanco-paginas { margin-top: 2.2rem; border-top: 1px solid rgba(168,107,80,0.18); padding-top: 1.2rem; }
+.blanco-paginas-titulo { font-family: 'Jost', sans-serif; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: #8A7356; margin-bottom: 0.8rem; }
+.blanco-pagina { padding: 0.9rem 0; border-bottom: 1px solid rgba(168,107,80,0.1); }
+.blanco-pagina-fecha { font-family: 'Jost', sans-serif; font-size: 0.72rem; color: #9B8D74; margin-bottom: 0.3rem; }
+.blanco-pagina p { font-family: 'Cormorant Garamond', serif; font-size: 1.08rem; line-height: 1.6; white-space: pre-wrap; }
+
+/* ════ SI TE FALTA EL AIRE ════ */
+.ahogo-screen {
+  display: none; position: fixed; inset: 0; z-index: 2500; overflow-y: auto;
+  background: #F5EDD8; color: #2E2618; padding: 2rem 1.4rem;
+}
+.ahogo-screen.visible { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.6s ease both; }
+.ahogo-col { max-width: 460px; margin: auto; text-align: center; }
+.ahogo-col h2 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 1.7rem; margin-bottom: 1.4rem; }
+.ahogo-col p { font-family: 'Cormorant Garamond', serif; font-size: 1.22rem; line-height: 1.65; margin-bottom: 1.1rem; }
+.ahogo-col .ahogo-ayuda { font-family: 'Jost', sans-serif; font-size: 0.82rem; line-height: 1.6; color: #6B5B44; margin-top: 1.6rem; }
+.ahogo-col .ahogo-ayuda a { color: #A86B50; white-space: nowrap; }
+.ahogo-btn {
+  margin-top: 1.4rem; min-height: 46px; padding: 0 1.8rem; border-radius: 100px; cursor: pointer;
+  background: none; color: #2E2618; border: 1px solid rgba(46,38,24,0.35); font-family: 'Jost', sans-serif; font-size: 0.92rem;
+}
+
 /* ════ CUANDO LO NECESITES (conversación libre) ════ */
 body.libre-abierta { overflow: hidden; }
 .libre-screen {
@@ -2107,6 +2198,44 @@ body.libre-abierta { overflow: hidden; }
 /* Confirmación en arcilla: ahora que el cierre es verde, el aviso de copiado
    necesita salirse del verde para que se note que ha pasado algo. */
 .btn-farewell.copied { background: rgba(168,107,80,0.16); border-color: var(--clay); color: var(--clay2); }
+/* «Con algo bueno que contar»: un enlace discreto, no una quinta puerta */
+.puerta-bueno {
+  display: block; margin: 1.1rem auto 0; background: none; border: none; cursor: pointer;
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem;
+  color: #B8860B; text-decoration: underline; text-underline-offset: 4px;
+  text-decoration-color: rgba(184,134,11,0.45); padding: 0.4rem 0.8rem;
+}
+.puerta-bueno:hover { text-decoration-color: #B8860B; }
+.entrada-oscura .puerta-bueno { color: #E8C77E; text-decoration-color: rgba(232,199,126,0.5); }
+.dia-bueno { text-align: center; margin: 0 0 0.9rem; }
+.dia-bueno .puerta-bueno { margin-top: 0; font-size: 1rem; }
+body.en-guardiana .dia-bueno .puerta-bueno { color: rgba(255,255,255,0.85); text-decoration-color: rgba(255,255,255,0.4); }
+.puertas-hoy-titulo { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--ink); margin-bottom: 0.6rem; }
+body.en-guardiana .puertas-hoy-titulo { color: #fff; }
+.puertas-hoy { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+.puertas-hoy button {
+  font-family: 'Jost', sans-serif; font-size: 0.85rem; padding: 0.55rem 0.9rem; border-radius: 999px; cursor: pointer;
+  background: transparent; border: 1px solid var(--guardiana, #8B4F38); color: var(--guardiana, #8B4F38);
+}
+/* Opciones del cuaderno antes de descargar */
+.cuaderno-opciones {
+  width: 100%; text-align: left; flex-direction: column; gap: 0.7rem;
+  background: rgba(69,99,82,0.05); border: 1px solid rgba(69,99,82,0.22);
+  border-radius: 1rem; padding: 1.2rem 1.2rem 1.1rem;
+  animation: slideUp 0.4s ease both;
+}
+.cuaderno-opciones-titulo { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.2rem; color: var(--ink); }
+.cuaderno-opciones-texto, .cuaderno-opciones-nota {
+  font-family: 'Jost', sans-serif; font-size: 0.84rem; font-weight: 300; line-height: 1.65; color: #6B5240;
+}
+.cuaderno-opciones-nota { font-size: 0.74rem; color: rgba(44,32,16,0.62); }
+.cuaderno-opcion {
+  display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer;
+  font-family: 'Jost', sans-serif; font-size: 0.88rem; line-height: 1.5; color: var(--ink);
+}
+.cuaderno-opcion input { width: 18px; height: 18px; margin-top: 0.15rem; accent-color: #456352; flex-shrink: 0; }
+.cuaderno-opcion.desactivada { opacity: 0.5; cursor: default; }
+.cuaderno-opciones .btn-farewell { align-self: flex-end; }
 /* Los puntos de espera son rosa sobre fondo oscuro; sobre crema hacen falta más oscuros. */
 .farewell-screen .typing-dot { background: #5C7F6C; }
 .btn-farewell svg    { width: 15px; height: 15px; flex-shrink: 0; }
@@ -2282,6 +2411,8 @@ body.libre-abierta { overflow: hidden; }
 
 </head>
 <body>
+<!-- Salir rápido: lleva a otra web al momento (por si alguien se acerca) -->
+<button type="button" class="salir-rapido" onclick="salirRapido()" aria-label="Salir rápido de esta página">Salir</button>
 
 <div id="cortina" aria-hidden="true"><div class="puntos"><span></span><span></span><span></span></div></div>
 
@@ -2311,8 +2442,51 @@ body.libre-abierta { overflow: hidden; }
         <textarea class="libre-campo" id="libre-notas-text" rows="4" maxlength="2000" placeholder="Lo que necesites dejar aquí…"></textarea>
         <button type="button" class="libre-btn" onclick="guardarNotaLibre()">Guardar en mi móvil</button>
         <p class="libre-notas-ok" id="libre-notas-ok" style="display:none">Guardado en tu móvil.</p>
-        <p class="libre-ayuda">Si estás mal ahora mismo, llama al <a href="tel:024">024</a> o al <a href="tel:717003717">717 003 717</a>, a cualquier hora.</p>
+        <p class="aviso-iphone">En iPhone, si pasas más de una semana sin abrir Alma, Safari puede borrar lo que se guarda solo en el móvil. Para que no pase, añade Alma a tu pantalla de inicio: toca el botón de compartir y luego «Añadir a pantalla de inicio».</p>
+        <p class="libre-ayuda">Si estás mal ahora mismo, llama al <a href="tel:024">024</a> o al <a href="tel:717003717">717 003 717</a>, a cualquier hora. Si alguien te da miedo o te hace daño, al <a href="tel:016">016</a>.</p>
       </div>
+      <button type="button" class="borrar-todo-link" onclick="borrarTodo()">Borrar todo lo mío</button>
+    </div>
+  </div>
+
+  <!-- ESCRIBIR SIN RESPUESTA: una página en blanco, tipo diario. Nadie la lee,
+       ni Alma: se guarda solo en el móvil y se borra sola a los catorce días. -->
+  <div class="blanco-screen" id="blanco-screen" aria-hidden="true" role="dialog" aria-label="Escribir sin respuesta">
+    <div class="blanco-col">
+      <div class="blanco-cabecera">
+        <button type="button" class="blanco-volver" onclick="cerrarBlanco()">← Volver</button>
+      </div>
+      <h2 class="blanco-titulo">Una página en blanco</h2>
+      <p class="blanco-intro">Aquí Alma no lee ni contesta. Escribe lo que quieras: se guarda solo en este móvil y se borra sola a los catorce días.</p>
+      <p class="aviso-iphone">En iPhone, si pasas más de una semana sin abrir Alma, Safari puede borrar lo que se guarda solo en el móvil. Para que no pase, añade Alma a tu pantalla de inicio: toca el botón de compartir y luego «Añadir a pantalla de inicio».</p>
+      <div id="blanco-escribir">
+        <textarea class="blanco-campo" id="blanco-text" maxlength="5000" placeholder="Lo que necesites dejar aquí…"></textarea>
+        <div class="blanco-pie">
+          <span class="blanco-quedan" id="blanco-quedan"></span>
+          <button type="button" class="blanco-btn" id="blanco-btn" onclick="guardarPaginaBlanco()">Guardar</button>
+        </div>
+        <p class="blanco-ok" id="blanco-ok" style="display:none">Guardada en tu móvil.</p>
+      </div>
+      <p class="blanco-limite" id="blanco-limite" style="display:none">Por hoy ya has llenado tus tres páginas.<br>Mañana vuelven a estar en blanco.</p>
+      <div class="blanco-paginas" id="blanco-paginas" style="display:none">
+        <p class="blanco-paginas-titulo">Lo que has escrito estos días</p>
+        <div id="blanco-lista"></div>
+      </div>
+      <button type="button" class="borrar-todo-link" onclick="borrarTodo()">Borrar todo lo mío</button>
+    </div>
+  </div>
+
+  <!-- SI TE FALTA EL AIRE: un rato quieto antes de poder escribir -->
+  <div class="ahogo-screen" id="ahogo-screen" aria-hidden="true" role="dialog" aria-label="Si te falta el aire">
+    <div class="ahogo-col">
+      <h2>Si ahora mismo te falta el aire</h2>
+      <p>No tienes que escribir nada.</p>
+      <p>Apoya los pies en el suelo y nota que te sostiene.</p>
+      <p>Suelta el aire despacio, más despacio de lo que lo coges. No hace falta contar.</p>
+      <p>Busca a tu alrededor tres cosas del mismo color y nómbralas por dentro.</p>
+      <p>Es muy desagradable, y suele pasar en unos minutos. Quédate aquí el rato que necesites.</p>
+      <p class="ahogo-ayuda">Si notas dolor en el pecho, es la primera vez que te pasa o no se te pasa, llama al <a href="tel:112">112</a>.<br>Si necesitas hablar con alguien ahora: <a href="tel:024">024</a>, a cualquier hora.</p>
+      <button type="button" class="ahogo-btn" onclick="cerrarAhogo()">Ya estoy un poco mejor</button>
     </div>
   </div>
 
@@ -2347,12 +2521,22 @@ body.libre-abierta { overflow: hidden; }
         </svg>
         Copiar todo
       </button>
-      <button class="btn-farewell" onclick="downloadFarewell()">
+      <button class="btn-farewell" id="btn-cuaderno-abrir" onclick="abrirOpcionesCuaderno()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
-        Descargar tu carta
+        Descargar tu cuaderno
       </button>
+    </div>
+
+    <!-- Antes de descargar: qué lleva su cuaderno, y que decida ella -->
+    <div class="cuaderno-opciones" id="cuaderno-opciones" style="display:none">
+      <p class="cuaderno-opciones-titulo">Tu cuaderno</p>
+      <p class="cuaderno-opciones-texto">Para seguir escribiendo a mano, en A4: una historia con su dibujo, dos propuestas para escribir y hojas para ti. Además puede llevar:</p>
+      <label class="cuaderno-opcion"><input type="checkbox" id="cuaderno-con-reflejo" checked> <span id="cuaderno-reflejo-label">Lo que Alma vio en ti (tu reflejo)</span></label>
+      <label class="cuaderno-opcion"><input type="checkbox" id="cuaderno-con-carta" checked> <span>Lo que escribiste cada día</span></label>
+      <p class="cuaderno-opciones-nota">Si vas a imprimirlo donde otras personas puedan verlo, quizá prefieras dejar fuera lo que escribiste. El cuaderno se crea aquí mismo y no se guarda en ningún sitio.</p>
+      <button class="btn-farewell" id="btn-cuaderno-descargar" onclick="downloadFarewell()">Descargar</button>
     </div>
 
     <!-- CAMINO A — puede seguir al siguiente tramo. Sin registro: no se va. -->
@@ -2374,7 +2558,7 @@ body.libre-abierta { overflow: hidden; }
           <p class="cierre-palabras-titulo">Lo que has escrito</p>
           <p>Todo sigue en este móvil, en <a href="#" onclick="abrirRefugio(); return false;">Tu refugio</a>.</p>
           <p>La copia de nuestro servidor se borra sola a los catorce días sin actividad.</p>
-          <p>Si quieres conservarlo, descarga tu carta: lleva el reflejo y tus palabras de cada día.</p>
+          <p>Si quieres conservarlo, descarga tu cuaderno: puede llevar el reflejo y tus palabras de cada día.</p>
         </div>
 
         <!-- Volver cuando lo necesite, con su guardiana -->
@@ -2485,7 +2669,7 @@ body.libre-abierta { overflow: hidden; }
       <button class="beta-cta" onclick="startFullJourney()">
         Quiero seguir con Alma →
       </button>
-      <p class="beta-cta-note">El recorrido completo va más hondo día a día, con un reflejo final y tu carta descargable en PDF.</p>
+      <p class="beta-cta-note">El recorrido completo va más hondo día a día, con un reflejo final y un cuaderno para escribir a mano.</p>
 
       <!-- Feedback: opcional y plegado, después del botón para seguir.
            Netlify lo captura y manda email -->
@@ -2550,7 +2734,7 @@ body.libre-abierta { overflow: hidden; }
 <div class="day-nav" id="day-nav"></div>
 <div class="progress-bar-wrap">
   <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar-fill"></div></div>
-  <span class="progress-bar-pct" id="progress-bar-pct">0%</span>
+  <span class="progress-bar-pct" id="progress-bar-pct"></span>
 </div>
 
 <!-- ── LAYOUT (sidebar desktop + main) ── -->
@@ -2605,7 +2789,7 @@ body.libre-abierta { overflow: hidden; }
               stroke-dasharray="138.2" stroke-dashoffset="138.2"/>
             <text class="ring-label" x="28" y="29"
               style="transform:rotate(90deg);transform-origin:28px 28px"
-              id="ring-pct">0%</text>
+              id="ring-pct"></text>
           </svg>
         </div>
       </div>
@@ -2633,12 +2817,15 @@ body.libre-abierta { overflow: hidden; }
           <span class="puerta-nombre">Volver a mí</span><span class="puerta-linea">Siento que me he ido perdiendo por el camino.</span>
         </button>
         </div>
+        <button type="button" class="puerta-bueno" onclick="selectBetaArrival(this,'bueno')">Con algo bueno que contar</button>
+        <button type="button" class="puerta-blanco" onclick="abrirBlanco('puertas')">Solo quiero escribir, sin respuesta</button>
         <p class="entrada-calma">Tus palabras se borran solas a los catorce días.</p>
         <p class="arrival-legal">
           Alma no es terapia. Si necesitas ayuda ahora, llama al <a href="tel:024">024</a>
-          o al <a href="tel:717003717">717 003 717</a>, a cualquier hora.<br>
+          o al <a href="tel:717003717">717 003 717</a>, a cualquier hora. Si alguien te da miedo o te hace daño, al <a href="tel:016">016</a>.<br>
           Al elegir confirmas que eres mayor de edad y aceptas la <a href="privacidad.html">política de privacidad</a>.
         </p>
+        <p class="entrada-seguridad"><button type="button" onclick="abrirAhogo()">Si ahora mismo te falta el aire</button></p>
         <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
            onclick="if(typeof almaTrack==='function') almaTrack('guia_descargada');">De dónde viene Alma</a>
       </div>
@@ -2664,24 +2851,32 @@ body.libre-abierta { overflow: hidden; }
           <span class="puerta-nombre">Volver a mí</span><span class="puerta-linea">Siento que me he ido perdiendo por el camino.</span>
         </button>
       </div>
+      <button type="button" class="puerta-bueno" onclick="selectArrival(this,'bueno')">Con algo bueno que contar</button>
+      <button type="button" class="puerta-blanco" onclick="abrirBlanco('puertas')">Solo quiero escribir, sin respuesta</button>
       <p class="arrival-legal">
         Alma no es terapia ni sustituye a un profesional. Si necesitas ayuda ahora:
         <a href="tel:024">024</a> (atención a la conducta suicida, 24 h) o
-        <a href="tel:717003717">717 003 717</a> (Teléfono de la Esperanza, 24 h).<br>
+        <a href="tel:717003717">717 003 717</a> (Teléfono de la Esperanza, 24 h).
+        Si alguien te da miedo o te hace daño: <a href="tel:016">016</a> (no sale en la factura).<br>
         Al elegir confirmas que eres mayor de 18 años y aceptas la
         <a href="privacidad.html">política de privacidad</a>. Tus palabras se guardan
         mientras dura tu recorrido y se borran solas a los catorce días.
       </p>
+      <p class="entrada-seguridad"><button type="button" onclick="abrirAhogo()">Si ahora mismo te falta el aire</button></p>
       <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
          onclick="if(typeof almaTrack==='function') almaTrack('guia_descargada');">De dónde viene Alma →</a>
     </div>
 
     <!-- Pregunta -->
     <div class="question-card question-card-hidden" id="question-card">
+      <!-- Cada día, antes de escribir: «Hoy tengo algo bueno que contar» (o elegir puerta si aún no tiene) -->
+      <div class="dia-bueno" id="dia-bueno" style="display:none"></div>
       <div id="question-text">
         <p class="question-intro">No hace falta que esté bien explicado, solo exprésalo, como salga…</p>
         <p class="question-main">¿Hay algo que llevas dentro y que casi nunca dices en voz alta?</p>
       </div>
+      <!-- «Hoy solo quiero soltar», escribir sin respuesta y, por si acaso, «si te falta el aire» -->
+      <div class="dia-soltar" id="dia-soltar" style="display:none"></div>
 
       <!-- Frase de Alma antes del textarea — rompe el hielo -->
       <div class="alma-opener" id="alma-opener">
@@ -2762,9 +2957,8 @@ function cargarPdfLib() {
   return _pdfLibPromise;
 }
 // ═════════════════════════════════════════════════
-//  REFLEJO EN PDF · Alma Proyect
-//  El logo va tal cual, sin retocar: solo recortado del aire sobrante.
-//  El papel se ve amarillo en pantalla y sale blanco por la impresora.
+//  LOGO PARA EL PDF (reserva: el cuaderno usa /cuaderno/img/logo-portada.png;
+//  si esa imagen no carga, usa este)
 // ═════════════════════════════════════════════════
 const ALMA_LOGO_B64 = "iVBORw0KGgoAAAANSUhEUgAAAPwAAAE4CAMAAABIe25DAAAC/VBMVEVHcEwAAADsoSdyMQGlVQaFPQK/TwX/AADV/xy9gAtxPAFwMAF4NQKCAAFdIwBRHABNGwBQHABmJgFUHQD+/rNtLAL6sDXLbAuTQAIbBwH+8oRnJgH++aX985nEYArj/1uoUAUEAAD3ukWpaxlfEwD921tFGAHSYgX62XCIPQbSoFVaIwL3z2lJGQD96oz++c3dagf74n364JPyhRf3qjHAYQdiJwL2x1v+9b3uewvsniWPTBFdJQI/FQGqdzn92kQzDgA5EQHBjkitYBP956rIaQz414iyVwr+8LD4uEolBwD+/eTov005EgH6yDCEIQHBfDGGOwTapTZdIQGhWBRvGgH9xk8zCgD+//jcjRb9zFf9vyT9ylTktm9nKQIqCgDxcA2+cReqTwXalDbPhB8cBQDfhRaLXjDZq2LhiBjXaAPgs0YYAwDpXgdQGgHbfQ/vqk/lhg/Sbg7woSDokhfrnhg6DQHwmkLssirunyBgJQKBMwLNZwb22qj+0l9bHQBZGwCjTAQAAP89DgH+0l7jhA7uqSdUGQGVRARzLALefQ//4HaXRQTJYgZ8MALbdgvsjRFoJQGDNQF3MQL/3G71zFz99Mr/6Y7/7qD2vDKmVwfApZO4WAa3aAwBAAAgAwBNFABSFwAZAgAsBwAHAAASAQAMAABXGQBIEQAnBAAxCQA8CgBiHgBeGwBoIgA+DgBEDQA2CgB6LAFvJAA3DQB1KACDLwFCEgCMNQFbHwCDNQL+/sH0lhrDZAu+XQf+/9OUOgJ4MQPMagu0VwckCAD7sS7ScQ/4oyTffRTlhRftjx7+/qH/+pGzTwSqSwP/619IGQH+63TUeBObRAI4FQL9wUT+42f80lT5nRv9uTOfSgUrDwL9ykb3jg94SAxMIgOoRALgdArAVQRsPAn+41GePgJfNAn/8nD7rBdRCwBRLAvKl1K3hEOYYhT/+H6HVgvtwnSeMwP70jc7HQu8iCKZbDyveRvXUgXKlyTvyouQKwF7UimyOgTGRQJiQSVfX2CKAAAA+3RSTlMAAQMLBQcDAQECAxIOAhcuNigdIv7+Bwv+/v7+/v4cAv7+D/7+/mX+/v7+Vv1C/v7+/v7+/jui/v7+/v7+ff7+x6j+/v5S/if+/rf+/pP+/v5J/rL9/hr6/v43/ib+eNT+/Wv+/uQw/v5VvP7y/r9y/qTr3O3z3/78hZC/i/5K1/m6Ae9b6bPskeLcie7P0svG6/H3cN7opcLN2P7s5////////////////////////////////////////////////////////////////////v/+/////////////////////////////////////////////////////k7NdUQAACAASURBVHja5JtfTFNpGsZPT8/f/gGstWfTQWpIi10BA4JgyRAgrqMYtFaXMTtmBJUhYQkig8sMxiwdmIGdWc0Yk7mYZC/OuTrN0nPotFsQgVll4qhQxJJQHKOJGkhpsmkWbyZDNNn3O3VnvNiLnbnY6LdfCOWiF/zO877P+7xfWoL4Xx+Oy7yQNhK9mnmGYQRByIeT9zb6LQgkyfDau0iKsmX+wuFwGjxHOoh+SjDl7W1t6+zt7brU3f3ll1/8dAb/3Nv78R/faX0bHoZA4sJO8A6C5fod+Xmte3q7Brs/qP/hre37dk1MTFhzN/9mx1s//PPddxva27dt29bd3X327KWu3s62VoHiMSAnNRHz9+7p7Lp0trxyx76/w5nYt91d2XC45duvH61cufxpX9+RinPHC30+3044rejk25jXvNgJ3ga/HK1t53//SfmSe8cu4LZudi+eapl6NNqYCqWGjpwrKMzZm5dng56A3ugnHBxUCfd6dzz691moXEd+W+/nn3luurbnTiDwovJb31wL+6XQyEBfxfGcjcZ8G0fwJGlGvsD/dNjXGZ7lCJKwAflnHc03izYD+ESuvXJm64q30S+JAH5yp4mmCJ6mGI6Fk3lgL53XV3aWhwLOf6f3kqe5rD5DXrp4+8lao39cGR/qq/AJQMfbaC4jMPtvfBwOCbq1fjxY5nlYXgnVPmEtXZwBckmUZKXvQGGeg9AxFMVlnhM21JrLATrf1tVd1jxZtNkK82x7PdJc8r8ZVIaOFOZRJE1DsZOQcngOI3KEzvCs0Db4h8nmsqJ9ViuIXr71+RVFCm5S/X3Hc4ykTQB2mjFQDM/AJMeHXjOqvM7uDyebJxO5E1brPvfMI29EGpNVdei0z0iRAk1REGPhCUG5YyU7B4E8r637xmTzQzekN2tukee5V74r+tXg0BGfwOhNtIHSFMcJO8PO84Rpz+CHkx3Ni7MT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";
 
@@ -2810,42 +3004,190 @@ function diasParaCarta() {
     const modo = MODO_BETA_A_BANCO[d.arrivalMode] || d.arrivalMode || 'pain';
     let pregunta = d.question || preguntaFijada(i) || '';
     if (!pregunta) { try { pregunta = getOrCreateQuestionSet(modo)[i + 1] || ''; } catch(e) {} }
-    dias.push({ dia: i + 1, pregunta, textos });
+    dias.push({ dia: i + 1, pregunta, textos, bueno: esDiaBueno(i) });
   }
   return dias;
 }
 
-async function generarReflejoPDF(reflejo, fechaTexto, dias){
+// ═════════════════════════════════════════════════
+//  CUADERNO DESCARGABLE · al cerrar cada tramo (3, 5 y 7 días)
+//  Portada, su reflejo y lo que escribió (si ella lo marca), una historia con
+//  su dibujo, dos propuestas para escribir a mano y una hoja libre. A4, en el
+//  color de su puerta. Los textos fijos están en /cuaderno/textos.js y las
+//  imágenes en /cuaderno/img/. La historia la elige el servidor según lo que
+//  escribió (cuaderno-historia.js); si no puede, sale una al azar.
+//  Sustituye a la carta suelta: la carta va dentro, si ella quiere.
+// ═════════════════════════════════════════════════
+
+let _textosCuadernoPromise = null;
+function cargarTextosCuaderno() {
+  if (window.CUADERNO) return Promise.resolve();
+  if (_textosCuadernoPromise) return _textosCuadernoPromise;
+  _textosCuadernoPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = '/cuaderno/textos.js';
+    s.onload  = () => resolve();
+    s.onerror = () => { _textosCuadernoPromise = null; reject(new Error('No se pudieron cargar los textos del cuaderno')); };
+    document.head.appendChild(s);
+  });
+  return _textosCuadernoPromise;
+}
+
+async function _bytesDe(url) {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return null;
+    return new Uint8Array(await r.arrayBuffer());
+  } catch (e) { return null; }
+}
+
+function _hexRgb(hex) {
+  const n = parseInt(String(hex).replace('#', ''), 16);
+  return PDFLib.rgb(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
+}
+
+// Su puerta. Quien empezó con las opciones antiguas va a la guardiana que la
+// acompaña; «Con una inquietud», que no tiene guardiana, va a Volver a mí.
+function puertaDelCuaderno() {
+  const p = puertaDelRecorrido();
+  if (COLOR_PUERTA[p]) return p;
+  return PUERTA_DE_MODO_ANTIGUO[p] || PUERTA_DE_MODO_ANTIGUO[MODO_BETA_A_BANCO[p]] || 'volver';
+}
+
+// La historia de este tramo. Se recuerda (la misma si vuelve a descargar) y
+// nunca repite la de otro tramo suyo.
+// Una historia solo puede salir si su ilustración ya está subida en
+// /cuaderno/img/. Así, una historia nueva entra sola el día que se sube su imagen.
+async function _conIlustracion(lista) {
+  const ok = await Promise.all(lista.map(async h => {
+    try {
+      const c = new AbortController();
+      const t = setTimeout(() => c.abort(), 4000);
+      const r = await fetch('/cuaderno/img/' + h.id + '.jpg', { method: 'HEAD', signal: c.signal });
+      clearTimeout(t);
+      // Si la web devuelve otra página en vez de la imagen, cuenta como que no está
+      return r.ok && /^image\//.test(r.headers.get('content-type') || '');
+    } catch (e) { return null; }
+  }));
+  // Si no se ha podido comprobar ninguna (sin conexión), no se descarta nada
+  if (ok.every(v => v === null)) return lista;
+  return lista.filter((h, i) => ok[i] !== false);
+}
+
+async function elegirHistoriaCuaderno(puerta, tramo, dias) {
+  const bancoEntero = (window.CUADERNO.historias[puerta] || []);
+  const clave = 'alma_cuaderno_historia_' + tramo;
+  const porId = id => banco.find(h => h.id === id) || null;
+  try { const ya = bancoEntero.find(h => h.id === localStorage.getItem(clave)); if (ya) return ya; } catch (e) {}
+
+  const banco = await _conIlustracion(bancoEntero);
+  const sinImagen = bancoEntero.filter(h => !banco.includes(h)).map(h => h.id);
+  const vistas = TRAMOS.filter(t => t !== tramo)
+    .map(t => { try { return localStorage.getItem('alma_cuaderno_historia_' + t); } catch (e) { return null; } })
+    .filter(Boolean);
+
+  let elegida = null;
+  try {
+    const c = new AbortController();
+    const t = setTimeout(() => c.abort(), 9000);
+    const r = await fetch('/.netlify/functions/cuaderno-historia', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ puerta, vistas: vistas.concat(sinImagen), textos: dias.flatMap(d => d.textos) }),
+      signal: c.signal,
+    });
+    clearTimeout(t);
+    if (r.ok) { const d = await r.json(); elegida = porId(d.id); }
+  } catch (e) {}
+
+  if (!elegida || vistas.includes(elegida.id)) {
+    const libres = banco.filter(h => h.azar !== false && !vistas.includes(h.id));
+    const opciones = libres.length ? libres : banco.filter(h => h.azar !== false);
+    elegida = opciones[Math.floor(Math.random() * opciones.length)] || banco[0];
+  }
+  try { localStorage.setItem(clave, elegida.id); } catch (e) {}
+  return elegida;
+}
+
+// La historia del apartado «Un día bueno»: una de las alegres, de cualquier
+// puerta, elegida según lo que contó esos días. Nunca la misma que la del
+// cuaderno ni la de otro tramo. Si contó algo de una muerte, sin historia.
+async function elegirHistoriaBueno(tramo, diasBuenos, idPrincipal) {
+  const alegres = Object.values(window.CUADERNO.historias).flat().filter(h => h.azar === false && h.id !== 'N6');
+  const clave = 'alma_cuaderno_bueno_' + tramo;
+  const porId = id => alegres.find(h => h.id === id) || null;
+  try { const ya = localStorage.getItem(clave); if (ya === 'ninguna') return null; const h = porId(ya); if (h && h.id !== idPrincipal) return h; } catch (e) {}
+  const vistas = [idPrincipal].concat(TRAMOS.filter(t => t !== tramo)
+    .map(t => { try { return localStorage.getItem('alma_cuaderno_bueno_' + t); } catch (e) { return null; } }))
+    .filter(Boolean);
+
+  let elegida = null, sinHistoria = false;
+  try {
+    const c = new AbortController();
+    const t = setTimeout(() => c.abort(), 9000);
+    const r = await fetch('/.netlify/functions/cuaderno-historia', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ modo: 'bueno', vistas, textos: diasBuenos.flatMap(d => d.textos) }),
+      signal: c.signal,
+    });
+    clearTimeout(t);
+    if (r.ok) { const d = await r.json(); elegida = porId(d.id); sinHistoria = d.duelo === true; }
+  } catch (e) {}
+
+  if (sinHistoria) { try { localStorage.setItem(clave, 'ninguna'); } catch (e) {} return null; }
+  if (!elegida || vistas.includes(elegida.id)) {
+    const libres = alegres.filter(h => !vistas.includes(h.id));
+    elegida = libres[Math.floor(Math.random() * libres.length)] || null;
+  }
+  if (elegida) { try { localStorage.setItem(clave, elegida.id); } catch (e) {} }
+  return elegida;
+}
+
+async function generarCuadernoPDF({ puerta, tramo, reflejo, dias, historia, fechaTexto, bueno }) {
   await cargarPdfLib();
   const { PDFDocument, rgb, StandardFonts, PDFName, PDFOperator, PDFString } = PDFLib;
+  const C = window.CUADERNO;
   const doc = await PDFDocument.create();
+  doc.setTitle('Tu cuaderno · Alma Proyect');
+  doc.setAuthor('Alma Proyect');
 
   const W = 595.28, H = 841.89;          // A4 vertical
-  const margen = 92;
-  const anchoTexto = W - margen*2;
+  const margen = 72;
+  const ancho = W - margen * 2;
+  const fondo = 72;                       // por debajo de aquí no se escribe
 
-  const blanco   = rgb(1,1,1);                 // el papel al imprimir
-  const amarillo = rgb(0.992,0.973,0.906);     // #FDF8E7 — el papel en pantalla
-  const tinta    = rgb(0.106,0.094,0.078);     // #1B1814 — el cuerpo
-  const filete   = rgb(0.612,0.580,0.522);     // gris cálido — las reglas
-  const verde    = rgb(0.271,0.388,0.322);     // #456352 — fecha y cierre
+  const blanco   = rgb(1, 1, 1);
+  const amarillo = rgb(0.992, 0.973, 0.906);   // el papel en pantalla
+  const tinta    = rgb(0.106, 0.094, 0.078);
+  const gris     = rgb(0.45, 0.42, 0.38);
+  const filete   = rgb(0.612, 0.580, 0.522);
+  const renglon  = rgb(0.80, 0.78, 0.74);
+  const color    = _hexRgb(COLOR_PUERTA[puerta] || '#8B4F38');
 
   const serif       = await doc.embedFont(StandardFonts.TimesRoman);
   const serifIt     = await doc.embedFont(StandardFonts.TimesRomanItalic);
   const serifBold   = await doc.embedFont(StandardFonts.TimesRomanBold);
   const serifBoldIt = await doc.embedFont(StandardFonts.TimesRomanBoldItalic);
 
-  const logo = await doc.embedPng(_b64ToUint8(ALMA_LOGO_B64));
-  const logoW = 118;
-  const logoH = logoW * (logo.height / logo.width);
+  // Imágenes: si alguna no llega, el cuaderno sale igual sin ella
+  const hayBueno = !!(bueno && (bueno.dias.length || bueno.historia || bueno.hubo));
+  const [bLogo, bMarca, bIlus, bMarcaB, bIlusB] = await Promise.all([
+    _bytesDe('/cuaderno/img/logo-portada.png'),
+    _bytesDe('/cuaderno/img/marca-' + puerta + '.png'),
+    historia ? _bytesDe('/cuaderno/img/' + historia.id + '.jpg') : Promise.resolve(null),
+    hayBueno ? _bytesDe('/cuaderno/img/marca-bueno.png') : Promise.resolve(null),
+    hayBueno && bueno.historia ? _bytesDe('/cuaderno/img/' + bueno.historia.id + '.jpg') : Promise.resolve(null),
+  ]);
+  let logo = null, marca = null, ilus = null, marcaB = null, ilusB = null;
+  try { logo = await doc.embedPng(bLogo || _b64ToUint8(ALMA_LOGO_B64)); } catch (e) {}
+  try { if (bMarca) marca = await doc.embedPng(bMarca); } catch (e) {}
+  try { if (bIlus) ilus = await doc.embedJpg(bIlus); } catch (e) {}
+  try { if (bMarcaB) marcaB = await doc.embedPng(bMarcaB); } catch (e) {}
+  try { if (bIlusB) ilusB = await doc.embedJpg(bIlusB); } catch (e) {}
+  const dorado = _hexRgb(COLOR_BUENO);
 
-  // El fondo amarillo vive en una capa del PDF marcada como "no imprimir".
-  // En pantalla se ve amarillo; al imprimir la capa se apaga y queda el papel
-  // blanco de debajo, sin gastar tinta. El logo es transparente, así que se
-  // apoya igual de bien sobre los dos.
+  // El papel amarillo solo en pantalla: al imprimir sale blanco (igual que la carta)
   const ocg = doc.context.obj({
-    Type: 'OCG',
-    Name: PDFString.of('Fondo de pantalla'),
+    Type: 'OCG', Name: PDFString.of('Fondo de pantalla'),
     Usage: doc.context.obj({
       View:  doc.context.obj({ ViewState: 'ON' }),
       Print: doc.context.obj({ PrintState: 'OFF' }),
@@ -2855,124 +3197,269 @@ async function generarReflejoPDF(reflejo, fechaTexto, dias){
   doc.catalog.set(PDFName.of('OCProperties'), doc.context.obj({
     OCGs: [ocgRef],
     D: doc.context.obj({
-      ON: [ocgRef],
-      Order: [ocgRef],
+      ON: [ocgRef], Order: [ocgRef],
       AS: [ doc.context.obj({ Event: 'Print', OCGs: [ocgRef], Category: ['Print'] }) ],
     }),
   }));
-
   const papel = p => {
-    p.drawRectangle({x:0,y:0,width:W,height:H,color:blanco});
+    p.drawRectangle({ x: 0, y: 0, width: W, height: H, color: blanco });
     const res = p.node.Resources();
     let props = res.lookup(PDFName.of('Properties'));
     if (!props) { props = doc.context.obj({}); res.set(PDFName.of('Properties'), props); }
     props.set(PDFName.of('OC1'), ocgRef);
     p.pushOperators(PDFOperator.of('BDC', [PDFName.of('OC'), PDFName.of('OC1')]));
-    p.drawRectangle({x:0,y:0,width:W,height:H,color:amarillo});
+    p.drawRectangle({ x: 0, y: 0, width: W, height: H, color: amarillo });
     p.pushOperators(PDFOperator.of('EMC', []));
   };
 
-  let page = doc.addPage([W,H]);
-  papel(page);
-
-  // logo centrado arriba
-  let y = H - 62 - logoH;
-  page.drawImage(logo,{x:(W-logoW)/2, y, width:logoW, height:logoH});
-  y -= 30;
-
-  // filete
-  page.drawLine({start:{x:W/2-27,y}, end:{x:W/2+27,y}, thickness:0.8, color:filete});
-  y -= 24;
-
-  // fecha en mayúsculas, verde y en negrita
-  const fechaUp = (fechaTexto||'').toUpperCase();
-  const fSize = 9;
-  const fW = serifBold.widthOfTextAtSize(fechaUp, fSize);
-  page.drawText(fechaUp,{x:(W-fW)/2, y, size:fSize, font:serifBold, color:verde});
-  y -= 46;
-
-  // cuerpo del reflejo
-  const cuerpoSize = 14.5;
-  const interlinea = cuerpoSize * 1.66;
-  const gapParrafo = 11;
-  const fondoY = 96;
-
-  // limpiar espacios Unicode que la fuente Times no sabe codificar
-  const reflejoLimpio = _paraPdf(reflejo);
-  const parrafos = reflejoLimpio.replace(/\r/g,'').split(/\n\n+/);
-  for(const par of parrafos){
-    const lineas = _wrapText(par, serif, cuerpoSize, anchoTexto);
-    for(const linea of lineas){
-      if(y < fondoY){ page = doc.addPage([W,H]); papel(page); y = H - 70; }
-      page.drawText(linea,{x:margen, y, size:cuerpoSize, font:serif, color:tinta, lineHeight:interlinea});
-      y -= interlinea;
+  let page, y;
+  const nueva = (arriba = 76) => { page = doc.addPage([W, H]); papel(page); y = H - arriba; };
+  // Escribe un párrafo con salto de página si hace falta
+  const parrafo = (texto, font, size, inter, col, centro = false, anchoMax = ancho) => {
+    for (const l of _wrapText(_paraPdf(texto), font, size, anchoMax)) {
+      if (y < fondo) nueva();
+      const x = centro ? (W - font.widthOfTextAtSize(l, size)) / 2 : margen;
+      page.drawText(l, { x, y, size, font, color: col });
+      y -= inter;
     }
-    y -= gapParrafo;
+  };
+  const etiqueta = (texto, col = color) => {
+    const t = texto.toUpperCase();
+    const tw = serifBold.widthOfTextAtSize(t, 9.5);
+    page.drawText(t, { x: (W - tw) / 2, y, size: 9.5, font: serifBold, color: col });
+    y -= 16;
+    page.drawLine({ start: { x: W / 2 - 24, y }, end: { x: W / 2 + 24, y }, thickness: 0.8, color: col });
+    y -= 32;
+  };
+  const marcaDeAgua = (yCentro, m = marca) => {
+    if (!m) return;
+    const mw = 290, mh = mw * (m.height / m.width);
+    page.drawImage(m, { x: (W - mw) / 2, y: yCentro - mh / 2, width: mw, height: mh, opacity: 0.13 });
+  };
+  const renglones = (desde, hasta, m = marca) => {
+    marcaDeAgua((desde + hasta) / 2, m);
+    for (let yy = desde; yy >= hasta; yy -= 26) {
+      page.drawLine({ start: { x: margen, y: yy }, end: { x: W - margen, y: yy }, thickness: 0.5, color: renglon });
+    }
+  };
+
+  // ── Portada ──
+  nueva();
+  if (logo) {
+    const lw = 150, lh = lw * (logo.height / logo.width);
+    page.drawImage(logo, { x: (W - lw) / 2, y: H - 150 - lh, width: lw, height: lh });
+    y = H - 150 - lh - 60;
+  } else { y = H - 300; }
+  const titulo = 'Tu cuaderno';
+  page.drawText(titulo, { x: (W - serifIt.widthOfTextAtSize(titulo, 38)) / 2, y, size: 38, font: serifIt, color: tinta });
+  y -= 34;
+  const sub = (C.numeros[tramo] || '') + '   ·   ' + (NOMBRE_PUERTA[puerta] || '');
+  page.drawText(_paraPdf(sub), { x: (W - serifBold.widthOfTextAtSize(_paraPdf(sub), 11)) / 2, y, size: 11, font: serifBold, color });
+  y -= 26;
+  page.drawLine({ start: { x: W / 2 - 30, y }, end: { x: W / 2 + 30, y }, thickness: 0.8, color });
+  y -= 24;
+  const fecha = (fechaTexto || '').toUpperCase();
+  page.drawText(fecha, { x: (W - serifBold.widthOfTextAtSize(fecha, 8.5)) / 2, y, size: 8.5, font: serifBold, color: gris });
+
+  // ── Lo que Alma vio (si ella lo ha marcado) ──
+  if (reflejo) {
+    nueva(110);
+    etiqueta('Lo que Alma vio');
+    for (const par of _paraPdf(reflejo).replace(/\r/g, '').split(/\n\n+|\n/).filter(x => x.trim())) {
+      parrafo(par, serif, 13.5, 13.5 * 1.62, tinta);
+      y -= 10;
+    }
   }
 
-  // ── Lo que escribiste: sus palabras de cada día, tal cual ──
-  if (dias && dias.length) {
-    page = doc.addPage([W,H]); papel(page); y = H - 80;
-    const tit = 'LO QUE ESCRIBISTE';
-    const tW = serifBold.widthOfTextAtSize(tit, 10);
-    page.drawText(tit, { x:(W-tW)/2, y, size:10, font:serifBold, color:verde });
-    y -= 18;
-    page.drawLine({start:{x:W/2-27,y}, end:{x:W/2+27,y}, thickness:0.8, color:filete});
-    y -= 34;
-    const tSize = 11.5, tInter = tSize * 1.6;
-    const pSize = 12, pInter = pSize * 1.5;
-    const nuevaSiHace = alto => { if (y - alto < fondoY) { page = doc.addPage([W,H]); papel(page); y = H - 70; } };
-    for (const d of dias) {
-      nuevaSiHace(16 + pInter * 2);
-      page.drawText('DÍA ' + d.dia, { x:margen, y, size:9, font:serifBold, color:verde });
+  // ── Lo que escribiste (si ella lo ha marcado) ──
+  const escribirDias = (lista, col) => {
+    for (const d of lista) {
+      if (y - 60 < fondo) nueva();
+      page.drawText('DÍA ' + d.dia, { x: margen, y, size: 9, font: serifBold, color: col });
       y -= 18;
-      if (d.pregunta) {
-        for (const l of _wrapText(_paraPdf(d.pregunta), serifIt, pSize, anchoTexto)) {
-          nuevaSiHace(pInter);
-          page.drawText(l, { x:margen, y, size:pSize, font:serifIt, color:filete });
-          y -= pInter;
-        }
-        y -= 6;
-      }
+      if (d.pregunta) { parrafo(d.pregunta, serifIt, 12, 18, gris); y -= 6; }
       for (const texto of d.textos) {
-        for (const par of _paraPdf(texto).replace(/\r/g,'').split(/\n+/).filter(x => x.trim())) {
-          for (const l of _wrapText(par, serif, tSize, anchoTexto)) {
-            nuevaSiHace(tInter);
-            page.drawText(l, { x:margen, y, size:tSize, font:serif, color:tinta });
-            y -= tInter;
-          }
+        for (const par of _paraPdf(texto).replace(/\r/g, '').split(/\n+/).filter(x => x.trim())) {
+          parrafo(par, serif, 11.5, 11.5 * 1.6, tinta);
           y -= 5;
         }
         y -= 6;
       }
       y -= 16;
     }
+  };
+  if (dias && dias.length) {
+    nueva(110);
+    etiqueta('Lo que escribiste');
+    escribirDias(dias, color);
   }
 
-  // cierre de carta anclado abajo
-  const cierre = 'Alma no está terminada. Va creciendo con cada mujer que se atreve a mirarse de verdad, y hoy tú eres una de ellas.';
-  const cSize = 11;
-  const cInter = cSize * 1.55;
-  const cierreLineas = _wrapText(cierre, serifBoldIt, cSize, anchoTexto - 30);
-  const ojala = 'O J A L Á   T E   Q U E D E S';
-  const oSize = 9;
-  const alturaCierre = 16 + cierreLineas.length*cInter + 14 + oSize;
-  const baseCierre = 58;
-  if(y < baseCierre + alturaCierre + 10){ page = doc.addPage([W,H]); papel(page); }
+  // ── La historia ──
+  const paginaHistoria = (h, img, col) => {
+    nueva(72);
+    if (img) {
+      const s = Math.min(ancho / img.width, 330 / img.height);
+      const iw = img.width * s, ih = img.height * s;
+      page.drawImage(img, { x: (W - iw) / 2, y: y - ih, width: iw, height: ih });
+      y -= ih + 40;
+    } else { y -= 60; }
+    const ht = _paraPdf(h.titulo);
+    page.drawText(ht, { x: (W - serifIt.widthOfTextAtSize(ht, 20)) / 2, y, size: 20, font: serifIt, color: col });
+    y -= 34;
+    parrafo(h.texto, serif, 12.5, 12.5 * 1.62, tinta, false, ancho - 30);
+  };
+  if (historia) paginaHistoria(historia, ilus, color);
 
-  let cy = baseCierre + alturaCierre;
-  page.drawLine({start:{x:W/2-27,y:cy}, end:{x:W/2+27,y:cy}, thickness:0.6, color:filete});
-  cy -= 22;
-  for(const linea of cierreLineas){
-    const lw = serifBoldIt.widthOfTextAtSize(linea, cSize);
-    page.drawText(linea,{x:(W-lw)/2, y:cy, size:cSize, font:serifBoldIt, color:verde});
-    cy -= cInter;
+  // Los teléfonos, al pie de la hoja (por debajo del margen de escritura)
+  const telefonosAlPie = () => {
+    let yt = 58;
+    for (const l of _wrapText(_paraPdf(C.telefonos), serif, 8.5, ancho)) {
+      page.drawText(l, { x: (W - serif.widthOfTextAtSize(l, 8.5)) / 2, y: yt, size: 8.5, font: serif, color: gris });
+      yt -= 12;
+    }
+  };
+
+  // ── Tu botiquín: antes de las propuestas, por si algo remueve ──
+  if (C.botiquin) {
+    const K = C.botiquin;
+    nueva(80);
+    marcaDeAgua(H / 2 - 40);
+    page.drawText(_paraPdf(K.titulo.toUpperCase()), { x: margen, y, size: 9, font: serifBold, color });
+    y -= 26;
+    parrafo(K.intro, serifIt, 11.5, 17, gris);
+    y -= 18;
+    for (const a of K.apartados) {
+      parrafo(a.titulo, serifBoldIt, 13, 18, tinta);
+      y -= 14;
+      for (let i = 0; i < a.lineas; i++) {
+        page.drawLine({ start: { x: margen, y }, end: { x: W - margen, y }, thickness: 0.5, color: renglon });
+        y -= 26;
+      }
+      y -= 12;
+    }
+    telefonosAlPie();
   }
-  cy -= 6;
-  const oW = serifBold.widthOfTextAtSize(ojala, oSize);
-  page.drawText(ojala,{x:(W-oW)/2, y:cy, size:oSize, font:serifBold, color:verde});
+
+  // ── Las dos propuestas, cada una con su hoja ──
+  const todosEj = (C.ejercicios[puerta] || {})[tramo] || [];
+  let ejercicios = todosEj.slice(0, 2);
+  if (todosEj.length > 2) {
+    // El primero, siempre; el segundo, uno de los otros, elegido una vez y guardado
+    const clave = 'alma_cuaderno_ej_' + puerta + '_' + tramo;
+    let k = NaN;
+    try { k = parseInt(localStorage.getItem(clave), 10); } catch (e) {}
+    if (!(k >= 1 && k < todosEj.length)) {
+      k = 1 + Math.floor(Math.random() * (todosEj.length - 1));
+      try { localStorage.setItem(clave, String(k)); } catch (e) {}
+    }
+    ejercicios = [todosEj[0], todosEj[k]];
+  }
+  ejercicios.forEach((ej, i) => {
+    nueva(80);
+    if (i === 0) {
+      parrafo(C.intro[tramo] || '', serifIt, 11.5, 17, gris);
+      if (puerta === 'agotada') { y -= 4; parrafo(C.sinFuerzas, serifIt, 11.5, 17, gris); }
+      y -= 22;
+    }
+    page.drawText('PROPUESTA ' + (i + 1), { x: margen, y, size: 9, font: serifBold, color });
+    y -= 26;
+    parrafo(ej.titulo, serifBoldIt, 17, 22, tinta);
+    y -= 2;
+    parrafo(ej.para, serifIt, 11.5, 17, gris);
+    if (ej.cuidado) { y -= 4; parrafo(C.cuidado, serifIt, 11, 16, color); }
+    y -= 10;
+    parrafo(ej.texto, serif, 12.5, 12.5 * 1.55, tinta);
+    y -= 22;
+    renglones(y, fondo);
+  });
+
+  // ── Un día bueno: aparte, dorado ──
+  if (hayBueno) {
+    const B = C.bueno;
+    const cabecera = () => { etiqueta(B.titulo, dorado); parrafo(B.intro, serifIt, 12, 18, gris, true, ancho - 40); y -= 24; };
+    if (bueno.dias.length) {
+      // Con sus palabras: página propia para el título y lo que contó
+      nueva(110); cabecera();
+      escribirDias(bueno.dias, dorado);
+      if (bueno.historia) paginaHistoria(bueno.historia, ilusB, dorado);
+    } else if (bueno.historia) {
+      // Sin sus palabras: el título va encima de la historia, sin página vacía
+      nueva(72); cabecera();
+      const yTope = y;
+      page = doc.getPages()[doc.getPageCount() - 1];
+      if (ilusB) {
+        const s2 = Math.min(ancho / ilusB.width, 300 / ilusB.height);
+        const iw = ilusB.width * s2, ih = ilusB.height * s2;
+        page.drawImage(ilusB, { x: (W - iw) / 2, y: yTope - ih, width: iw, height: ih });
+        y = yTope - ih - 36;
+      }
+      const ht = _paraPdf(bueno.historia.titulo);
+      page.drawText(ht, { x: (W - serifIt.widthOfTextAtSize(ht, 20)) / 2, y, size: 20, font: serifIt, color: dorado });
+      y -= 32;
+      parrafo(bueno.historia.texto, serif, 12.5, 12.5 * 1.6, tinta, false, ancho - 30);
+    } else {
+      nueva(110); cabecera();
+    }
+    const pb = B.propuesta;
+    nueva(80);
+    page.drawText(_paraPdf(B.titulo.toUpperCase()), { x: margen, y, size: 9, font: serifBold, color: dorado });
+    y -= 26;
+    parrafo(pb.titulo, serifBoldIt, 17, 22, tinta);
+    y -= 2;
+    parrafo(pb.para, serifIt, 11.5, 17, gris);
+    y -= 10;
+    parrafo(pb.texto, serif, 12.5, 12.5 * 1.55, tinta);
+    y -= 22;
+    renglones(y, fondo, marcaB);
+  }
+
+  // ── Para seguir escribiendo: una línea cada noche ──
+  if (C.seguir) {
+    const S = C.seguir;
+    nueva(80);
+    page.drawText(_paraPdf(S.titulo.toUpperCase()), { x: margen, y, size: 9, font: serifBold, color });
+    y -= 26;
+    parrafo(S.intro, serifIt, 11.5, 17, gris);
+    y -= 22;
+    const paso = Math.min(26, (y - fondo) / (S.lineas - 1));
+    marcaDeAgua(y - paso * (S.lineas - 1) / 2);
+    for (let i = 1; i <= S.lineas; i++) {
+      const n = String(i);
+      page.drawText(n, { x: margen, y: y + 3, size: 8, font: serif, color: gris });
+      page.drawLine({ start: { x: margen + 18, y }, end: { x: W - margen, y }, thickness: 0.5, color: renglon });
+      y -= paso;
+    }
+  }
+
+  // ── Hoja libre y cierre ──
+  nueva(80);
+  const libre = C.paginaLibre;
+  page.drawText(libre, { x: margen, y, size: 12, font: serifIt, color: gris });
+  y -= 34;
+  renglones(y, 190);
+  y = 150;
+  parrafo(C.cierre, serifIt, 11.5, 17, tinta, true, ancho - 40);
+  if (dias && dias.length) { y -= 2; parrafo(C.cierreCarta, serifIt, 11.5, 17, tinta, true, ancho - 40); }
+  telefonosAlPie();
 
   return await doc.save();
+}
+
+function abrirOpcionesCuaderno() {
+  const panel = document.getElementById('cuaderno-opciones');
+  if (!panel) return;
+  const reflejo = leerReflejoGuardado();
+  const chk = document.getElementById('cuaderno-con-reflejo');
+  const lab = chk && chk.closest('.cuaderno-opcion');
+  if (chk) {
+    chk.disabled = !reflejo;
+    if (!reflejo) chk.checked = false;
+    if (lab) lab.classList.toggle('desactivada', !reflejo);
+    const txt = document.getElementById('cuaderno-reflejo-label');
+    if (txt) txt.textContent = reflejo ? 'Lo que Alma vio en ti (tu reflejo)' : 'Tu reflejo (todavía no está listo)';
+  }
+  panel.style.display = 'flex';
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
 }
 
 
@@ -3046,6 +3533,7 @@ function guardarEnServidor(day, data, arrivalMode) {
 }
 
 function saveToLocal(day, text, emotions, almaReply, history, arrivalMode) {
+  if (esDiaBueno(day)) arrivalMode = 'bueno';
   try {
     const existing = loadFromLocal(day) || {};
     const payload = {
@@ -3359,7 +3847,7 @@ function puertaDelRecorrido() {
 function modoDelRecorrido() {
   for (let i = 0; i < 7; i++) {
     const e = loadFromLocal(i);
-    if (e && e.arrivalMode) return MODO_BETA_A_BANCO[e.arrivalMode] || e.arrivalMode;
+    if (e && e.arrivalMode && e.arrivalMode !== 'bueno') return MODO_BETA_A_BANCO[e.arrivalMode] || e.arrivalMode;
   }
   return 'pain';
 }
@@ -3381,7 +3869,7 @@ function getFixedQuestionSet() {
   const base = getOrCreateQuestionSet(currentArrivalMode || 'pain');
   const out = {};
   for (let d = 0; d < totalDays; d++) {
-    out[d + 1] = preguntaFijada(d) || base[d + 1];
+    out[d + 1] = preguntaFijada(d) || (esDiaBueno(d) ? PREGUNTA_BUENO : base[d + 1]);
   }
   return out;
 }
@@ -3389,6 +3877,7 @@ function getFixedQuestionSet() {
 function getQuestionForDay(day) {
   const fijada = preguntaFijada(day);
   if (fijada) return fijada;
+  if (esDiaBueno(day)) return PREGUNTA_BUENO;
   const mode = currentArrivalMode || 'pain';
   const set = getOrCreateQuestionSet(mode);
   // Los sets nuevos son 1-indexados (día 1 = clave "1"). day aquí es 0-indexado.
@@ -3403,6 +3892,8 @@ function renderQuestion(day) {
       <p class="question-main">${getQuestionForDay(day)}</p>
     `;
   }
+  actualizarDiaBueno(day);
+  actualizarSoltar();
 }
 
 // =======================
@@ -3471,6 +3962,7 @@ const ALMA_OPENERS = {
   beta_search:  "Es solo una guía. Cuéntame lo que te preocupa o necesitas y lo vamos viendo juntas.",
   beta_self:    "Es solo una guía; pásala por alto si no va contigo. Cuéntame qué necesitas ordenar o soltar.",
   beta_unclear: "Si la pregunta no te resuena, no importa. Cuéntame lo que sea.",
+  bueno: "Cuéntalo como te salga, con todos los detalles que quieras.",
 };
 
 function renderOpener(mode) {
@@ -3671,20 +4163,22 @@ function renderNav() {
   const ringFill = document.getElementById('ring-fill');
   const ringPct  = document.getElementById('ring-pct');
   if (ringFill) ringFill.style.strokeDashoffset = 138.2 - (pct / 100) * 138.2;
-  if (ringPct)  ringPct.textContent = pct + '%';
+  // Sin porcentajes: el día en el que está, no una tarea por completar
+  const diaActual = Math.max(1, Math.min(totalDays, (typeof currentDay === 'number' ? currentDay + 1 : done)));
+  if (ringPct)  ringPct.textContent = diaActual + '/' + totalDays;
 
   const barFill = document.getElementById('progress-bar-fill');
   const barPct  = document.getElementById('progress-bar-pct');
   if (barFill) barFill.style.width = pct + '%';
-  if (barPct)  barPct.textContent  = pct + '%';
+  if (barPct)  barPct.textContent  = 'Día ' + diaActual + ' de ' + totalDays;
 
   const msgs = [
     '"Cada vez que escribes, te escuchas un poco más."',
-    '"Dos días. El espacio ya es tuyo."',
-    '"Tres días. Eso dice mucho de ti."',
-    '"Cuatro días. Ya no es casualidad."',
-    '"Cinco días. Esto es un compromiso contigo."',
-    '"Seis días. Mira lo lejos que has llegado."',
+    '"Dos días. Este rato ya es tuyo."',
+    '"Tres días aquí, a tu ritmo."',
+    '"Cuatro días. Sin prisa."',
+    '"Cinco días. Lo que has escrito sigue aquí."',
+    '"Seis días. A tu paso."',
     '"Siete días. Todo el recorrido, entero."'
   ];
   // El número grande refleja el día en el que está, no los completados.
@@ -3853,6 +4347,11 @@ function textoDelDia(entry) {
 
 async function saveEntry() {
   if (isBetaMode) { await saveBetaEntry(); return; }
+  // Empezó con un día bueno: antes de soltar, que elija cómo llega hoy
+  if (!puertaReal() && !esDiaBueno(currentDay)) {
+    document.getElementById('dia-bueno')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
   const btns = ['btn-save-d','btn-save-m'].map(id => document.getElementById(id)).filter(Boolean);
   if (btns.some(b => b.disabled)) return;
 
@@ -3971,7 +4470,11 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
         arrivalMode: currentArrivalMode,
         questionSet: getFixedQuestionSet(),
         tramo: totalDays, // para que Alma sepa si este día cierra el tramo o sigue
-        puerta: puertaDelRecorrido(), // su guardiana
+        puerta: esDiaBueno(currentDay) ? null : puertaDelRecorrido(), // su guardiana (ninguna el día bueno)
+        bueno: esDiaBueno(currentDay),
+        soltar: esDiaSoltar(),                       // «hoy solo quiero soltar»: sin preguntas
+        diasSinVenir: diasDesdeUltimaVez(currentDay), // si vuelve tras unos días, nada de «ayer»
+        frasesAnteriores: frasesDeAlmaAnteriores(currentDay), // para no repetir cómo empezó y cerró otros días
         plan: 'free',
       }),
       signal: controller.signal,
@@ -4209,7 +4712,7 @@ async function generarFraseDia(fraseWrap) {
       body: JSON.stringify({
         conversationHistory,
         day: currentDay + 1,
-        arrivalMode: currentArrivalMode,
+        arrivalMode: esDiaBueno(currentDay) ? 'bueno' : currentArrivalMode,
         plan: 'free',
       }),
     });
@@ -4230,7 +4733,7 @@ async function generateDayCard(cardWrap) {
       body: JSON.stringify({
         conversationHistory,
         day: currentDay + 1,
-        arrivalMode: currentArrivalMode,
+        arrivalMode: esDiaBueno(currentDay) ? 'bueno' : currentArrivalMode,
         plan: 'free',
       }),
     });
@@ -4545,43 +5048,47 @@ function copyFarewell() {
 }
 
 async function downloadFarewell() {
-  const btn = document.querySelector('.farewell-actions .btn-farewell:last-child');
+  const btn = document.getElementById('btn-cuaderno-descargar');
   const original = btn ? btn.innerHTML : '';
 
-  // Coger el reflejo real ya guardado. Desde los tramos, cada uno se guarda con
-  // su clave (alma_farewell_3/_5/_7). Se lee el del tramo actual, y si no está,
-  // se prueban los otros por si se descarga desde un tramo distinto al generado.
-  let reflejo = '';
-  try {
-    const claves = ['alma_farewell_' + totalDays, 'alma_farewell_7', 'alma_farewell_5', 'alma_farewell_3', 'alma_farewell'];
-    for (const k of claves) {
-      const f = JSON.parse(localStorage.getItem(k) || '{}');
-      if (f.summary) { reflejo = f.summary; break; }
-    }
-  } catch(e) {}
+  // El reflejo real ya guardado (cada tramo con su clave: alma_farewell_3/_5/_7)
+  const reflejo = leerReflejoGuardado();
+  const conReflejo = !!reflejo && !!document.getElementById('cuaderno-con-reflejo')?.checked;
+  const conCarta = !!document.getElementById('cuaderno-con-carta')?.checked;
 
-  if (!reflejo) {
-    alert('Tu reflejo todavía no está listo. Espera un momento e inténtalo de nuevo.');
-    return;
-  }
-
-  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; btn.innerHTML = 'Creando tu reflejo…'; }
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; btn.innerHTML = 'Preparando tu cuaderno…'; }
 
   try {
-    const fecha = new Date().toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' });
-    const bytes = await generarReflejoPDF(reflejo, fecha, diasParaCarta());
-    const blob  = new Blob([bytes], { type: 'application/pdf' });
-    const url   = URL.createObjectURL(blob);
-    const a     = document.createElement('a');
-    a.href      = url;
-    a.download  = 'mi-carta-alma.pdf';
+    await cargarTextosCuaderno();
+    const tramo = (window._farewellContexto && window._farewellContexto.tramo) || totalDays;
+    const puerta = puertaDelCuaderno();
+    const todos = diasParaCarta();
+    const normales = todos.filter(d => !d.bueno);
+    const buenos = todos.filter(d => d.bueno);
+    const t = TRAMOS.includes(tramo) ? tramo : 3;
+    const historia = await elegirHistoriaCuaderno(puerta, t, normales.length ? normales : todos);
+    const historiaBueno = buenos.length ? await elegirHistoriaBueno(t, buenos, historia && historia.id) : null;
+    const fecha = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    const bytes = await generarCuadernoPDF({
+      puerta, tramo: TRAMOS.includes(tramo) ? tramo : 3,
+      reflejo: conReflejo ? reflejo : '',
+      dias: conCarta ? normales : [],
+      historia, fechaTexto: fecha,
+      bueno: buenos.length ? { hubo: true, dias: conCarta ? buenos : [], historia: historiaBueno } : null,
+    });
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'mi-cuaderno-alma.pdf';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-  } catch(e) {
-    console.error('Error al generar el PDF:', e);
-    alert('No se pudo crear el PDF. Inténtalo de nuevo en un momento.');
+    trackEvent('cuaderno_descargado', { tramo, puerta, reflejo: conReflejo, carta: conCarta });
+  } catch (e) {
+    console.error('Error al generar el cuaderno:', e);
+    alert('No se pudo crear tu cuaderno. Inténtalo de nuevo en un momento.');
   } finally {
     if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.innerHTML = original; }
   }
@@ -4670,7 +5177,7 @@ function pintarCaminoFinal() {
 // sin pregunta del día ni turnos, hasta LIMITE_LIBRE_DIA mensajes al día
 // (el servidor lleva la cuenta de verdad: lib/limite.js). Lo que escribe se
 // guarda solo en su móvil; al servidor solo llega el contador.
-const LIMITE_LIBRE_DIA = 5; // igual que en netlify/functions/lib/limite.js
+const LIMITE_LIBRE_DIA = 3; // igual que en netlify/functions/lib/limite.js
 
 function recorridoCompleto() {
   try {
@@ -4838,6 +5345,217 @@ function guardarNotaLibre() {
   const ok = document.getElementById('libre-notas-ok');
   if (ok) { ok.style.display = 'block'; setTimeout(() => { ok.style.display = 'none'; }, 3500); }
   trackEvent('libre_nota');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SEGURIDAD Y DÍAS DIFÍCILES
+//  Salir rápido · Borrar todo · Si te falta el aire ·
+//  Escribir sin respuesta · «Hoy solo quiero soltar» · Volver tras días
+// ═══════════════════════════════════════════════════════════════
+
+// Salir rápido: cambia la página por otra cualquiera sin dejar esta en el
+// botón de «atrás» (replace en vez de ir a una página nueva).
+// iPhone/iPad en Safari, sin haber añadido Alma a la pantalla de inicio
+(function detectarSafariIphone() {
+  try {
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const instalada = navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    const marcar = () => { if (ios && !instalada) document.body.classList.add('ios-safari'); };
+    if (document.body) marcar(); else document.addEventListener('DOMContentLoaded', marcar);
+  } catch(e) {}
+})();
+
+function salirRapido() {
+  try { document.body.style.visibility = 'hidden'; } catch(e) {}
+  window.location.replace('https://www.google.es/search?q=el+tiempo+ma%C3%B1ana');
+}
+
+// Borrar todo lo suyo: primero en el servidor (mientras aún tenemos su
+// identificador) y después en este móvil.
+async function borrarTodo() {
+  const r = await avisoLlave('¿Borrar todo lo tuyo?',
+    'Se borrará de este móvil y de nuestro servidor todo lo que has escrito: tu recorrido, tus conversaciones y tus páginas. No se puede deshacer. Si descargaste tu cuaderno, ese archivo sigue en tu móvil y puedes borrarlo tú.',
+    [{ texto: 'Mejor no', valor: 'no', principal: true }, { texto: 'Borrar todo', valor: 'si' }]);
+  if (r !== 'si') return;
+
+  let servidorOk = false;
+  const id = (() => { try { return localStorage.getItem('alma_anon_id'); } catch(e) { return null; } })();
+  if (!id) servidorOk = true; // nunca se guardó nada con su identificador
+  else {
+    try {
+      const c = new AbortController();
+      const t = setTimeout(() => c.abort(), 8000);
+      const res = await fetch('/.netlify/functions/journey-delete', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ anonId: id }), signal: c.signal,
+      });
+      clearTimeout(t);
+      servidorOk = res.ok && (await res.json()).ok === true;
+    } catch(e) {}
+  }
+
+  if (!servidorOk) {
+    const r2 = await avisoLlave('Ahora mismo no se ha podido borrar lo del servidor.',
+      'Puedes volver a intentarlo en un rato. Si prefieres, borro ya lo de este móvil; lo del servidor se borrará solo a los catorce días.',
+      [{ texto: 'Lo intento luego', valor: 'luego', principal: true }, { texto: 'Borra lo del móvil', valor: 'movil' }]);
+    if (r2 !== 'movil') return;
+  }
+
+  try {
+    Object.keys(localStorage).filter(k => k.startsWith('alma_')).forEach(k => localStorage.removeItem(k));
+  } catch(e) {}
+  try { trackEvent('borrado_todo', { servidor: servidorOk }); } catch(e) {}
+  await avisoLlave('Borrado.', 'Ya no queda nada de lo que escribiste. Si algún día quieres volver, Alma empieza de cero.',
+    [{ texto: 'Entendido', valor: 'ok', principal: true }]);
+  window.location.reload();
+}
+
+// Si te falta el aire: una pantalla quieta, sin nada que hacer
+function abrirAhogo() {
+  const p = document.getElementById('ahogo-screen');
+  if (!p) return;
+  p.classList.add('visible');
+  p.setAttribute('aria-hidden', 'false');
+  try { trackEvent('ahogo_abierto'); } catch(e) {}
+}
+function cerrarAhogo() {
+  const p = document.getElementById('ahogo-screen');
+  if (!p) return;
+  p.classList.remove('visible');
+  p.setAttribute('aria-hidden', 'true');
+}
+
+// ── Escribir sin respuesta: páginas en blanco, solo en el móvil ──
+const LIMITE_BLANCO_DIA = 3;          // páginas al día
+const DIAS_BLANCO = 14;               // se borran solas, como todo lo demás
+
+function leerBlanco() {
+  try {
+    const b = JSON.parse(localStorage.getItem('alma_blanco') || '{}');
+    const limite = Date.now() - DIAS_BLANCO * 24 * 60 * 60 * 1000;
+    const paginas = (Array.isArray(b.paginas) ? b.paginas : []).filter(x => x && x.at > limite && typeof x.text === 'string');
+    return { paginas };
+  } catch(e) { return { paginas: [] }; }
+}
+function guardarBlanco(b) {
+  try { localStorage.setItem('alma_blanco', JSON.stringify({ paginas: b.paginas.slice(-60) })); } catch(e) {}
+}
+function paginasBlancoHoy(b) {
+  const hoy = hoyEnEspana();
+  return b.paginas.filter(x => {
+    try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid' }).format(new Date(x.at)) === hoy; }
+    catch(e) { return false; }
+  }).length;
+}
+function pintarBlanco() {
+  const b = leerBlanco();
+  guardarBlanco(b); // de paso, quita las de más de catorce días
+  const quedan = Math.max(0, LIMITE_BLANCO_DIA - paginasBlancoHoy(b));
+  const q = document.getElementById('blanco-quedan');
+  if (q) q.textContent = quedan === 1 ? 'Hoy te queda 1 página.' : `Hoy te quedan ${quedan} páginas.`;
+  const esc = document.getElementById('blanco-escribir');
+  const lim = document.getElementById('blanco-limite');
+  if (esc) esc.style.display = quedan > 0 ? '' : 'none';
+  if (lim) lim.style.display = quedan > 0 ? 'none' : '';
+  const caja = document.getElementById('blanco-paginas');
+  const lista = document.getElementById('blanco-lista');
+  if (caja && lista) {
+    lista.innerHTML = b.paginas.slice().reverse().map(x => {
+      const f = new Date(x.at).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+      return `<div class="blanco-pagina"><p class="blanco-pagina-fecha">${f}</p><p>${escaparHTML(x.text)}</p></div>`;
+    }).join('');
+    caja.style.display = b.paginas.length ? '' : 'none';
+  }
+  return quedan;
+}
+function abrirBlanco(origen) {
+  const p = document.getElementById('blanco-screen');
+  if (!p) return;
+  pintarBlanco();
+  p.classList.add('visible');
+  p.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('blanco-abierta');
+  p.scrollTop = 0;
+  try { trackEvent('blanco_abierto', { origen: origen || '' }); } catch(e) {}
+}
+function cerrarBlanco() {
+  const p = document.getElementById('blanco-screen');
+  if (!p) return;
+  p.classList.remove('visible');
+  p.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('blanco-abierta');
+}
+function guardarPaginaBlanco() {
+  const ta = document.getElementById('blanco-text');
+  const texto = (ta?.value || '').trim();
+  if (!texto) { ta?.focus(); return; }
+  const b = leerBlanco();
+  if (paginasBlancoHoy(b) >= LIMITE_BLANCO_DIA) { pintarBlanco(); return; }
+  b.paginas.push({ text: texto.slice(0, 5000), at: Date.now() });
+  guardarBlanco(b);
+  ta.value = '';
+  const quedan = pintarBlanco();
+  const ok = document.getElementById('blanco-ok');
+  if (ok && quedan > 0) { ok.style.display = 'block'; setTimeout(() => { ok.style.display = 'none'; }, 3000); }
+  try { trackEvent('blanco_guardado'); } catch(e) {}
+}
+
+// ── «Hoy solo quiero soltar»: ese día Alma recibe sin preguntar ──
+function claveSoltar() { return isBetaMode ? 'alma_soltar_beta' : 'alma_soltar_' + currentDay; }
+function esDiaSoltar() { try { return localStorage.getItem(claveSoltar()) === '1'; } catch(e) { return false; } }
+function actualizarSoltar() {
+  const box = document.getElementById('dia-soltar');
+  if (!box) return;
+  const sep = '<span class="sep">·</span>';
+  const soltar = esDiaSoltar()
+    ? `<p class="soltar-activo">Hoy Alma no te va a preguntar nada.</p><button type="button" onclick="toggleSoltar()">Prefiero que me pregunte</button>`
+    : `<button type="button" onclick="toggleSoltar()">Hoy solo quiero soltar, sin preguntas</button>`;
+  box.innerHTML = soltar + sep +
+    `<button type="button" onclick="abrirBlanco('dia')">Escribir sin respuesta</button>` + sep +
+    `<button type="button" onclick="abrirAhogo()">Si ahora mismo te falta el aire</button>`;
+  box.style.display = 'block';
+}
+function toggleSoltar() {
+  const ahora = !esDiaSoltar();
+  try {
+    if (ahora) localStorage.setItem(claveSoltar(), '1');
+    else localStorage.removeItem(claveSoltar());
+  } catch(e) {}
+  actualizarSoltar();
+  try { trackEvent(ahora ? 'soltar_activado' : 'soltar_quitado'); } catch(e) {}
+}
+
+// ── Que Alma no se repita entre días: la primera frase con la que respondió
+//    cada día y la última con la que cerró (de los cuatro días anteriores) ──
+function frasesDeAlmaAnteriores(hastaDia) {
+  const primera = t => (String(t || '').trim().match(/^[^.!?…\n]+[.!?…]*/) || [''])[0].trim();
+  const ultima  = t => { const f = String(t || '').trim().match(/[^.!?…\n]+[.!?…]*/g) || []; return (f[f.length - 1] || '').trim(); };
+  const frases = [];
+  for (let i = Math.max(0, hastaDia - 4); i < hastaDia; i++) {
+    const e = loadFromLocal(i);
+    if (!e) continue;
+    const suyas = (e.history || []).filter(t => t.role === 'alma' && t.text).map(t => t.text);
+    if (!suyas.length && e.almaReply) suyas.push(e.almaReply);
+    if (!suyas.length) continue;
+    const a = primera(suyas[0]), b = ultima(suyas[suyas.length - 1]);
+    if (a) frases.push(a.slice(0, 160));
+    if (b && b !== a) frases.push(b.slice(0, 160));
+  }
+  return frases;
+}
+
+// ── Volver después de unos días: cuántos días hace que escribió por última vez ──
+function diasDesdeUltimaVez(hastaDia) {
+  for (let i = hastaDia - 1; i >= 0; i--) {
+    const e = loadFromLocal(i);
+    if (e && e.date) {
+      const a = new Date(e.date), b = new Date();
+      const da = new Date(a.getFullYear(), a.getMonth(), a.getDate());
+      const db = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+      return Math.max(0, Math.round((db - da) / 86400000));
+    }
+  }
+  return 0;
 }
 
 // Quien para en el día 3 o en el 5 («O quédate aquí») también puede dejar
@@ -5218,13 +5936,21 @@ function selectArrival(btn, mode) {
   guardarConsentimiento();
   document.querySelectorAll('#arrival-selector-wrap .arrival-selector-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
-  // mode es la puerta; las preguntas salen de su banco
-  currentArrivalMode = MODO_BETA_A_BANCO[mode] || mode;
-  aplicarColorGuardiana(mode);
-  try {
-    localStorage.setItem('alma_arrival_mode', currentArrivalMode);
-    localStorage.setItem('alma_puerta', mode);
-  } catch(e) {}
+  if (mode === 'bueno') {
+    // Un día bueno: no fija guardiana. Mañana elegirá puerta.
+    try { localStorage.setItem('alma_bueno_' + currentDay, '1'); } catch(e) {}
+    if (!currentArrivalMode) currentArrivalMode = 'bueno';
+    aplicarColorGuardiana('bueno');
+  } else {
+    // mode es la puerta; las preguntas salen de su banco
+    currentArrivalMode = MODO_BETA_A_BANCO[mode] || mode;
+    aplicarColorGuardiana(mode);
+    try {
+      localStorage.setItem('alma_arrival_mode', currentArrivalMode);
+      localStorage.setItem('alma_puerta', mode);
+      localStorage.removeItem('alma_bueno_' + currentDay);
+    } catch(e) {}
+  }
 
   // Mostrar la pregunta con animación
   const qCard = document.getElementById('question-card');
@@ -5528,6 +6254,7 @@ const BETA_QUESTIONS = {
   sinsaber: "¿Qué te apetece soltar, aunque no sepas muy bien qué es?",
   agotada:  "¿Desde cuándo vienes cargando este cansancio?",
   volver:   "¿Qué parte de ti sientes que has ido perdiendo por el camino?",
+  bueno:    "¿Qué ha pasado de bueno que quieras contar?",
   // Opciones antiguas: quien ya empezó con ellas
   beta_pain:    "¿Qué es lo que más te pesa hoy?",
   beta_search:  "¿Qué parte de ti quieres escuchar hoy?",
@@ -5570,6 +6297,7 @@ function restaurarBeta() {
   if (questionEl) {
     questionEl.innerHTML = `<p class="question-main">${BETA_QUESTIONS[betaMode] || BETA_QUESTIONS.beta_unclear}</p>`;
   }
+  actualizarSoltar();
   const pill = document.getElementById('day-pill');
   if (pill) pill.style.display = 'none';
   const titleEl = document.getElementById('day-title');
@@ -5682,8 +6410,8 @@ const PUERTA_DE_MODO_ANTIGUO = {
 
 // Pone (o quita) el color de su guardiana en toda la habitación
 function aplicarColorGuardiana(modo) {
-  const puerta = COLOR_PUERTA[modo] ? modo : PUERTA_DE_MODO_ANTIGUO[modo];
-  const color = COLOR_PUERTA[puerta];
+  const puerta = modo === 'bueno' ? 'bueno' : (COLOR_PUERTA[modo] ? modo : PUERTA_DE_MODO_ANTIGUO[modo]);
+  const color = puerta === 'bueno' ? COLOR_BUENO : COLOR_PUERTA[puerta];
   if (color) {
     document.body.style.setProperty('--g', color);
     document.body.classList.add('en-guardiana');
@@ -5710,7 +6438,100 @@ function aplicarColorGuardiana(modo) {
 }
 
 // Nombre visible de cada puerta (para «Has entrado por…»)
-const NOMBRE_PUERTA = { nudos: 'Con nudos', sinsaber: 'Sin saber por qué', agotada: 'Agotada', volver: 'Volver a mí' };
+const NOMBRE_PUERTA = { nudos: 'Con nudos', sinsaber: 'Sin saber por qué', agotada: 'Agotada', volver: 'Volver a mí', bueno: 'Con algo bueno que contar' };
+
+// ═════════════════════════════════════════════════
+//  «CON ALGO BUENO QUE CONTAR»
+//  No es una puerta ni un recorrido: es un día suelto, que puede elegir
+//  cualquier día. Ese día no hay guardiana (responde Alma, con el prompt
+//  base), la habitación se pone dorada y la pregunta es otra. Al día siguiente
+//  vuelve su guardiana. El día queda marcado (arrivalMode 'bueno' en su
+//  entrada, que también viaja al servidor) y sale aparte en su cuaderno.
+// ═════════════════════════════════════════════════
+const COLOR_BUENO = '#B8860B';
+const PREGUNTA_BUENO = '¿Qué ha pasado de bueno que quieras contar?';
+
+function esDiaBueno(day) {
+  try { if (localStorage.getItem('alma_bueno_' + day) === '1') return true; } catch(e) {}
+  return loadFromLocal(day)?.arrivalMode === 'bueno';
+}
+
+// ¿Tiene ya con qué seguir? Solo no lo tiene quien empezó con un día bueno y
+// aún no ha elegido puerta. (Las opciones antiguas cuentan como elegidas.)
+function puertaReal() {
+  const p = puertaDelRecorrido();
+  return !!p && p !== 'bueno';
+}
+
+// Pone el enlace del día bueno (o, si aún no tiene puerta, la elección de puerta)
+function actualizarDiaBueno(day) {
+  const box = document.getElementById('dia-bueno');
+  if (!box) return;
+  if (isBetaMode) { box.style.display = 'none'; return; }
+  const empezado = !!textoDelDia(loadFromLocal(day));
+  const bueno = esDiaBueno(day);
+  const real = puertaReal();
+
+  aplicarColorGuardiana(bueno ? 'bueno' : (real ? puertaDelRecorrido() : null));
+  if (bueno && !empezado) renderOpener('bueno');
+
+  if (empezado || (!real && !bueno && day === 0)) { box.style.display = 'none'; box.innerHTML = ''; return; }
+
+  if (!real && !bueno) {
+    // Su primer día fue un día bueno: hoy elige con qué guardiana sigue
+    const opciones = ['nudos', 'sinsaber', 'agotada', 'volver']
+      .map(p => `<button type="button" style="--guardiana:${COLOR_PUERTA[p]}" onclick="elegirPuertaHoy('${p}')">${NOMBRE_PUERTA[p]}</button>`).join('');
+    box.innerHTML = `<p class="puertas-hoy-titulo">¿Cómo llegas hoy?</p><div class="puertas-hoy">${opciones}</div>` +
+      `<button type="button" class="puerta-bueno" onclick="toggleDiaBueno()">Con algo bueno que contar</button>`;
+    box.style.display = 'block';
+    const q = document.querySelector('#question-text .question-main');
+    if (q) q.textContent = 'Elige cómo llegas hoy y empezamos.';
+    const rowD = document.getElementById('actions-row-d');
+    if (rowD) rowD.style.display = 'none';
+    setMobileButtons(false);
+    hideOpener();
+    return;
+  }
+  box.innerHTML = bueno
+    ? `<button type="button" class="puerta-bueno" onclick="toggleDiaBueno()">${real ? 'Volver a mi pregunta de hoy' : 'Elegir cómo llego hoy'}</button>`
+    : `<button type="button" class="puerta-bueno" onclick="toggleDiaBueno()">Hoy tengo algo bueno que contar</button>`;
+  box.style.display = 'block';
+}
+
+function toggleDiaBueno() {
+  if (textoDelDia(loadFromLocal(currentDay))) return; // ya empezó: el día queda como está
+  const ahora = !esDiaBueno(currentDay);
+  try {
+    if (ahora) localStorage.setItem('alma_bueno_' + currentDay, '1');
+    else localStorage.removeItem('alma_bueno_' + currentDay);
+  } catch(e) {}
+  renderQuestion(currentDay);
+  if (!ahora && puertaReal()) renderOpener(puertaDelRecorrido());
+  if (ahora || puertaReal()) {
+    const rowD = document.getElementById('actions-row-d');
+    if (rowD) rowD.style.display = 'flex';
+    setMobileButtons(false);
+  }
+  trackEvent(ahora ? 'dia_bueno_elegido' : 'dia_bueno_quitado', { dia: currentDay + 1 });
+}
+
+// Empezó con un día bueno y hoy elige su puerta para el resto del recorrido
+function elegirPuertaHoy(p) {
+  const modo = MODO_BETA_A_BANCO[p] || p;
+  currentArrivalMode = modo;
+  try {
+    localStorage.setItem('alma_puerta', p);
+    localStorage.setItem('alma_arrival_mode', modo);
+    localStorage.removeItem('alma_bueno_' + currentDay);
+  } catch(e) {}
+  renderQuestion(currentDay);
+  renderOpener(p);
+  const rowD = document.getElementById('actions-row-d');
+  if (rowD) rowD.style.display = 'flex';
+  setMobileButtons(false);
+  trackEvent('arrival_mode_selected', { mode: p, dia: currentDay + 1 });
+}
+
 
 function abrirEntrada() {
   const w = document.getElementById('beta-arrival-selector-wrap');
@@ -5768,6 +6589,8 @@ function selectBetaArrival(btn, mode) {
       <p class="question-main">${BETA_QUESTIONS[mode] || BETA_QUESTIONS.beta_unclear}</p>
     `;
   }
+  try { localStorage.removeItem('alma_soltar_beta'); } catch(e) {}
+  actualizarSoltar();
 
   // Pill y título beta
   const pill = document.getElementById('day-pill');
@@ -5888,7 +6711,9 @@ async function callBeta({ btns, text, isFirstTurn }) {
         conversationHistory: betaHistory.slice(0, -1),
         previousEntries: {},
         arrivalMode: betaMode,
-        puerta: betaMode, // su guardiana
+        puerta: betaMode === 'bueno' ? null : betaMode, // su guardiana (ninguna el día bueno)
+        bueno: betaMode === 'bueno',
+        soltar: esDiaSoltar(),
         plan: 'free',
         isBeta: true,
         betaMaxTurns: BETA_MAX_TURNS,
@@ -6017,7 +6842,8 @@ async function showBetaFarewell() {
       body: JSON.stringify({
         betaEntries: betaHistory,
         arrivalMode: betaMode,
-        puerta: betaMode, // su guardiana
+        puerta: betaMode === 'bueno' ? null : betaMode, // su guardiana (ninguna el día bueno)
+        bueno: betaMode === 'bueno',
         plan: 'free',
       }),
       signal: controller.signal,
@@ -6213,7 +7039,9 @@ function startFullJourney() {
     <div class="refugio-title">Tu refugio</div>
     <div class="refugio-sub">Aquí permanecen los momentos que decidiste vivir contigo.</div>
   </div>
+  <div style="max-width:620px;margin:0 auto;padding:0 1.2rem"><p class="aviso-iphone">En iPhone, si pasas más de una semana sin abrir Alma, Safari puede borrar lo que se guarda solo en el móvil. Para que no pase, añade Alma a tu pantalla de inicio: toca el botón de compartir y luego «Añadir a pantalla de inicio».</p></div>
   <div class="refugio-body" id="refugio-body"></div>
+  <button type="button" class="borrar-todo-link" onclick="borrarTodo()">Borrar todo lo mío</button>
 </div>
 
 <!-- MODAL REFLEJO COMPLETO -->
@@ -6495,7 +7323,7 @@ async function mostrarPalabraYReflejo(farewellFn, historial) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         conversationHistory: historial,
-        puerta: isBetaMode ? betaMode : puertaDelRecorrido(), // su guardiana
+        puerta: isBetaMode ? betaMode : (esDiaBueno(currentDay) ? 'bueno' : puertaDelRecorrido()), // su guardiana
       }),
     });
     const data = await res.json();
@@ -6688,15 +7516,21 @@ function hayRecorridoLocal() {
 }
 
 function borrarRecorridoLocal() {
-  const fijas = ['alma_beta', 'alma_beta_farewell', 'alma_tramo', 'alma_arrival_mode', 'alma_puerta', 'alma_libre', 'alma_libre_uso',
+  const fijas = ['alma_beta', 'alma_beta_farewell', 'alma_soltar_beta', 'alma_tramo', 'alma_arrival_mode', 'alma_puerta', 'alma_libre', 'alma_libre_uso',
                  'alma_farewell', 'alma_farewell_3', 'alma_farewell_5', 'alma_farewell_7',
                  'alma_borrador_beta', 'alma_refugio_camino', 'alma_refugio_frases', 'alma_refugio_reflejos'];
   try {
     fijas.forEach(k => localStorage.removeItem(k));
     for (let i = 0; i < 7; i++) {
-      ['alma_', 'alma_q_', 'alma_borrador_'].forEach(p => localStorage.removeItem(p + i));
+      ['alma_', 'alma_q_', 'alma_borrador_', 'alma_bueno_', 'alma_soltar_'].forEach(p => localStorage.removeItem(p + i));
     }
-    ['pain','curiosity','open','depth'].forEach(m => localStorage.removeItem('alma_qset_' + m));
+    ['pain','curiosity','open','depth','nudos','sinsaber','agotada','volver'].forEach(m => localStorage.removeItem('alma_qset_' + m));
+    // Lo elegido para el cuaderno de cada tramo (historia, historia del día bueno, ejercicio)
+    [3, 5, 7].forEach(t => {
+      localStorage.removeItem('alma_cuaderno_historia_' + t);
+      localStorage.removeItem('alma_cuaderno_bueno_' + t);
+      ['nudos','sinsaber','agotada','volver'].forEach(m => localStorage.removeItem('alma_cuaderno_ej_' + m + '_' + t));
+    });
   } catch(e) {}
 }
 

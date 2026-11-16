@@ -81,6 +81,8 @@
       <p><strong>Recordatorio y enlace de tu recorrido.</strong> Si pulsas «Recuérdamelo mañana», la cita se crea en tu propio calendario; nosotras no guardamos ni la cita ni la hora. Esa cita incluye un enlace con tu identificador aleatorio que abre tu recorrido en cualquier navegador, por ejemplo si empezaste dentro de Instagram y vuelves desde el móvil. Quien tenga ese enlace puede ver lo que escribiste mientras siga guardado, así que no lo compartas. El enlace deja de funcionar cuando tus textos se borran (ver apartado 04).</p>
       <p>Al terminar tu recorrido (en el día 3, 5 o 7, cuando decidas parar) te ofrecemos dejarnos tu correo electrónico para avisarte cuando puedas volver y seguir escribiendo. Ese paso es <strong>voluntario</strong> y no condiciona nada de lo anterior. Si lo das, guardamos tu correo, junto al identificador aleatorio de tu navegador, solo para escribirte sobre Alma. <strong>Dejar el correo no hace que se guarden tus textos:</strong> se borran igualmente en el plazo del apartado 04.</p>
       <p><strong>Después de los siete días.</strong> Si terminas el recorrido, puedes volver a escribir con Alma cuando lo necesites, con un número limitado de mensajes al día. Lo que escribes en esas conversaciones se guarda solo en tu móvil; a nuestro servidor solo llega un contador de cuántos mensajes has enviado cada día, asociado a tu identificador aleatorio, para poder aplicar ese límite. Los textos sí pasan por Anthropic para que Alma pueda responderte (apartado 03).</p>
+      <p><strong>Escribir sin respuesta.</strong> Lo que escribes en la página en blanco («Solo quiero escribir, sin respuesta») se guarda únicamente en tu móvil: no llega a nuestro servidor ni a Anthropic, y nadie lo lee, tampoco Alma. Se borra solo a los catorce días.</p>
+      <p><strong>Tu cuaderno.</strong> El cuaderno que descargas al terminar cada tramo se crea en tu propio navegador. Para elegir la historia que mejor encaja con lo que has escrito, esos textos se envían una vez a Anthropic, que solo devuelve el nombre de una historia; no se guardan en ningún sitio por ese motivo.</p>
       <p>Si al terminar nos cuentas cómo te has sentido, en el formulario opcional de opinión, ese mensaje nos llega por correo a través de Netlify y lo usamos solo para mejorar Alma.</p>
       <p>La base jurídica del tratamiento es el consentimiento que prestas al aceptar las condiciones antes de entrar y, en el caso del correo, al enviarlo tú misma.</p>
     </div>
@@ -88,6 +90,7 @@
       <span class="section-num">03</span>
       <h2>Inteligencia artificial y otros proveedores</h2>
       <p>Los textos que introduces son enviados a la API de Anthropic para generar las respuestas del acompañante. Esto implica que Anthropic procesa ese contenido de acuerdo con su propia política de privacidad y sus condiciones de uso.</p>
+      <p>Junto a tus textos, la app envía solo los datos del propio recorrido que Alma necesita para responderte bien: el día en el que estás, la puerta que elegiste, si ese día has pedido que no te pregunte nada o cuántos días hace que escribiste por última vez. Nunca datos que te identifiquen.</p>
       <p>Anthropic actúa como encargado del tratamiento. Puedes consultar su política en <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">anthropic.com/privacy</a>.</p>
       <p>El almacenamiento temporal de los textos se realiza en Supabase, y el alojamiento de la web en Netlify. Ambos actúan igualmente como encargados del tratamiento: <a href="https://supabase.com/privacy" target="_blank" rel="noopener">supabase.com/privacy</a> y <a href="https://www.netlify.com/privacy/" target="_blank" rel="noopener">netlify.com/privacy</a>.</p>
       <p>Para saber cuántas personas visitan la web y en qué punto la dejan usamos Umami Cloud, una analítica <strong>sin cookies</strong> que no guarda tu dirección IP ni datos que te identifiquen, y que no recibe lo que escribes: <a href="https://umami.is/privacy" target="_blank" rel="noopener">umami.is/privacy</a>.</p>
@@ -99,9 +102,11 @@
       <span class="section-num">04</span>
       <h2>Cuánto tiempo se conservan los datos</h2>
       <p>Los textos guardados durante tu recorrido se eliminan automáticamente, todos a la vez, cuando pasan catorce días sin actividad en él (sin que escribas nada nuevo). Un proceso automático lo revisa cada día. No se realiza ninguna copia adicional ni se usan para ningún otro fin.</p>
+      <p><strong>Borrar todo cuando quieras.</strong> No hace falta esperar a los catorce días: desde la propia app («Borrar todo lo mío», en Tu refugio, en la escritura libre o en la página en blanco) se borra al momento todo lo guardado con tu identificador en nuestro servidor y todo lo que hay en tu móvil. Si en ese momento no se puede conectar con el servidor, te avisamos y lo de allí se borra igualmente a los catorce días. Esto no borra tu correo, si nos lo dejaste: para eso, escríbenos.</p>
       <p>Si nos has dejado tu correo, lo conservamos hasta que nos pidas darte de baja, cosa que puedes hacer en cualquier momento escribiendo a la dirección de contacto o respondiendo a cualquiera de nuestros mensajes. Tus textos se borran igualmente a los catorce días.</p>
       <p>Los mensajes del formulario de opinión se conservan mientras nos sirvan para mejorar Alma; puedes pedirnos que los borremos cuando quieras.</p>
-      <p>Lo que escribes también queda guardado en el almacenamiento de tu propio navegador, en tu dispositivo, incluido lo que dejas a medias antes de enviarlo (ese borrador nunca sale de tu dispositivo y se descarta solo a los catorce días). Eso no lo controlamos nosotras: puedes borrarlo cuando quieras vaciando los datos del sitio desde los ajustes de tu navegador.</p>
+      <p>Lo que escribes también queda guardado en el almacenamiento de tu propio navegador, en tu dispositivo, incluido lo que dejas a medias antes de enviarlo (ese borrador nunca sale de tu dispositivo y se descarta solo a los catorce días). Puedes borrarlo con «Borrar todo lo mío» o vaciando los datos del sitio desde los ajustes de tu navegador. En iPhone, si pasas más de una semana sin abrir Alma en Safari, el propio navegador puede borrar lo que hay guardado en el móvil; si añades Alma a tu pantalla de inicio, eso no pasa.</p>
+      <p>El cuaderno que descargas es un archivo en tu dispositivo: nosotras no lo guardamos ni podemos borrarlo, así que es tuyo para conservarlo o eliminarlo.</p>
     </div>
     <div class="section">
       <span class="section-num">05</span>
@@ -119,7 +124,7 @@
       <h2>Naturaleza del servicio</h2>
       <p>Alma Proyect es un espacio de journaling y acompañamiento emocional. No es un servicio de psicología, terapia, coaching ni atención sanitaria, y no sustituye en ningún caso la atención de un profesional de salud mental.</p>
       <div class="crisis-box">
-        <p>Si necesitas ayuda urgente, contacta con el <a href="tel:717003717"><strong>Teléfono de la Esperanza: 717 003 717</strong></a> (24h, gratuito).</p>
+        <p>Si necesitas ayuda urgente: <a href="tel:024"><strong>024</strong></a> (atención a la conducta suicida, 24 h, gratuito) o <a href="tel:717003717"><strong>Teléfono de la Esperanza: 717 003 717</strong></a> (24 h, gratuito). Si alguien te da miedo o te hace daño: <a href="tel:016"><strong>016</strong></a> (violencia contra las mujeres, 24 h, no deja rastro en la factura; también por WhatsApp en el 600 000 016). En una emergencia, <a href="tel:112"><strong>112</strong></a>.</p>
       </div>
     </div>
     <div class="contact-box">

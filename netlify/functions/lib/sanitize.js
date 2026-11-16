@@ -24,14 +24,17 @@ function sanitizeMuletillas(text) {
     /(^|[.!?]\s+)(?:Eso es|Ahí está|Aquí está)[.!?]+\s*/g,
     (match, prefix) => prefix
   );
-  // Caso 2: abre una frase que sigue: se quita y se pone mayúscula.
+  // Caso 2: abre una frase seguida de coma o dos puntos («Eso es, lo que
+  // cuentas…»): se quita y se pone mayúscula. Sin coma no se toca, porque
+  // entonces es parte de la frase («Eso es cosa tuya», «Ahí está lo difícil»)
+  // y quitarlo la rompe.
   result = result.replace(
-    /(^|[.!?]\s+)(?:Eso es|Ahí está|Aquí está)\s+([a-záéíóúñ])/g,
+    /(^|[.!?]\s+)(?:Eso es|Ahí está|Aquí está)[,:]\s+([a-záéíóúñ])/g,
     (match, prefix, letter) => prefix + letter.toUpperCase()
   );
-  // Caso 3: a mitad de frase, tras "Pero", "Y" o "Pues".
+  // Caso 3: a mitad de frase, tras "Pero", "Y" o "Pues", también solo con coma.
   result = result.replace(
-    /(Pero\s+|Y\s+|Pues\s+)(?:eso es|ahí está|aquí está)\s+/gi,
+    /(Pero\s+|Y\s+|Pues\s+)(?:eso es|ahí está|aquí está)[,:]\s+/gi,
     (match, prefix) => prefix
   );
   return result;
@@ -191,8 +194,21 @@ function esEvaluacion(t) {
   return RE_EVALUA.some(re => re.test(t));
 }
 
-function sanitizeEvaluacion(text) {
-  const r = quitarFrasesCortas(text, esEvaluacion);
+// El día bueno, alegrarse de lo que ha pasado no es evaluarla: «Qué bien.»,
+// «Me alegra mucho», «Qué bonito que…» se dejan. Lo que la evalúa a ella
+// («Me parece muy honesto», «Qué valiente», «Dice mucho de ti») se sigue quitando.
+const ADJ_EVAL_BUENO = "(?:honest[oa]s?|valientes?|admirables?|sincer[oa]s?|valios[oa]s?|generos[oa]s?|lúcid[oa]s?|madur[oa]s?|sabi[oa]s?|de valientes)";
+const RE_EVALUA_BUENO = [
+  new RegExp(`^(?:Y |Pero )?(?:Me parece|Es|Eso es|Lo que (?:dices|cuentas|has escrito|haces) es|Has sido|Estás siendo) ${INTENSIF}${ADJ_EVAL_BUENO}\\b`, "i"),
+  new RegExp(`^(?:Muy |Tan |Qué )${ADJ_EVAL_BUENO}(?:[.!]$|,? (?:que|lo que|cómo)\\b)`, "i"),
+  /^(?:Y )?(?:Eso )?[Dd]ice mucho de ti\b/,
+];
+function esEvaluacionBueno(t) {
+  return RE_EVALUA_BUENO.some(re => re.test(t));
+}
+
+function sanitizeEvaluacion(text, bueno) {
+  const r = quitarFrasesCortas(text, bueno ? esEvaluacionBueno : esEvaluacion);
   if (r !== text) console.warn("sanitize: frase que la evalúa recortada");
   return r;
 }
@@ -237,8 +253,8 @@ function quitarPreguntasDeDatos(text) {
 // Respuesta de conversación: todas las redes, en el mismo orden que el original.
 // Las preguntas de datos se quitan antes de recortar a una sola pregunta: así,
 // si la primera era de datos, se queda la siguiente.
-function limpiarRespuesta(text) {
-  return recortarPreguntas(quitarPreguntasDeDatos(sanitizeEvaluacion(sanitizeManual(sanitizeEspana(sanitizeTrailingQuestion(sanitizeMuletillas(sanitizeDashes(sanitizeFirma(text)))))))));
+function limpiarRespuesta(text, opciones = {}) {
+  return recortarPreguntas(quitarPreguntasDeDatos(sanitizeEvaluacion(sanitizeManual(sanitizeEspana(sanitizeTrailingQuestion(sanitizeMuletillas(sanitizeDashes(sanitizeFirma(text)))))), opciones.bueno === true)));
 }
 
 // Reflejo: guiones y muletillas (sin tocar sus preguntas, que no las lleva).

@@ -19,10 +19,21 @@ REGLAS:
 
 Devuelve SOLO la frase. Sin explicación, sin preamble, sin comillas.`;
 
+// Día bueno («Con algo bueno que contar»): la frase recoge eso bueno.
+const NOTA_BUENO = `
+
+HOY VINO CON ALGO BUENO QUE CONTAR:
+La frase recoge lo bueno que contó, con algo concreto de lo que escribió. Sin buscarle sombra, sin moraleja, sin «ojalá dure» ni «te lo mereces». No la evalúes: habla de lo que pasó o de cómo se le notaba al contarlo.`;
+
 const FALLBACKS = [
   "Hoy vi a alguien que llegó aunque podría no haberlo hecho.",
   "Hoy noté que hay algo que llevas tiempo sin decirte a ti misma.",
   "Hoy escuché más en lo que no dijiste que en lo que sí escribiste.",
+];
+const FALLBACKS_BUENO = [
+  "Hoy escuché algo bueno, y se te notaba al contarlo.",
+  "Hoy noté que viniste a contar algo bueno y te tomaste tu tiempo para hacerlo.",
+  "Hoy vi un día bueno contado con calma.",
 ];
 
 exports.handler = async function (event) {
@@ -30,15 +41,18 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  let conversationHistory, day;
+  let conversationHistory, day, arrivalMode;
   try {
-    ({ conversationHistory, day } = JSON.parse(event.body || "{}"));
+    ({ conversationHistory, day, arrivalMode } = JSON.parse(event.body || "{}"));
   } catch (e) {
     return { statusCode: 400, body: JSON.stringify({ error: "JSON inválido" }) };
   }
 
+  const bueno = arrivalMode === "bueno";
+  const reservas = bueno ? FALLBACKS_BUENO : FALLBACKS;
+
   if (!Array.isArray(conversationHistory) || !conversationHistory.length) {
-    const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
+    const fallback = reservas[Math.floor(Math.random() * reservas.length)];
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
@@ -57,7 +71,7 @@ exports.handler = async function (event) {
     .join("\n\n");
 
   if (!userTurns.trim()) {
-    const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
+    const fallback = reservas[Math.floor(Math.random() * reservas.length)];
     return { statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ frase: fallback }) };
   }
 
@@ -66,7 +80,7 @@ exports.handler = async function (event) {
 
   try {
     const result = await callAnthropic({
-      system: SYSTEM_PROMPT,
+      system: SYSTEM_PROMPT + (bueno ? NOTA_BUENO : ""),
       messages: [{ role: "user", content: userMessage }],
       maxTokens: 90,
       temperature: 0.8,
@@ -89,7 +103,7 @@ exports.handler = async function (event) {
 
   } catch (error) {
     console.error("Error en day-card.js:", error.message);
-    const fallback = FALLBACKS[Math.floor(Math.random() * FALLBACKS.length)];
+    const fallback = reservas[Math.floor(Math.random() * reservas.length)];
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },

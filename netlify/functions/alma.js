@@ -9,6 +9,8 @@ const { getGuardiana, resolverPuerta } = require("./lib/guardianas");
 const { limpiarRespuesta, tienePreguntaConOpciones } = require("./lib/sanitize");
 const { RECORDATORIO_FINAL } = require("./lib/prompts");
 const { consultarLibre, sumarLibre, LIMITE_LIBRE_DIA } = require("./lib/limite");
+const { PREGUNTA_BUENO, CAPA_BUENO, esDiaBueno } = require("./lib/bueno");
+const { CAPA_SOLTAR, capaAusencia, quitarPreguntas, limpiarFrasesAnteriores, capaNoRepetir } = require("./lib/capas");
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_MENSAJES_LIBRES_EN_HILO = 10; // pares ella/Alma que se le recuerdan
@@ -142,11 +144,21 @@ exports.handler = async function (event) {
   } catch (e) {
     return { statusCode: 400, body: JSON.stringify({ error: "JSON inválido" }) };
   }
-  const { arrivalMode, questionSet } = datos;
+  // El día bueno no tiene guardiana ni modo de llegada: responde Alma con su
+  // prompt base. Su pregunta es la de «algo bueno».
+  const bueno = esDiaBueno(datos);
+  // «Hoy solo quiero soltar»: ese día Alma no pregunta
+  const soltar = datos.soltar === true;
+  // Días desde la última vez que escribió (lo calcula la app con sus fechas)
+  const diasSinVenir = entero(datos.diasSinVenir, 0, 365, 0);
+  // Cómo empezó y cerró Alma otros días (para no repetirse)
+  const frasesAnteriores = limpiarFrasesAnteriores(datos.frasesAnteriores);
+  const arrivalMode = bueno ? null : datos.arrivalMode;
+  const { questionSet } = datos;
   // La puerta por la que entró (nudos, sinsaber, agotada, volver) decide su
   // guardiana para todo el recorrido. Las opciones antiguas se traducen a la
   // puerta más cercana.
-  const puerta = resolverPuerta(datos.puerta, arrivalMode);
+  const puerta = bueno ? null : resolverPuerta(datos.puerta, arrivalMode);
   const capaGuardiana = getGuardiana(puerta);
   const isBeta = datos.isBeta === true;
 
@@ -171,9 +183,11 @@ exports.handler = async function (event) {
   // La pregunta que de verdad vio la usuaria. En la beta (ids beta_*) viene de su propio
   // banco; antes caía al primer elemento del banco "pain" y Alma recibía una pregunta
   // distinta a la que se había mostrado en pantalla.
-  const preguntaDeHoy = isBeta
-    ? getBetaQuestion(arrivalMode)
-    : getQuestion(arrivalMode, day, questionSet);
+  const preguntaDeHoy = bueno
+    ? PREGUNTA_BUENO
+    : isBeta
+      ? getBetaQuestion(arrivalMode)
+      : getQuestion(arrivalMode, day, questionSet);
 
   // Construir historial de mensajes — solo lo esencial para no superar el timeout
   const messages = [];
@@ -226,8 +240,11 @@ exports.handler = async function (event) {
       // llegada (que podía contradecirla: «curiosidad, con ligereza» frente a
       // Ítaca). Sin guardiana, todo sigue como antes.
       system: getAlmaSystemPrompt(day, currentTurn, previousEntries, capaGuardiana ? null : arrivalMode, essence, {
-        maxTurns, tramo: Math.max(tramo, day), isBeta,
-      }) + (capaGuardiana ? "\n\n" + capaGuardiana : "") + "\n\n" + RECORDATORIO_FINAL,
+        maxTurns, tramo: Math.max(tramo, day), isBeta, diasSinVenir,
+      }) + (capaGuardiana ? "\n\n" + capaGuardiana : "") + (bueno ? "\n\n" + CAPA_BUENO : "")
+        + (!isBeta && day > 1 && diasSinVenir >= 2 ? "\n\n" + capaAusencia(diasSinVenir) : "")
+        + (!isBeta && frasesAnteriores.length ? "\n\n" + capaNoRepetir(frasesAnteriores) : "")
+        + (soltar ? "\n\n" + CAPA_SOLTAR : "") + "\n\n" + RECORDATORIO_FINAL,
       messages,
       maxTokens: 320,
       temperature: 0.85,
@@ -238,7 +255,8 @@ exports.handler = async function (event) {
       timeoutMs: 9300 - (Date.now() - inicio),
     });
 
-    const response = limpiarRespuesta(cleanIfTruncated(result.text, result.truncated));
+    let response = limpiarRespuesta(cleanIfTruncated(result.text, result.truncated), { bueno });
+    if (soltar) response = quitarPreguntas(response);
     if (tienePreguntaConOpciones(response)) {
       // Solo el aviso, nunca el texto: lo que escribe ella es privado
       console.warn(`Pregunta con opciones (puerta: ${puerta || "ninguna"}, día ${day}, turno ${currentTurn})`);

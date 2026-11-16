@@ -12,6 +12,7 @@ const { BETA_SUMMARY_SYSTEM_PROMPT, getBetaSummaryUserMessage, notaReflejo } = r
 const { getBetaQuestion } = require("./lib/questions");
 const { resolverPuerta } = require("./lib/guardianas");
 const { limpiarReflejo } = require("./lib/sanitize");
+const { PREGUNTA_BUENO, esDiaBueno } = require("./lib/bueno");
 
 const MAX_CHARS_TEXTO = 2000;
 const MAX_MENSAJES = 8; // 4 de ella + 4 de Alma
@@ -43,8 +44,10 @@ exports.handler = async function (event) {
     return { statusCode: 400, body: JSON.stringify({ error: "No se recibieron entradas." }) };
   }
 
-  const puerta = resolverPuerta(datos.puerta, datos.arrivalMode);
-  const pregunta = getBetaQuestion(puerta || datos.arrivalMode);
+  // Día bueno: sin guardiana y con su propia pregunta
+  const bueno = esDiaBueno(datos);
+  const puerta = bueno ? null : resolverPuerta(datos.puerta, datos.arrivalMode);
+  const pregunta = bueno ? PREGUNTA_BUENO : getBetaQuestion(puerta || datos.arrivalMode);
 
   try {
     const result = await callAnthropic({

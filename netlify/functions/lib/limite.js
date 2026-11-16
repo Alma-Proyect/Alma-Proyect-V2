@@ -13,7 +13,7 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
-const LIMITE_LIBRE_DIA = 5;        // ← cámbialo aquí si quieres más o menos
+const LIMITE_LIBRE_DIA = 3;        // ← cámbialo aquí si quieres más o menos (y en app.html)
 const DIAS_QUE_SE_GUARDAN = 7;     // del contador, no de los textos
 
 function hoyEnEspana() {
