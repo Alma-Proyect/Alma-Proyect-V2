@@ -10,7 +10,7 @@ const { limpiarRespuesta, tienePreguntaConOpciones } = require("./lib/sanitize")
 const { RECORDATORIO_FINAL } = require("./lib/prompts");
 const { consultarLibre, sumarLibre, LIMITE_LIBRE_DIA } = require("./lib/limite");
 const { PREGUNTA_BUENO, CAPA_BUENO, esDiaBueno } = require("./lib/bueno");
-const { CAPA_SOLTAR, capaAusencia, quitarPreguntas, limpiarFrasesAnteriores, capaNoRepetir } = require("./lib/capas");
+const { CAPA_SOLTAR, capaAusencia, quitarPreguntas, limpiarFrasesAnteriores, capaNoRepetir, limpiarReintento, capaReintento } = require("./lib/capas");
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_MENSAJES_LIBRES_EN_HILO = 10; // pares ella/Alma que se le recuerdan
@@ -148,7 +148,9 @@ exports.handler = async function (event) {
   // prompt base. Su pregunta es la de «algo bueno».
   const bueno = esDiaBueno(datos);
   // «Hoy solo quiero soltar»: ese día Alma no pregunta
-  const soltar = datos.soltar === true;
+  // «No me has entendido»: vuelve a intentarlo, con el motivo que ella eligió
+  const reintento = limpiarReintento(datos.reintento);
+  const soltar = datos.soltar === true || (reintento && reintento.motivo === "preguntas");
   // Días desde la última vez que escribió (lo calcula la app con sus fechas)
   const diasSinVenir = entero(datos.diasSinVenir, 0, 365, 0);
   // Cómo empezó y cerró Alma otros días (para no repetirse)
@@ -244,7 +246,8 @@ exports.handler = async function (event) {
       }) + (capaGuardiana ? "\n\n" + capaGuardiana : "") + (bueno ? "\n\n" + CAPA_BUENO : "")
         + (!isBeta && day > 1 && diasSinVenir >= 2 ? "\n\n" + capaAusencia(diasSinVenir) : "")
         + (!isBeta && frasesAnteriores.length ? "\n\n" + capaNoRepetir(frasesAnteriores) : "")
-        + (soltar ? "\n\n" + CAPA_SOLTAR : "") + "\n\n" + RECORDATORIO_FINAL,
+        + (soltar ? "\n\n" + CAPA_SOLTAR : "")
+        + (reintento ? "\n\n" + capaReintento(reintento) : "") + "\n\n" + RECORDATORIO_FINAL,
       messages,
       maxTokens: 320,
       temperature: 0.85,

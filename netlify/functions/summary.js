@@ -51,6 +51,12 @@ function limpiarEntradas(entries) {
 // como lo que Alma vio en ella, y acababa en su carta y en Tu refugio. Ahora la
 // app le dice la verdad («hoy no he podido escribirte tu reflejo») y lo
 // vuelve a intentar cuando ella lo pida.
+// Ella escribe primero lo que se lleva; el reflejo parte de ahí sin corregirla.
+function notaMeLlevo(meLlevo) {
+  if (!meLlevo) return "";
+  return `\n\nAntes de leer tu reflejo, ella misma ha escrito lo que se lleva de estos días: «${meLlevo}»\nEsa conclusión es suya: no la corrijas, no la contradigas y no la repitas tal cual. Tu reflejo puede acompañarla o mirar algo que esté al lado, sin quitarle el sitio.`;
+}
+
 exports.handler = async function (event) {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
@@ -63,6 +69,8 @@ exports.handler = async function (event) {
     return { statusCode: 400, body: JSON.stringify({ error: "JSON inválido" }) };
   }
   const { arrivalMode, questionSet, reflejoTotal } = datos;
+  // Lo que ella misma ha escrito que se lleva, antes de leer el reflejo
+  const meLlevo = typeof datos.meLlevo === "string" ? datos.meLlevo.replace(/\s+/g, " ").trim().slice(0, 400) : "";
   const puerta = resolverPuerta(datos.puerta, arrivalMode); // su guardiana
   const entries = limpiarEntradas(datos.entries);
 
@@ -77,7 +85,7 @@ exports.handler = async function (event) {
     const esTotal = reflejoTotal === true;
     const result = await callAnthropic({
       system: (esTotal ? SUMMARY_TOTAL_SYSTEM_PROMPT : SUMMARY_SYSTEM_PROMPT) + notaReflejo(puerta),
-      messages: [{ role: "user", content: getSummaryUserMessage(entries, arrivalMode, questionSet, esTotal) }],
+      messages: [{ role: "user", content: getSummaryUserMessage(entries, arrivalMode, questionSet, esTotal) + notaMeLlevo(meLlevo) }],
       maxTokens: esTotal ? 520 : 360,
       temperature: 0.78,
       plan: "free", // nunca lo decide el navegador

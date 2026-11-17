@@ -1240,6 +1240,106 @@ body.entrada-abierta { overflow: hidden; }
 .cierre-volver .btn-continuar-tramo { margin-top: 0.9rem; width: 100%; }
 #registro-toggle-final { align-self: center; }
 
+/* ════ AVISO DE IA, «NO ME HAS ENTENDIDO» Y LÍNEA BAJO EL CUADRO ════ */
+.aviso-ia-nota {
+  font-family: 'Jost', sans-serif; font-size: 0.74rem; line-height: 1.55; color: #8A7356;
+  margin: 0.5rem 0 0; padding: 0 0.2rem; font-style: italic;
+}
+body.en-guardiana .aviso-ia-nota { color: rgba(255,255,255,0.72); }
+.nota-envio { font-family: 'Jost', sans-serif; font-size: 0.72rem; line-height: 1.5; color: #9B8D74; margin: 0.35rem 0 0; }
+body.en-guardiana .nota-envio { color: rgba(255,255,255,0.6); }
+.no-entendido { text-align: right; margin: 0.35rem 0 0.6rem; font-family: 'Jost', sans-serif; font-size: 0.76rem; }
+.no-entendido button {
+  background: none; border: none; cursor: pointer; font: inherit; padding: 0.2rem 0.1rem;
+  color: #8A7356; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(138,115,86,0.4);
+}
+.no-entendido .ne-motivos { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.4rem; margin-top: 0.4rem; }
+.no-entendido .ne-motivos button {
+  text-decoration: none; border: 1px solid rgba(138,115,86,0.35); border-radius: 100px; padding: 0.35rem 0.8rem; background: rgba(255,255,255,0.35);
+}
+.no-entendido .ne-pregunta { margin: 0.2rem 0 0; color: #8A7356; }
+body.en-guardiana .no-entendido button, body.en-guardiana .no-entendido .ne-pregunta { color: rgba(255,255,255,0.8); text-decoration-color: rgba(255,255,255,0.35); }
+body.en-guardiana .no-entendido .ne-motivos button { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.08); }
+.history-alma.reintentando > div:last-child { opacity: 0.45; transition: opacity 0.3s; }
+
+/* ════ LO QUE ME LLEVO (antes del reflejo del tramo) ════ */
+.mellevo-screen {
+  display: none; position: fixed; inset: 0; z-index: 1900; overflow-y: auto;
+  background: #F5EDD8; color: #2E2618; padding: 2rem 1.4rem;
+}
+.mellevo-screen.visible { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.5s ease both; }
+.mellevo-col { max-width: 520px; width: 100%; margin: auto; text-align: center; }
+.mellevo-col h2 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 1.7rem; margin-bottom: 0.8rem; }
+.mellevo-col p { font-family: 'Jost', sans-serif; font-size: 0.9rem; line-height: 1.6; color: #6B5B44; margin-bottom: 1.2rem; }
+.mellevo-campo {
+  width: 100%; min-height: 120px; border: 1px solid rgba(168,107,80,0.25); border-radius: 12px; padding: 0.9rem 1rem;
+  background: #FBF7EE; font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; line-height: 1.5; color: #2E2618; resize: vertical;
+}
+.mellevo-acciones { display: flex; flex-direction: column; gap: 0.6rem; align-items: center; margin-top: 1.1rem; }
+.mellevo-btn { min-height: 46px; padding: 0 1.8rem; border-radius: 100px; cursor: pointer; background: #2E2618; color: #FBF7EE; border: none; font-family: 'Jost', sans-serif; font-size: 0.92rem; }
+.mellevo-saltar { background: none; border: none; cursor: pointer; font-family: 'Jost', sans-serif; font-size: 0.82rem; color: #8A7356; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ════ OTRAS FORMAS DE LLEGAR (bajo las puertas, plegado) ════ */
+.otras-formas { text-align: center; margin: 0.2rem auto 0; }
+.otras-toggle {
+  background: none; border: none; cursor: pointer; padding: 0.4rem 0.8rem;
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem;
+  color: #8A7356; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(138,115,86,0.4);
+}
+.otras-lista, .hoy-prefiero-lista { display: none !important; }
+
+/* ════ HOJA DE OPCIONES (sube desde abajo, se va al elegir) ════ */
+.hoja { position: fixed; inset: 0; z-index: 2400; display: flex; align-items: flex-end; justify-content: center; }
+.hoja[hidden] { display: none; }
+.hoja-fondo { position: absolute; inset: 0; background: rgba(46,38,24,0.3); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); animation: hojaFondo 0.25s ease both; }
+.hoja-caja {
+  position: relative; width: 100%; max-width: 460px; background: #FBF7EE; color: #2E2618;
+  border-radius: 20px 20px 0 0; padding: 1.4rem 1.2rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -10px 40px rgba(30,24,16,0.25); animation: hojaSube 0.3s cubic-bezier(.2,.8,.2,1) both;
+}
+.hoja-caja::before { content: ''; display: block; width: 38px; height: 4px; border-radius: 4px; background: rgba(168,107,80,0.25); margin: -0.6rem auto 1rem; }
+.hoja-titulo { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.3rem; text-align: center; margin: 0 0 1rem; color: #2E2618; }
+.hoja-opcion {
+  display: block; width: 100%; text-align: left; cursor: pointer; margin-bottom: 0.6rem;
+  background: #fff; border: 1px solid rgba(168,107,80,0.2); border-radius: 14px; padding: 0.9rem 1rem;
+  font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; color: #2E2618;
+}
+.hoja-opcion:hover, .hoja-opcion:focus-visible { border-color: rgba(168,107,80,0.55); outline: none; }
+.hoja-opcion small { display: block; font-family: 'Jost', sans-serif; font-size: 0.8rem; color: #7A6A55; margin-top: 0.2rem; }
+.hoja-cerrar {
+  display: block; margin: 0.4rem auto 0; background: none; border: none; cursor: pointer;
+  font-family: 'Jost', sans-serif; font-size: 0.85rem; color: #8A7356; padding: 0.5rem 1rem;
+}
+@media (min-width: 620px) { .hoja { align-items: center; } .hoja-caja { border-radius: 20px; } }
+@keyframes hojaSube { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes hojaFondo { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .hoja-caja, .hoja-fondo { animation: none; } }
+.entrada-oscura .otras-toggle { color: rgba(245,237,216,0.8); text-decoration-color: rgba(245,237,216,0.35); }
+
+/* ════ MENÚ «MÁS» (arriba, junto a Tu refugio) ════ */
+.mas-menu { position: relative; }
+/* Con el menú abierto, la barra de arriba pasa por encima del contenido */
+body.mas-abierto .topbar { position: relative; z-index: 1200; }
+.mas-btn {
+  background: none; border: 1px solid rgba(168,107,80,0.3); border-radius: 100px; cursor: pointer;
+  font-family: 'Jost', sans-serif; font-size: 0.78rem; color: var(--ink); padding: 0.3rem 0.8rem;
+}
+body.en-guardiana .mas-btn { color: rgba(255,255,255,0.9); border-color: rgba(255,255,255,0.35); }
+.mas-panel {
+  display: none; position: absolute; right: 0; top: calc(100% + 0.4rem); z-index: 1200; min-width: 230px;
+  background: #FBF7EE; border: 1px solid rgba(168,107,80,0.2); border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(46,38,24,0.18); padding: 0.4rem;
+}
+.mas-menu.abierto .mas-panel { display: block; animation: fadeIn 0.2s ease both; }
+.mas-panel button, .mas-panel a {
+  display: block; width: 100%; text-align: left; background: none; border: none; cursor: pointer;
+  font-family: 'Jost', sans-serif; font-size: 0.88rem; color: #2E2618; text-decoration: none;
+  padding: 0.65rem 0.8rem; border-radius: 8px;
+}
+.mas-panel button:hover, .mas-panel a:hover { background: rgba(168,107,80,0.08); }
+.mas-panel .mas-sep { height: 1px; background: rgba(168,107,80,0.15); margin: 0.3rem 0.4rem; }
+.mas-panel .mas-borrar { color: #9B5A40; }
+
 /* ════ SALIR RÁPIDO ════ */
 .salir-rapido {
   position: fixed; z-index: 3000; top: calc(env(safe-area-inset-top, 0px) + 0.5rem); right: 0.5rem;
@@ -1256,10 +1356,16 @@ body.entrada-abierta { overflow: hidden; }
   color: #8A7356; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(138,115,86,0.4);
 }
 .dia-soltar .sep { color: #B9A88C; margin: 0 0.25rem; }
-.dia-soltar .soltar-activo { font-style: italic; color: #8A7356; margin-bottom: 0.1rem; }
+.dia-soltar .soltar-activo { font-style: italic; color: #8A7356; margin-bottom: 0.3rem; }
+.dia-soltar .hoy-prefiero {
+  text-decoration: none; border: 1px solid rgba(138,115,86,0.35); border-radius: 100px;
+  padding: 0.4rem 1rem; font-size: 0.82rem; line-height: 1.4;
+}
+.dia-soltar .hoy-prefiero:hover { border-color: rgba(138,115,86,0.7); }
+body.en-guardiana .dia-soltar .hoy-prefiero { border-color: rgba(255,255,255,0.4); }
 body.en-guardiana .dia-soltar button, body.en-guardiana .dia-soltar .soltar-activo { color: rgba(255,255,255,0.8); text-decoration-color: rgba(255,255,255,0.35); }
 body.en-guardiana .dia-soltar .sep { color: rgba(255,255,255,0.45); }
-.entrada-seguridad { text-align: center; margin-top: 0.6rem; font-family: 'Jost', sans-serif; font-size: 0.78rem; }
+.entrada-seguridad { text-align: center; margin-top: 1rem; font-family: 'Jost', sans-serif; font-size: 0.85rem; }
 .entrada-seguridad button {
   background: none; border: none; cursor: pointer; font: inherit; padding: 0.2rem 0.3rem;
   color: inherit; opacity: 0.8; text-decoration: underline; text-underline-offset: 3px;
@@ -2476,7 +2582,29 @@ body.en-guardiana .puertas-hoy-titulo { color: #fff; }
     </div>
   </div>
 
+  <!-- LO QUE ME LLEVO: al acabar un tramo, ella escribe primero su conclusión -->
+  <div class="mellevo-screen" id="mellevo-screen" aria-hidden="true" role="dialog" aria-label="Lo que te llevas">
+    <div class="mellevo-col">
+      <h2>Antes de que Alma te diga lo que ha visto</h2>
+      <p>¿Qué te llevas tú de estos días? Una línea basta. Es solo tuya: Alma no la va a corregir.</p>
+      <textarea class="mellevo-campo" id="mellevo-text" maxlength="400" placeholder="Me llevo…"></textarea>
+      <div class="mellevo-acciones">
+        <button type="button" class="mellevo-btn" id="mellevo-guardar">Guardar y ver mi reflejo</button>
+        <button type="button" class="mellevo-saltar" id="mellevo-saltar">Prefiero no escribir nada</button>
+      </div>
+    </div>
+  </div>
+
   <!-- SI TE FALTA EL AIRE: un rato quieto antes de poder escribir -->
+  <div class="hoja" id="hoja-opciones" hidden>
+    <div class="hoja-fondo" onclick="cerrarHoja()"></div>
+    <div class="hoja-caja" role="dialog" aria-modal="true" aria-labelledby="hoja-titulo">
+      <p class="hoja-titulo" id="hoja-titulo"></p>
+      <div class="hoja-botones"></div>
+      <button type="button" class="hoja-cerrar" onclick="cerrarHoja()">Ahora no</button>
+    </div>
+  </div>
+
   <div class="ahogo-screen" id="ahogo-screen" aria-hidden="true" role="dialog" aria-label="Si te falta el aire">
     <div class="ahogo-col">
       <h2>Si ahora mismo te falta el aire</h2>
@@ -2726,6 +2854,16 @@ body.en-guardiana .puertas-hoy-titulo { color: #fff; }
   </div>
   <div class="topbar-right">
     <button class="refugio-nav-btn" onclick="abrirRefugio()">Tu refugio</button>
+    <div class="mas-menu" id="mas-menu">
+      <button type="button" class="mas-btn" aria-haspopup="true" aria-expanded="false" onclick="toggleMas(event)">Más</button>
+      <div class="mas-panel" role="menu">
+        <button type="button" role="menuitem" onclick="cerrarMas(); abrirBlanco('menu')">Escribir sin respuesta</button>
+        <button type="button" role="menuitem" onclick="cerrarMas(); abrirAhogo()">Si me falta el aire</button>
+        <div class="mas-sep"></div>
+        <a role="menuitem" href="privacidad.html">Privacidad</a>
+        <button type="button" role="menuitem" class="mas-borrar" onclick="cerrarMas(); borrarTodo()">Borrar todo lo mío</button>
+      </div>
+    </div>
     <span class="topbar-date" id="today-date"></span>
   </div>
 </div>
@@ -2817,15 +2955,22 @@ body.en-guardiana .puertas-hoy-titulo { color: #fff; }
           <span class="puerta-nombre">Volver a mí</span><span class="puerta-linea">Siento que me he ido perdiendo por el camino.</span>
         </button>
         </div>
-        <button type="button" class="puerta-bueno" onclick="selectBetaArrival(this,'bueno')">Con algo bueno que contar</button>
-        <button type="button" class="puerta-blanco" onclick="abrirBlanco('puertas')">Solo quiero escribir, sin respuesta</button>
+        <!-- A un solo toque: quien llega sin aire no debe tener que buscarlo -->
+        <p class="entrada-seguridad"><button type="button" onclick="abrirAhogo()">Si ahora mismo te falta el aire</button></p>
+        <!-- Otras formas de llegar: plegadas, para que las puertas respiren -->
+        <div class="otras-formas">
+          <button type="button" class="otras-toggle" aria-expanded="false" aria-haspopup="dialog" onclick="abrirHoja('Otras formas de llegar hoy', this.nextElementSibling, this)">Otras formas de llegar hoy ›</button>
+          <div class="otras-lista">
+            <button type="button" class="puerta-bueno" data-sub="Para contar algo que te ha ido bien." onclick="selectBetaArrival(this,'bueno')">Con algo bueno que contar</button>
+            <button type="button" class="puerta-blanco" data-sub="Una página en blanco. Alma no contesta." onclick="abrirBlanco('puertas')">Solo quiero escribir, sin respuesta</button>
+          </div>
+        </div>
         <p class="entrada-calma">Tus palabras se borran solas a los catorce días.</p>
         <p class="arrival-legal">
-          Alma no es terapia. Si necesitas ayuda ahora, llama al <a href="tel:024">024</a>
+          Quien te responde es Alma, una inteligencia artificial. No es terapia. Si necesitas ayuda ahora, llama al <a href="tel:024">024</a>
           o al <a href="tel:717003717">717 003 717</a>, a cualquier hora. Si alguien te da miedo o te hace daño, al <a href="tel:016">016</a>.<br>
           Al elegir confirmas que eres mayor de edad y aceptas la <a href="privacidad.html">política de privacidad</a>.
         </p>
-        <p class="entrada-seguridad"><button type="button" onclick="abrirAhogo()">Si ahora mismo te falta el aire</button></p>
         <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
            onclick="if(typeof almaTrack==='function') almaTrack('guia_descargada');">De dónde viene Alma</a>
       </div>
@@ -2851,10 +2996,18 @@ body.en-guardiana .puertas-hoy-titulo { color: #fff; }
           <span class="puerta-nombre">Volver a mí</span><span class="puerta-linea">Siento que me he ido perdiendo por el camino.</span>
         </button>
       </div>
-      <button type="button" class="puerta-bueno" onclick="selectArrival(this,'bueno')">Con algo bueno que contar</button>
-      <button type="button" class="puerta-blanco" onclick="abrirBlanco('puertas')">Solo quiero escribir, sin respuesta</button>
+      <!-- A un solo toque: quien llega sin aire no debe tener que buscarlo -->
+      <p class="entrada-seguridad"><button type="button" onclick="abrirAhogo()">Si ahora mismo te falta el aire</button></p>
+      <!-- Otras formas de llegar: plegadas, para que las puertas respiren -->
+      <div class="otras-formas">
+        <button type="button" class="otras-toggle" aria-expanded="false" aria-haspopup="dialog" onclick="abrirHoja('Otras formas de llegar hoy', this.nextElementSibling, this)">Otras formas de llegar hoy ›</button>
+        <div class="otras-lista">
+          <button type="button" class="puerta-bueno" data-sub="Para contar algo que te ha ido bien." onclick="selectArrival(this,'bueno')">Con algo bueno que contar</button>
+          <button type="button" class="puerta-blanco" data-sub="Una página en blanco. Alma no contesta." onclick="abrirBlanco('puertas')">Solo quiero escribir, sin respuesta</button>
+        </div>
+      </div>
       <p class="arrival-legal">
-        Alma no es terapia ni sustituye a un profesional. Si necesitas ayuda ahora:
+        Quien te responde es Alma, una inteligencia artificial. No es terapia ni sustituye a un profesional. Si necesitas ayuda ahora:
         <a href="tel:024">024</a> (atención a la conducta suicida, 24 h) o
         <a href="tel:717003717">717 003 717</a> (Teléfono de la Esperanza, 24 h).
         Si alguien te da miedo o te hace daño: <a href="tel:016">016</a> (no sale en la factura).<br>
@@ -2862,7 +3015,6 @@ body.en-guardiana .puertas-hoy-titulo { color: #fff; }
         <a href="privacidad.html">política de privacidad</a>. Tus palabras se guardan
         mientras dura tu recorrido y se borran solas a los catorce días.
       </p>
-      <p class="entrada-seguridad"><button type="button" onclick="abrirAhogo()">Si ahora mismo te falta el aire</button></p>
       <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
          onclick="if(typeof almaTrack==='function') almaTrack('guia_descargada');">De dónde viene Alma →</a>
     </div>
@@ -2889,6 +3041,7 @@ body.en-guardiana .puertas-hoy-titulo { color: #fff; }
         placeholder="Empieza por donde te salga…"
         oninput="onType()" rows="6" maxlength="2000"></textarea>
       <p class="dictado-nota">Si te cuesta escribir, puedes dictarlo con el micrófono del teclado.</p>
+      <p class="nota-envio">Al soltarlo, lo lee Alma, una inteligencia artificial, para responderte. Se borra solo a los catorce días.</p>
       <div class="char-row">
         <span class="autosave" id="autosave-label" style="display:none" title="Solo en este dispositivo. Alma no lo lee hasta que tú lo sueltes.">Borrador guardado</span>
         <span class="char-count" id="char-count">0 / 2000</span>
@@ -3142,7 +3295,7 @@ async function elegirHistoriaBueno(tramo, diasBuenos, idPrincipal) {
   return elegida;
 }
 
-async function generarCuadernoPDF({ puerta, tramo, reflejo, dias, historia, fechaTexto, bueno }) {
+async function generarCuadernoPDF({ puerta, tramo, reflejo, dias, historia, fechaTexto, bueno, meLlevo }) {
   await cargarPdfLib();
   const { PDFDocument, rgb, StandardFonts, PDFName, PDFOperator, PDFString } = PDFLib;
   const C = window.CUADERNO;
@@ -3261,9 +3414,17 @@ async function generarCuadernoPDF({ puerta, tramo, reflejo, dias, historia, fech
   const fecha = (fechaTexto || '').toUpperCase();
   page.drawText(fecha, { x: (W - serifBold.widthOfTextAtSize(fecha, 8.5)) / 2, y, size: 8.5, font: serifBold, color: gris });
 
+  // ── Lo que te llevas (lo escribió ella al acabar el tramo) ──
+  if (meLlevo) {
+    nueva(110);
+    etiqueta('Lo que te llevas');
+    parrafo(meLlevo, serifIt, 15, 15 * 1.55, tinta);
+    y -= 26;
+  }
+
   // ── Lo que Alma vio (si ella lo ha marcado) ──
   if (reflejo) {
-    nueva(110);
+    if (!meLlevo) nueva(110);
     etiqueta('Lo que Alma vio');
     for (const par of _paraPdf(reflejo).replace(/\r/g, '').split(/\n\n+|\n/).filter(x => x.trim())) {
       parrafo(par, serif, 13.5, 13.5 * 1.62, tinta);
@@ -3372,6 +3533,36 @@ async function generarCuadernoPDF({ puerta, tramo, reflejo, dias, historia, fech
     y -= 22;
     renglones(y, fondo);
   });
+
+  // ── Una conversación contigo (la serie, en papel): tercera propuesta del tramo de 3 ──
+  if (C.conversacion && tramo === 3) {
+    const K = C.conversacion;
+    nueva(80);
+    marcaDeAgua(H / 2 - 60);
+    page.drawText('PROPUESTA 3', { x: margen, y, size: 9, font: serifBold, color });
+    y -= 26;
+    parrafo(K.titulo, serifBoldIt, 17, 22, tinta);
+    y -= 2;
+    parrafo(K.para, serifIt, 11.5, 17, gris);
+    y -= 10;
+    parrafo(K.texto, serif, 12.5, 12.5 * 1.55, tinta);
+    y -= 26;
+    // Dos columnas, cada una con su voz arriba y sus renglones
+    const hueco = 22, colW = (ancho - hueco) / 2;
+    K.columnas.forEach((tit, i) => {
+      const x0 = margen + i * (colW + hueco);
+      page.drawText(_paraPdf(tit), { x: x0, y, size: 10.5, font: serifIt, color });
+    });
+    page.drawLine({ start: { x: margen + colW + hueco / 2, y: y - 8 }, end: { x: margen + colW + hueco / 2, y: fondo }, thickness: 0.5, color: renglon });
+    let yl = y - 30;
+    while (yl > fondo) {
+      [0, 1].forEach(i => {
+        const x0 = margen + i * (colW + hueco);
+        page.drawLine({ start: { x: x0, y: yl }, end: { x: x0 + colW, y: yl }, thickness: 0.5, color: renglon });
+      });
+      yl -= 26;
+    }
+  }
 
   // ── Un día bueno: aparte, dorado ──
   if (hayBueno) {
@@ -4400,11 +4591,13 @@ async function sendTurn() {
   if (!text || btn?.disabled) return;
 
   // Guardar la respuesta de la usuaria en el historial antes de limpiar
+  quitarNoEntendido();
   addToHistory('user', text);
 
   // Añadir al historial interno
   conversationHistory.push({ role: 'user', text });
   currentTurn++;
+  trackEvent('respondio_a_alma', { turno: currentTurn, day: currentDay + 1 }); // contesta a la pregunta de Alma
   // Guardarlo ya: si recarga mientras Alma piensa, no se pierde
   const entradaDia = loadFromLocal(currentDay);
   saveToLocal(currentDay, entradaDia?.text || text, entradaDia?.emotions || [], undefined, conversationHistory, currentArrivalMode);
@@ -4512,6 +4705,7 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
       // Mover respuesta de Alma al historial permanente
       const almaText = document.getElementById('alma-response-text').innerHTML;
       addToHistory('alma', almaText);
+      trasRespuestaAlma(); // aviso de IA (una vez) y «No me has entendido»
 
       // Limpiar el bloque activo para el siguiente turno
       document.getElementById('alma-response-text').innerHTML = '';
@@ -5074,6 +5268,7 @@ async function downloadFarewell() {
       reflejo: conReflejo ? reflejo : '',
       dias: conCarta ? normales : [],
       historia, fechaTexto: fecha,
+      meLlevo: (() => { try { return (JSON.parse(localStorage.getItem('alma_mellevo_' + t) || 'null') || {}).texto || ''; } catch(e) { return ''; } })(),
       bueno: buenos.length ? { hubo: true, dias: conCarta ? buenos : [], historia: historiaBueno } : null,
     });
     const blob = new Blob([bytes], { type: 'application/pdf' });
@@ -5506,15 +5701,67 @@ function esDiaSoltar() { try { return localStorage.getItem(claveSoltar()) === '1
 function actualizarSoltar() {
   const box = document.getElementById('dia-soltar');
   if (!box) return;
-  const sep = '<span class="sep">·</span>';
-  const soltar = esDiaSoltar()
-    ? `<p class="soltar-activo">Hoy Alma no te va a preguntar nada.</p><button type="button" onclick="toggleSoltar()">Prefiero que me pregunte</button>`
-    : `<button type="button" onclick="toggleSoltar()">Hoy solo quiero soltar, sin preguntas</button>`;
-  box.innerHTML = soltar + sep +
-    `<button type="button" onclick="abrirBlanco('dia')">Escribir sin respuesta</button>` + sep +
-    `<button type="button" onclick="abrirAhogo()">Si ahora mismo te falta el aire</button>`;
+  // Si ya pidió no tener preguntas, se ve siempre, para que no se le olvide que lo eligió
+  const activo = esDiaSoltar()
+    ? `<p class="soltar-activo">Hoy Alma no te va a preguntar nada · <button type="button" onclick="toggleSoltar()">Prefiero que me pregunte</button></p>`
+    : '';
+  const opciones = [
+    esDiaSoltar() ? '' : `<button type="button" data-sub="Alma te escucha sin preguntarte nada." onclick="toggleSoltar()">Sin preguntas</button>`,
+    `<button type="button" data-sub="Una página en blanco. Alma no contesta." onclick="abrirBlanco('dia')">Escribir sin respuesta</button>`,
+    `<button type="button" data-sub="Unos minutos para volver a respirar." onclick="abrirAhogo()">Si me falta el aire</button>`,
+  ].join('');
+  box.innerHTML = activo +
+    `<button type="button" class="hoy-prefiero" aria-haspopup="dialog" onclick="abrirHoja('¿Cómo lo necesitas hoy?', this.nextElementSibling, this)">Hoy lo necesito de otra manera</button>` +
+    `<div class="hoy-prefiero-lista">${opciones}</div>`;
   box.style.display = 'block';
 }
+
+/* Hoja de opciones: copia las opciones de una lista escondida, las enseña como bloques
+   y, al elegir una, se cierra y pulsa la original (así cada opción conserva su acción). */
+let hojaOrigen = null;
+function abrirHoja(titulo, lista, origen) {
+  const hoja = document.getElementById('hoja-opciones');
+  if (!hoja || !lista) return;
+  hojaOrigen = origen || null;
+  hoja.querySelector('.hoja-titulo').textContent = titulo;
+  const cont = hoja.querySelector('.hoja-botones');
+  cont.innerHTML = '';
+  lista.querySelectorAll('button').forEach(orig => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'hoja-opcion';
+    b.textContent = orig.textContent.trim();
+    if (orig.dataset.sub) { const sm = document.createElement('small'); sm.textContent = orig.dataset.sub; b.appendChild(sm); }
+    b.addEventListener('click', () => { cerrarHoja(true); orig.click(); });
+    cont.appendChild(b);
+  });
+  hoja.hidden = false;
+  cont.querySelector('.hoja-opcion')?.focus();
+  try { trackEvent('hoja_abierta', { de: titulo }); } catch(e) {}
+}
+function cerrarHoja(eligio) {
+  const hoja = document.getElementById('hoja-opciones');
+  if (!hoja || hoja.hidden) return;
+  hoja.hidden = true;
+  if (!eligio && hojaOrigen) { try { hojaOrigen.focus(); } catch(e) {} }
+  hojaOrigen = null;
+}
+function toggleMas(ev) {
+  if (ev) ev.stopPropagation();
+  const m = document.getElementById('mas-menu');
+  if (!m) return;
+  const abierto = m.classList.toggle('abierto');
+  m.querySelector('.mas-btn')?.setAttribute('aria-expanded', String(abierto));
+  document.body.classList.toggle('mas-abierto', abierto);
+}
+function cerrarMas() {
+  const m = document.getElementById('mas-menu');
+  if (!m) return;
+  m.classList.remove('abierto');
+  m.querySelector('.mas-btn')?.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('mas-abierto');
+}
+document.addEventListener('click', (e) => { if (!e.target.closest || !e.target.closest('#mas-menu')) cerrarMas(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { cerrarMas(); cerrarHoja(); } });
 function toggleSoltar() {
   const ahora = !esDiaSoltar();
   try {
@@ -5556,6 +5803,160 @@ function diasDesdeUltimaVez(hastaDia) {
     }
   }
   return 0;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  AVISO DE IA · «NO ME HAS ENTENDIDO» · LO QUE ME LLEVO
+// ═══════════════════════════════════════════════════════════════
+
+// La primera vez que Alma responde en este navegador, una nota clara de que
+// quien responde es una inteligencia artificial (Reglamento europeo de IA, art. 50).
+function avisoIAUnaVez(bloque) {
+  try {
+    if (localStorage.getItem('alma_aviso_ia')) return;
+    localStorage.setItem('alma_aviso_ia', new Date().toISOString());
+  } catch(e) { return; }
+  if (!bloque) return;
+  const p = document.createElement('p');
+  p.className = 'aviso-ia-nota';
+  p.textContent = 'Alma es una inteligencia artificial. Está escrita con mucho cuidado, pero no es una persona ni una profesional.';
+  bloque.after(p);
+}
+
+function ultimoBloqueAlma() {
+  const almas = document.querySelectorAll('#conversation-history .history-alma');
+  return almas[almas.length - 1] || null;
+}
+
+// Después de cada respuesta de Alma: el aviso (una vez) y «No me has entendido»
+function trasRespuestaAlma() {
+  const bloque = ultimoBloqueAlma();
+  avisoIAUnaVez(bloque);
+  ofrecerNoEntendido(bloque);
+}
+
+const MOTIVOS_NO_ENTENDIDO = [
+  ['general',   'Demasiado general'],
+  ['consejo',   'No quería un consejo'],
+  ['supuesto',  'Has supuesto algo que no es'],
+  ['preguntas', 'Prefiero que no me preguntes'],
+];
+
+function quitarNoEntendido() {
+  document.querySelectorAll('#conversation-history .no-entendido').forEach(e => e.remove());
+}
+
+function ofrecerNoEntendido(bloque) {
+  quitarNoEntendido();
+  if (!bloque || bloque.dataset.reintentado) return; // una sola vez por respuesta
+  const d = document.createElement('div');
+  d.className = 'no-entendido';
+  d.innerHTML = `<button type="button" onclick="abrirNoEntendido(this)">No me has entendido</button>`;
+  // Si debajo está el aviso de IA, va después
+  const sig = bloque.nextElementSibling;
+  (sig && sig.classList.contains('aviso-ia-nota') ? sig : bloque).after(d);
+}
+
+function abrirNoEntendido(btn) {
+  const caja = btn.closest('.no-entendido');
+  if (!caja) return;
+  caja.innerHTML = `<p class="ne-pregunta">¿Qué ha fallado?</p><div class="ne-motivos">` +
+    MOTIVOS_NO_ENTENDIDO.map(([k, t]) => `<button type="button" onclick="reintentarRespuesta('${k}')">${t}</button>`).join('') +
+    `<button type="button" onclick="quitarNoEntendido()">Da igual</button></div>`;
+}
+
+async function reintentarRespuesta(motivo) {
+  const hist = isBetaMode ? betaHistory : conversationHistory;
+  const bloque = ultimoBloqueAlma();
+  if (!bloque || !hist.length || hist[hist.length - 1].role !== 'alma') { quitarNoEntendido(); return; }
+  const anterior = hist.pop();
+  const entry = (hist[hist.length - 1] || {}).text || '';
+  quitarNoEntendido();
+  bloque.dataset.reintentado = '1';
+  bloque.classList.add('reintentando');
+  try { trackEvent('no_entendido', { motivo, turno: isBetaMode ? betaTurn : currentTurn, beta: !!isBetaMode }); } catch(e) {}
+
+  // «Prefiero que no me preguntes» vale también para el resto del día
+  if (motivo === 'preguntas' && !esDiaSoltar()) {
+    try { localStorage.setItem(claveSoltar(), '1'); } catch(e) {}
+    actualizarSoltar();
+  }
+
+  let cuerpo;
+  if (isBetaMode) {
+    cuerpo = {
+      day: 1, turn: betaTurn, entry, conversationHistory: hist.slice(0, -1), previousEntries: {},
+      arrivalMode: betaMode, puerta: betaMode === 'bueno' ? null : betaMode, bueno: betaMode === 'bueno',
+      soltar: esDiaSoltar(), plan: 'free', isBeta: true, betaMaxTurns: BETA_MAX_TURNS,
+    };
+  } else {
+    const previousEntries = {};
+    for (let i = 0; i < currentDay; i++) {
+      const escrito = textoDelDia(loadFromLocal(i));
+      if (escrito) previousEntries[`day${i + 1}`] = escrito;
+    }
+    cuerpo = {
+      day: currentDay + 1, turn: currentTurn, entry, conversationHistory: hist.slice(0, -1), previousEntries,
+      arrivalMode: currentArrivalMode, questionSet: getFixedQuestionSet(), tramo: totalDays,
+      puerta: esDiaBueno(currentDay) ? null : puertaDelRecorrido(), bueno: esDiaBueno(currentDay),
+      soltar: esDiaSoltar(), diasSinVenir: diasDesdeUltimaVez(currentDay),
+      frasesAnteriores: frasesDeAlmaAnteriores(currentDay), plan: 'free',
+    };
+  }
+  cuerpo.reintento = { motivo, anterior: anterior.text };
+
+  let nueva = '';
+  try {
+    const c = new AbortController();
+    const t = setTimeout(() => c.abort(), 11000);
+    const res = await fetch('/.netlify/functions/alma', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cuerpo), signal: c.signal,
+    });
+    clearTimeout(t);
+    const data = await res.json();
+    nueva = (data && data.response) || '';
+  } catch(e) {}
+
+  bloque.classList.remove('reintentando');
+  if (!nueva) { hist.push(anterior); return; } // si falla, se queda la de antes
+
+  hist.push({ role: 'alma', text: nueva });
+  if (isBetaMode) saveBetaToLocal(betaHistory, nueva);
+  else {
+    const e = loadFromLocal(currentDay);
+    saveToLocal(currentDay, e?.text || entry, e?.emotions || [], nueva, conversationHistory, currentArrivalMode);
+  }
+  const cont = bloque.querySelector(':scope > div:last-child');
+  if (cont) cont.innerHTML = nueva.split('\n').filter(p => p.trim()).map(p => `<p>${escaparHTML(p)}</p>`).join('');
+}
+
+// ── Lo que me llevo: antes del reflejo del tramo, la conclusión es suya ──
+function claveMeLlevo() { return 'alma_mellevo_' + totalDays; }
+function leerMeLlevo() {
+  try { return (JSON.parse(localStorage.getItem(claveMeLlevo()) || 'null') || {}).texto || ''; } catch(e) { return ''; }
+}
+function preguntarMeLlevo() {
+  return new Promise(resolve => {
+    let ya = null;
+    try { ya = localStorage.getItem(claveMeLlevo()); } catch(e) {}
+    const p = document.getElementById('mellevo-screen');
+    if (ya !== null || !p) { resolve(); return; } // ya lo contestó (o lo saltó) en este tramo
+    const ta = document.getElementById('mellevo-text');
+    if (ta) ta.value = '';
+    p.classList.add('visible');
+    p.setAttribute('aria-hidden', 'false');
+    window.scrollTo({ top: 0 });
+    const cerrar = (texto) => {
+      try { localStorage.setItem(claveMeLlevo(), JSON.stringify({ texto: (texto || '').slice(0, 400), fecha: new Date().toISOString() })); } catch(e) {}
+      p.classList.remove('visible');
+      p.setAttribute('aria-hidden', 'true');
+      try { trackEvent(texto ? 'mellevo_escrito' : 'mellevo_saltado', { tramo: totalDays }); } catch(e) {}
+      resolve();
+    };
+    document.getElementById('mellevo-guardar').onclick = () => cerrar((ta?.value || '').trim());
+    document.getElementById('mellevo-saltar').onclick = () => cerrar('');
+  });
 }
 
 // Quien para en el día 3 o en el 5 («O quédate aquí») también puede dejar
@@ -5832,7 +6233,8 @@ async function showFarewell() {
 
   // Hash simple de las tres entradas — para detectar si las entradas cambiaron
   // desde la última vez que se generó el reflejo
-  const entriesHash = simpleHash(JSON.stringify(entries) + '|tramo' + totalDays);
+  const meLlevo = leerMeLlevo();
+  const entriesHash = simpleHash(JSON.stringify(entries) + '|tramo' + totalDays + '|' + meLlevo);
 
   const screen = document.getElementById('farewell-screen');
   if (screen) screen.classList.add('visible');
@@ -5864,7 +6266,7 @@ async function showFarewell() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         entries, arrivalMode: currentArrivalMode, puerta: puertaDelRecorrido(), plan: 'free', questionSet,
-        tramo: totalDays,
+        tramo: totalDays, meLlevo,
         reflejoTotal: (window._farewellContexto && window._farewellContexto.esFinalDefinitivo) || false
       }),
       signal: controller.signal
@@ -6663,9 +7065,11 @@ async function sendBetaTurn() {
   const text = document.getElementById('turn-text')?.value.trim();
   if (!text || btn?.disabled) return;
 
+  quitarNoEntendido();
   addToHistory('user', text);
   betaHistory.push({ role: 'user', text });
   betaTurn++;
+  trackEvent('respondio_a_alma', { turno: betaTurn, beta: true });
   saveBetaToLocal(betaHistory, undefined); // si recarga mientras Alma piensa, no se pierde
 
   hideTurnReply();
@@ -6738,6 +7142,7 @@ async function callBeta({ btns, text, isFirstTurn }) {
     typeWriter(almaReply, () => {
       const almaText = document.getElementById('alma-response-text').innerHTML;
       addToHistory('alma', almaText);
+      trasRespuestaAlma(); // aviso de IA (una vez) y «No me has entendido»
       document.getElementById('alma-response-text').innerHTML = '';
       document.getElementById('alma-response').classList.remove('visible');
       document.getElementById('alma-pause').style.display = 'none';
@@ -7308,6 +7713,8 @@ function guardarCaminoRefugio(desc) {
 let _pendingFarewellFn = null; // función del reflejo que se ejecuta al pulsar Continuar
 
 async function mostrarPalabraYReflejo(farewellFn, historial) {
+  // Al acabar un tramo (no en la beta), primero escribe ella lo que se lleva
+  if (!isBetaMode) await preguntarMeLlevo();
   // Lanzar las dos llamadas en paralelo — palabra y reflejo
   _pendingFarewellFn = farewellFn;
 
@@ -7529,6 +7936,7 @@ function borrarRecorridoLocal() {
     [3, 5, 7].forEach(t => {
       localStorage.removeItem('alma_cuaderno_historia_' + t);
       localStorage.removeItem('alma_cuaderno_bueno_' + t);
+      localStorage.removeItem('alma_mellevo_' + t);
       ['nudos','sinsaber','agotada','volver'].forEach(m => localStorage.removeItem('alma_cuaderno_ej_' + m + '_' + t));
     });
   } catch(e) {}

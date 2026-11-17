@@ -17,6 +17,14 @@ window.CUADERNO = {
   cierreCarta: "Al principio está lo que escribiste estos días, con tus palabras.",
   telefonos: "Si en algún momento lo estás pasando muy mal, puedes llamar al 024 o al 717 003 717, gratis y a cualquier hora. Si alguien te da miedo o te hace daño, el 016, que no sale en la factura, o por WhatsApp el 600 000 016.",
   paginaLibre: "Para lo que quieras escribir",
+  // «Conversaciones conmigo» en papel: tercera propuesta del cuaderno de 3 días,
+  // en todas las puertas. La hoja se parte en dos columnas.
+  conversacion: {
+    titulo: "Una conversación contigo.",
+    para: "Para escuchar a las dos.",
+    texto: "Piensa en algo que llevas tiempo queriendo hacer, o dejar de hacer. A la izquierda, escribe lo que te dice la parte de ti que se protege: sus miedos, sus razones, lo que intenta evitarte. A la derecha, lo que le contestaría la parte de ti que se escucha. No tienen que ponerse de acuerdo. Basta con que hablen.",
+    columnas: ["La que se protege dice…", "La que se escucha responde…"],
+  },
   // Página antes de las propuestas, en todos los cuadernos
   botiquin: {
     titulo: "Tu botiquín",

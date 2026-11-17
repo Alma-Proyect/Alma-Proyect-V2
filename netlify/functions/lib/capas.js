@@ -53,4 +53,28 @@ ${frases.map(f => `- «${f}»`).join("\n")}
 Hoy no empieces ni cierres con ninguna de esas frases ni con otras que se les parezcan en forma o en arranque. Una amiga que te escucha cada día no te saluda ni se despide siempre igual. Esto es solo para variar tu forma: no lo menciones ni comentes lo que dijiste otros días.`;
 }
 
-module.exports = { CAPA_SOLTAR, capaAusencia, quitarPreguntas, limpiarFrasesAnteriores, capaNoRepetir };
+// «No me has entendido»: ella dice por qué la respuesta no le ha servido y
+// Alma lo intenta otra vez. El motivo llega como código cerrado; el texto
+// anterior es la respuesta de Alma (no de ella), recortado.
+const MOTIVOS_REINTENTO = {
+  general:   "le ha sonado demasiado general, como si valiera para cualquiera",
+  consejo:   "no quería un consejo",
+  supuesto:  "has supuesto algo que no es así",
+  preguntas: "prefiere que no le preguntes nada",
+};
+
+function limpiarReintento(r) {
+  if (!r || typeof r !== "object" || !MOTIVOS_REINTENTO[r.motivo]) return null;
+  const anterior = typeof r.anterior === "string" ? r.anterior.replace(/\s+/g, " ").trim().slice(0, 1200) : "";
+  return { motivo: r.motivo, anterior };
+}
+
+function capaReintento(r) {
+  return `TU RESPUESTA ANTERIOR NO LE HA SERVIDO:
+${r.anterior ? `Le respondiste esto: «${r.anterior}»\n` : ""}Ella ha dicho que no la has entendido: ${MOTIVOS_REINTENTO[r.motivo]}.
+- Vuelve a responder a lo que escribió, de otra forma. No repitas ideas, imágenes ni frases de esa respuesta.
+- No te disculpes ni te expliques. Como mucho, una frase muy corta que reconozca que no lo habías pillado.
+${r.motivo === "supuesto" ? "- No vuelvas a suponer nada: quédate con lo que ella ha dicho, con sus palabras.\n" : ""}${r.motivo === "general" ? "- Agárrate a algo concreto y suyo de lo que ha escrito, algo que solo valga para ella.\n" : ""}${r.motivo === "consejo" ? "- Nada de consejos, sugerencias ni «quizá podrías». Solo recibir lo que ha contado.\n" : ""}- Más corta que la anterior.`;
+}
+
+module.exports = { CAPA_SOLTAR, capaAusencia, quitarPreguntas, limpiarFrasesAnteriores, capaNoRepetir, limpiarReintento, capaReintento };
