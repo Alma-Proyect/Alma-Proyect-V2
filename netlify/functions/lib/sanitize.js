@@ -267,6 +267,7 @@ function sanitizeEsoCansa(text) {
   return text
     .replace(/,?\s+y eso cansa\b/gi, "")
     .replace(/,\s+que (?:cansa|agota|pesa)\b[^.!?\n]*/gi, "")
+    .replace(/,?\s+y (?:eso )?(?:cansa|agota|pesa)(?: más| mucho)?\b[^.!?\n]*/gi, "")
     .replace(/(^|[.!?…]\s+)Eso cansa(?: mucho)?\.\s*/g, "$1")
     .replace(/[ \t]{2,}/g, " ").trim();
 }
@@ -276,6 +277,9 @@ function sanitizeEsoCansa(text) {
 // se AÑADE (nunca se quita nada de una respuesta de seguridad).
 function completarProtocolo016(text) {
   if (!text || !/\b016\b/.test(text)) return text;
+  // No le pone nombre: «…es control, y…» → «…no está bien, y…» (se cambia, no se quita)
+  text = text.replace(/\b(?:eso )?(?:es|suena a|es un tipo de|es una forma de)\s+(?:control|maltrato|violencia)(?=\s*[,.;])/gi,
+    (m) => /^eso/i.test(m) ? (m[0] === "E" ? "Eso no está bien" : "eso no está bien") : "no está bien");
   const parrafos = text.trim().split(/\n\s*\n/);
   let i016 = parrafos.findIndex(p => /\b016\b/.test(p));
   if (!/\bborr/i.test(text)) {
