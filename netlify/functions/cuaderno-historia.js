@@ -84,10 +84,14 @@ exports.handler = async function (event) {
   // Apartado «Un día bueno» del cuaderno: solo las historias alegres, de
   // cualquier puerta. Para el cuaderno normal, el banco de su puerta.
   const modoBueno = datos.modo === 'bueno';
-  const puerta = modoBueno ? null : resolverPuerta(datos.puerta, datos.arrivalMode);
+  // Si nunca eligió puerta: las historias de las cuatro
+  const todas = !modoBueno && datos.sinPuerta === true;
+  const puerta = (modoBueno || todas) ? null : resolverPuerta(datos.puerta, datos.arrivalMode);
   const banco = modoBueno
     ? Object.fromEntries(Object.values(ENCAJA).flatMap(b => Object.entries(b)).filter(([id]) => ALEGRES.has(id)))
-    : ENCAJA[puerta];
+    : todas
+      ? Object.fromEntries(Object.values(ENCAJA).flatMap(b => Object.entries(b)))
+      : ENCAJA[puerta];
   if (!banco) return json({ id: null });
 
   const vistas = new Set((Array.isArray(datos.vistas) ? datos.vistas : []).map(String).slice(0, 20));
@@ -129,7 +133,7 @@ Responde solo con el código (por ejemplo ${candidatas[0][0]}) o con NADA. Sin n
     });
     const m = String(text || "").toUpperCase().match(/\b([NBAI](?:1[01]|[1-9]))\b/);
     const id = m && candidatas.some(([c]) => c === m[1]) ? m[1] : null;
-    if (!id) console.warn(`cuaderno-historia: sin historia elegida (${modoBueno ? "día bueno" : "puerta " + puerta})`);
+    if (!id) console.warn(`cuaderno-historia: sin historia elegida (${modoBueno ? "día bueno" : todas ? "sin puerta" : "puerta " + puerta})`);
     return json({ id });
   } catch (e) {
     console.error("Error en cuaderno-historia:", e.message);

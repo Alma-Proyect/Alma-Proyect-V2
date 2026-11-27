@@ -71,7 +71,8 @@ exports.handler = async function (event) {
   const { arrivalMode, questionSet, reflejoTotal } = datos;
   // Lo que ella misma ha escrito que se lleva, antes de leer el reflejo
   const meLlevo = typeof datos.meLlevo === "string" ? datos.meLlevo.replace(/\s+/g, " ").trim().slice(0, 400) : "";
-  const puerta = resolverPuerta(datos.puerta, arrivalMode); // su guardiana
+  // su guardiana (ninguna si el recorrido fue sin puerta)
+  const puerta = datos.sinPuerta === true ? null : resolverPuerta(datos.puerta, arrivalMode);
   const entries = limpiarEntradas(datos.entries);
 
   if (!entries.day1) {

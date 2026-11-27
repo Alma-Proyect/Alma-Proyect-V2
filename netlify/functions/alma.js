@@ -10,6 +10,7 @@ const { limpiarRespuesta, tienePreguntaConOpciones } = require("./lib/sanitize")
 const { RECORDATORIO_FINAL } = require("./lib/prompts");
 const { consultarLibre, sumarLibre, LIMITE_LIBRE_DIA } = require("./lib/limite");
 const { PREGUNTA_BUENO, CAPA_BUENO, esDiaBueno } = require("./lib/bueno");
+const { PREGUNTAS_ENTRADA, preguntaLibreDelDia } = require("./lib/entrada");
 const { CAPA_SOLTAR, capaAusencia, quitarPreguntas, limpiarFrasesAnteriores, capaNoRepetir, limpiarReintento, capaReintento } = require("./lib/capas");
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -160,7 +161,10 @@ exports.handler = async function (event) {
   // La puerta por la que entró (nudos, sinsaber, agotada, volver) decide su
   // guardiana para todo el recorrido. Las opciones antiguas se traducen a la
   // puerta más cercana.
-  const puerta = bueno ? null : resolverPuerta(datos.puerta, arrivalMode);
+  // Sin puerta (escribe sin elegir): responde Alma con su voz, sin guardiana.
+  // Va antes de resolverPuerta para que ningún modo antiguo le asigne una.
+  const sinPuerta = datos.sinPuerta === true;
+  const puerta = (bueno || sinPuerta) ? null : resolverPuerta(datos.puerta, arrivalMode);
   const capaGuardiana = getGuardiana(puerta);
   const isBeta = datos.isBeta === true;
 
@@ -188,8 +192,10 @@ exports.handler = async function (event) {
   const preguntaDeHoy = bueno
     ? PREGUNTA_BUENO
     : isBeta
-      ? getBetaQuestion(arrivalMode)
-      : getQuestion(arrivalMode, day, questionSet);
+      ? (PREGUNTAS_ENTRADA[datos.entrada] || getBetaQuestion(arrivalMode))
+      : sinPuerta
+        ? preguntaLibreDelDia(questionSet, day)
+        : getQuestion(arrivalMode, day, questionSet);
 
   // Construir historial de mensajes — solo lo esencial para no superar el timeout
   const messages = [];
@@ -213,7 +219,9 @@ exports.handler = async function (event) {
   } else {
     messages.push({
       role: "user",
-      content: `La pregunta de hoy era: "${preguntaDeHoy}"\n\nEsto es lo que escribió:\n\n"${entry}"`,
+      // La pregunta es una sugerencia: lo que escribe manda (si escribe de otra
+      // cosa, no se le reconduce ni se interpreta como que la esquiva)
+      content: `Hoy tenía delante esta pregunta, solo como sugerencia: "${preguntaDeHoy}"\nPuede que escriba sobre ella o sobre cualquier otra cosa. Responde a lo que escribe, no a la pregunta.\n\nEsto es lo que escribió:\n\n"${entry}"`,
     });
   }
 

@@ -11,6 +11,7 @@ const { callAnthropic } = require("./lib/anthropic");
 const { BETA_SUMMARY_SYSTEM_PROMPT, getBetaSummaryUserMessage, notaReflejo } = require("./lib/prompts");
 const { getBetaQuestion } = require("./lib/questions");
 const { resolverPuerta } = require("./lib/guardianas");
+const { PREGUNTAS_ENTRADA } = require("./lib/entrada");
 const { limpiarReflejo } = require("./lib/sanitize");
 const { PREGUNTA_BUENO, esDiaBueno } = require("./lib/bueno");
 
@@ -46,8 +47,10 @@ exports.handler = async function (event) {
 
   // Día bueno: sin guardiana y con su propia pregunta
   const bueno = esDiaBueno(datos);
-  const puerta = bueno ? null : resolverPuerta(datos.puerta, datos.arrivalMode);
-  const pregunta = bueno ? PREGUNTA_BUENO : getBetaQuestion(puerta || datos.arrivalMode);
+  // Sin puerta: sin guardiana (como en la conversación)
+  const sinPuerta = datos.sinPuerta === true;
+  const puerta = (bueno || sinPuerta) ? null : resolverPuerta(datos.puerta, datos.arrivalMode);
+  const pregunta = bueno ? PREGUNTA_BUENO : (PREGUNTAS_ENTRADA[datos.entrada] || getBetaQuestion(puerta || datos.arrivalMode));
 
   try {
     const result = await callAnthropic({

@@ -14,7 +14,8 @@ const { resolverPuerta } = require("./lib/guardianas");
 
 const MAX_CHARS_TEXTO = 2000;
 const MAX_MENSAJES = 8;
-const PALABRA_RESERVA = { formato: "palabra", contenido: "SILENCIO" };
+// Si algo falla: una palabra neutra (antes era SILENCIO, que pesa)
+const PALABRA_RESERVA = { formato: "palabra", contenido: "PAUSA" };
 
 // Lo que cada guardiana no permite al elegir la palabra
 const NOTA_PALABRA = {
@@ -53,32 +54,24 @@ exports.handler = async function (event) {
   const puerta = resolverPuerta(datos.puerta, datos.arrivalMode);
   const nota = NOTA_PALABRA[puerta] ? `\n\nQUIÉN ES ELLA HOY (por encima de los ejemplos anteriores):\n${NOTA_PALABRA[puerta]}` : "";
 
-  const SYSTEM = `Eres Alma. Has leído una conversación completa.
-Tu tarea es identificar el elemento más significativo que apareció — no el más frecuente, sino el que tuvo más peso emocional.
+  // Antes pedía «lo que tuvo más peso emocional», con ejemplos casi todos
+  // negativos y un segundo formato de patrón («Hoy volviste varias veces a…»)
+  // que señalaba patrones, justo lo que Alma no hace. Ahora: una palabra que
+  // acompañe, la más presente en lo que escribió, agradable o no.
+  const SYSTEM = `Eres Alma. Has leído lo que ella ha escrito hoy.
+Elige UNA palabra que pueda acompañar este momento: la que más presente estuvo en lo que ella escribió, sea agradable o no.
 
-Debes elegir UNO de estos dos formatos según lo que encontraste:
+CÓMO ELEGIRLA:
+- Si puedes, una palabra que ella misma haya usado, o muy cercana a las suyas.
+- No subas la intensidad: si dijo «cansada», CANSANCIO, nunca AGOTAMIENTO; si dijo «me agobié un rato», no ANGUSTIA.
+- Si contó algo bueno y algo que pesa, no elijas lo que pesa por defecto: elige lo que tuvo más sitio en lo que escribió.
+- Si fue algo cotidiano, ligero o una prueba, una palabra sencilla y ligera sacada de lo que contó.
+- Nada que ella no haya dicho: ni diagnósticos, ni causas, ni etiquetas, ni patrones.
+Ejemplos, de todo tipo y ninguno mejor que otro: CALMA, ALIVIO, ILUSIÓN, ALEGRÍA, GANAS, TERNURA, ORGULLO, CANSANCIO, DUDA, PRISA, NOSTALGIA, MIEDO.
 
-FORMATO 1 — Una palabra:
-Cuando hay una sola palabra que resume el peso de la conversación.
-Ejemplos: MIEDO, CULPA, CALMA, SILENCIO, CONTROL, CANSANCIO, VACÍO, RABIA, SOLEDAD
-Devuelve: {"formato":"palabra","contenido":"PALABRA_EN_MAYÚSCULAS"}
-
-FORMATO 2 — Una emoción o patrón:
-Cuando es más específico que una palabra pero más corto que una frase larga.
-En la pantalla va detrás de «Hoy volviste varias veces a…», así que tiene que continuar esa frase: empieza en minúscula, con artículo.
-Ejemplos: "el miedo a decepcionar", "la necesidad de controlarlo todo", "el cansancio de sostener sola", "lo que le dijiste a tu hermano"
-Devuelve: {"formato":"emocion","contenido":"la emoción o patrón en minúsculas, máximo 8 palabras"}
-
-REGLAS:
-Solo JSON. Sin markdown. Sin texto fuera del JSON.
-Elige el formato más revelador para esta conversación concreta.
-Nunca inventes algo que no esté en la conversación.
-Se lo dices a ella: si nombras a alguien o algo suyo, es «tu» («tu hermano», «tu madre»), nunca «su». Nunca hables de ella en tercera persona.
-Corto de verdad: como mucho 8 palabras. Si necesitas más, elige otra cosa.
-Nunca escribas una frase completa sobre lo que viste en ella: eso ya lo dice
-la tarjeta del día y repetirlo resta fuerza a las dos. Aquí solo cabe una
-palabra o un patrón corto.
-No uses ningún formato distinto de "palabra" o "emocion".
+Devuelve solo: {"formato":"palabra","contenido":"PALABRA_EN_MAYÚSCULAS"}
+Una sola palabra (como mucho dos). Solo JSON, sin markdown ni texto fuera del JSON.
+Nunca inventes algo que no esté en lo que escribió.
 Español de España siempre.${nota}`;
 
   try {
@@ -87,7 +80,7 @@ Español de España siempre.${nota}`;
     // nuevos lo rechazan.
     const { text: raw } = await callAnthropic({
       system: SYSTEM,
-      messages: [{ role: "user", content: `Conversación:\n\n${userTurns}\n\nElige el formato y devuelve solo el JSON.` }],
+      messages: [{ role: "user", content: `Conversación:\n\n${userTurns}\n\nDevuelve solo el JSON con la palabra.` }],
       maxTokens: 80,
       plan: "free",
     });
@@ -106,10 +99,12 @@ Español de España siempre.${nota}`;
       console.warn(`alma-palabra: reserva porque la respuesta no traía un JSON válido (largo ${raw.length}, empieza por llave: ${raw.trim().startsWith("{")})`);
       parsed = PALABRA_RESERVA;
     }
-    // Solo se aceptan los dos formatos vivos. Cualquier otro se trata como emoción.
-    if (parsed.formato !== "palabra" && parsed.formato !== "emocion") parsed.formato = "emocion";
+    // Solo palabra: una o dos, nunca una frase (el formato de patrón se retiró)
+    parsed.formato = "palabra";
+    if (parsed.contenido.trim().split(/\s+/).length > 2) parsed = { ...PALABRA_RESERVA };
     // Sin etiquetas ni código: la app lo pinta tal cual
     let contenido = parsed.contenido.replace(/[<>]/g, "").trim();
+    if (parsed.formato === "palabra") contenido = contenido.toLocaleUpperCase("es-ES");
     if (parsed.formato === "emocion") {
       // Se le habla a ella: «su hermano» → «tu hermano». Y continúa la frase
       // «Hoy volviste varias veces a…», así que empieza en minúscula.

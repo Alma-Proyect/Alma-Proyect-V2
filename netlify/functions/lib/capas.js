@@ -61,6 +61,7 @@ const MOTIVOS_REINTENTO = {
   consejo:   "no quería un consejo",
   supuesto:  "has supuesto algo que no es así",
   preguntas: "prefiere que no le preguntes nada",
+  otro:      "iba por otro lado: le has respondido a algo que no era lo que ella quería decir",
 };
 
 function limpiarReintento(r) {
@@ -74,7 +75,8 @@ function capaReintento(r) {
 ${r.anterior ? `Le respondiste esto: «${r.anterior}»\n` : ""}Ella ha dicho que no la has entendido: ${MOTIVOS_REINTENTO[r.motivo]}.
 - Vuelve a responder a lo que escribió, de otra forma. No repitas ideas, imágenes ni frases de esa respuesta.
 - No te disculpes ni te expliques. Como mucho, una frase muy corta que reconozca que no lo habías pillado.
-${r.motivo === "supuesto" ? "- No vuelvas a suponer nada: quédate con lo que ella ha dicho, con sus palabras.\n" : ""}${r.motivo === "general" ? "- Agárrate a algo concreto y suyo de lo que ha escrito, algo que solo valga para ella.\n" : ""}${r.motivo === "consejo" ? "- Nada de consejos, sugerencias ni «quizá podrías». Solo recibir lo que ha contado.\n" : ""}- Más corta que la anterior.`;
+${r.motivo === "supuesto" ? "- No vuelvas a suponer nada: quédate con lo que ella ha dicho, con sus palabras.\n" : ""}${r.motivo === "general" ? "- Agárrate a algo concreto y suyo de lo que ha escrito, algo que solo valga para ella.\n" : ""}${r.motivo === "consejo" ? "- Nada de consejos, sugerencias ni «quizá podrías». Solo recibir lo que ha contado.\n" : ""}${r.motivo === "otro" ? "- Vuelve a leer lo que escribió como si fuera la primera vez y responde a eso, sin la lectura de antes. Si no está claro de qué quiere hablar, síguela con sencillez.\n" : ""}- No defiendas ni retomes tu lectura anterior, ni ahora ni en el resto de la conversación.
+- Más corta que la anterior.`;
 }
 
 module.exports = { CAPA_SOLTAR, capaAusencia, quitarPreguntas, limpiarFrasesAnteriores, capaNoRepetir, limpiarReintento, capaReintento };

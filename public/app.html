@@ -1180,11 +1180,11 @@ body.entrada-abierta { overflow: hidden; }
 }
 .entrada-oscura .entrada-calma { color: rgba(232,199,126,0.75); opacity: 1; }
 .entrada-oscura .arrival-legal {
-  color: rgba(245,237,216,0.5); border-top-color: rgba(232,184,75,0.14);
+  color: rgba(245,237,216,0.72); border-top-color: rgba(232,184,75,0.14);
   margin-top: 0.9rem;
 }
 .entrada-oscura .arrival-legal a { color: rgba(245,237,216,0.8); }
-.entrada-oscura .arrival-guia { color: rgba(232,199,126,0.6); }
+.entrada-oscura .arrival-guia { color: rgba(232,199,126,0.82); }
 .entrada-oscura .arrival-guia:hover { color: #F2D488; }
 /* Una sola entrada orquestada: el verso, luego lo demás */
 .entrada-oscura .entrada-logo,
@@ -1192,7 +1192,7 @@ body.entrada-abierta { overflow: hidden; }
 .entrada-oscura .entrada-verso-suave,
 .entrada-oscura .entrada-como { opacity: 0; animation: entradaAparece 1s ease forwards; }
 .entrada-oscura .entrada-logo { animation-delay: 0.1s; }
-.entrada-oscura .entrada-verso { animation-delay: 0.35s; }
+.entrada-oscura .entrada-verso { animation-delay: 0.55s; }
 .entrada-oscura .entrada-verso-suave { animation-delay: 0.9s; }
 .entrada-oscura .entrada-como { animation-delay: 1.3s; }
 @keyframes entradaAparece { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -1201,6 +1201,52 @@ body.entrada-abierta { overflow: hidden; }
   .entrada-oscura .entrada-verso-suave, .entrada-oscura .entrada-como { animation: none; opacity: 1; }
   #beta-arrival-selector-wrap.entrada-oscura { transition: none; }
 }
+
+/* Escribir primero, dentro de la entrada oscura */
+.entrada-titulo {
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500;
+  font-size: clamp(1.7rem, 7vw, 2.4rem); line-height: 1.18;
+  color: #F2D488; margin: 0 auto 0.9rem; max-width: 18ch;
+  text-shadow: 0 0 28px rgba(242,212,136,0.35);
+}
+.entrada-titulo + .entrada-verso { font-size: clamp(1.15rem, 4.6vw, 1.4rem); text-shadow: none; color: rgba(242,212,136,0.92); }
+.entrada-escribir {
+  margin: 1.4rem auto 1.8rem; text-align: left;
+  background: rgba(255,248,236,0.04); border: 1px solid rgba(232,184,75,0.22);
+  border-radius: 16px; padding: 1.1rem 1rem 1rem;
+}
+.entrada-pregunta {
+  display: block; text-align: center; font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem; line-height: 1.3; color: #F2D488; margin-bottom: 0.25rem;
+}
+.entrada-sub {
+  text-align: center; font-family: 'Jost', sans-serif; font-weight: 300;
+  font-size: 0.85rem; color: rgba(245,237,216,0.82); margin-bottom: 0.8rem;
+}
+.entrada-text {
+  width: 100%; min-height: 8.5rem; resize: vertical; border-radius: 12px;
+  background: rgba(255,248,236,0.06); border: 1px solid rgba(232,184,75,0.25);
+  color: #F5EDD8; font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; line-height: 1.55;
+  padding: 0.8rem 0.9rem;
+}
+.entrada-text::placeholder { color: rgba(245,237,216,0.5); font-style: italic; }
+.entrada-text:focus { outline: none; border-color: rgba(242,212,136,0.7); box-shadow: 0 0 0 2px rgba(242,212,136,0.15); }
+.entrada-enviar {
+  display: block; width: 100%; margin-top: 0.8rem; padding: 0.9rem 1rem; border: none; border-radius: 100px;
+  background: linear-gradient(180deg, #F6DC97 0%, #E8B84B 100%); color: #2A1A08;
+  font-family: 'Jost', sans-serif; font-weight: 500; font-size: 1rem; cursor: pointer;
+}
+.entrada-enviar:disabled { opacity: 0.45; cursor: default; }
+.entrada-enviar:focus-visible { outline: 2px solid #FFF3D6; outline-offset: 3px; }
+.entrada-nota {
+  text-align: center; font-family: 'Jost', sans-serif; font-weight: 300;
+  font-size: 0.76rem; line-height: 1.55; color: rgba(245,237,216,0.75); margin-top: 0.7rem;
+}
+.entrada-nota a { color: rgba(245,237,216,0.95); }
+.entrada-oscura .entrada-titulo { opacity: 0; animation: entradaAparece 1s ease 0.2s forwards; }
+@media (prefers-reduced-motion: reduce) { .entrada-oscura .entrada-titulo { animation: none; opacity: 1; } }
+#beta-arrival-selector-wrap:not(.entrada-oscura) .entrada-titulo,
+#beta-arrival-selector-wrap:not(.entrada-oscura) .entrada-escribir { display: none; }
 
 /* Puerta elegida (en el espacio claro), con opción de cambiar antes de escribir */
 .puerta-elegida {
@@ -1810,7 +1856,7 @@ body.libre-abierta { overflow: hidden; }
   font-family: 'Cormorant Garamond', serif;
   font-size: clamp(0.85rem, 3vw, 1rem);
   font-weight: 300; font-style: italic;
-  color: rgba(245,237,216,0.75);
+  color: rgba(245,237,216,0.9);
   letter-spacing: 0.04em;
   line-height: 1.6;
   opacity: 0;
@@ -1818,6 +1864,7 @@ body.libre-abierta { overflow: hidden; }
 }
 
 .palabra-contenido {
+  width: 100%; max-width: 92vw; overflow: hidden;
   opacity: 0;
   animation: fadeInUp 1s ease 1.5s both;
 }
@@ -1829,6 +1876,8 @@ body.libre-abierta { overflow: hidden; }
   color: #f0c040;
   letter-spacing: 0.18em;
   line-height: 1.1;
+  white-space: nowrap; display: inline-block;
+  /* el tamaño definitivo lo ajusta ajustarPalabra() al ancho de la pantalla */
   text-shadow:
     0 0 20px rgba(240,192,64,0.9),
     0 0 60px rgba(240,192,64,0.5),
@@ -2083,7 +2132,7 @@ body.libre-abierta { overflow: hidden; }
 .beta-farewell-alma p:last-child { margin-bottom: 0; }
 .beta-farewell-loading {
   display: flex; align-items: center; gap: 0.4rem;
-  color: rgba(245,237,216,0.35); font-size: 0.85rem;
+  color: rgba(245,237,216,0.75); font-size: 0.85rem;
   font-style: italic; font-family: 'Cormorant Garamond', serif;
 }
 .beta-cta {
@@ -2102,9 +2151,18 @@ body.libre-abierta { overflow: hidden; }
 }
 .beta-cta:active { transform: scale(0.98); }
 .beta-cta-note {
-  font-size: 0.7rem; color: rgba(245,237,216,0.3);
-  line-height: 1.5;
+  font-size: 0.76rem; color: rgba(245,237,216,0.78);
+  line-height: 1.55;
 }
+/* «Terminar por hoy»: igual de visible que seguir, sin empujar a ninguna de las dos */
+.beta-terminar {
+  width: 100%; padding: 0.95rem; cursor: pointer;
+  background: transparent; color: #F2D488;
+  border: 1px solid rgba(212,168,40,0.55); border-radius: 0.9rem;
+  font-family: 'Jost', sans-serif; font-size: 0.95rem; font-weight: 500; letter-spacing: 0.04em;
+}
+.beta-terminar:hover { background: rgba(212,168,40,0.08); border-color: rgba(212,168,40,0.8); }
+.beta-terminar:focus-visible, .beta-cta:focus-visible { outline: 2px solid #FFF3D6; outline-offset: 3px; }
 .beta-farewell-actions-wrap {
   display: none; flex-direction: column;
   gap: 0.75rem; margin-top: 0.5rem; width: 100%;
@@ -2122,10 +2180,10 @@ body.libre-abierta { overflow: hidden; }
 .beta-feedback-toggle {
   background: none; border: none; cursor: pointer;
   font-family: 'Jost', sans-serif; font-size: 0.78rem; font-weight: 300;
-  color: rgba(245,237,216,0.5); text-decoration: underline; text-underline-offset: 3px;
+  color: rgba(245,237,216,0.8); text-decoration: underline; text-underline-offset: 3px;
   padding: 0.3rem; margin-top: 0.4rem;
 }
-.beta-feedback-toggle:hover { color: rgba(245,237,216,0.75); }
+.beta-feedback-toggle:hover { color: rgba(245,237,216,0.95); }
 
 /* Recordatorio para volver mañana (calendario propio, sin correo ni datos) */
 .recordatorio-wrap {
@@ -2323,6 +2381,18 @@ body.en-guardiana .puertas-hoy-titulo { color: #fff; }
   font-family: 'Jost', sans-serif; font-size: 0.85rem; padding: 0.55rem 0.9rem; border-radius: 999px; cursor: pointer;
   background: transparent; border: 1px solid var(--guardiana, #8B4F38); color: var(--guardiana, #8B4F38);
 }
+.puertas-hoy button.actual { background: color-mix(in srgb, var(--guardiana, #8B4F38) 14%, transparent); font-weight: 500; }
+body.en-guardiana .puertas-hoy button { color: #fff; border-color: rgba(255,255,255,0.6); }
+.puertas-hoy-otras { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 1rem; }
+.puerta-hoy-linea {
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem;
+  color: var(--muted, #6B5240); margin-bottom: 0.2rem;
+}
+.puerta-hoy-linea button {
+  background: none; border: none; cursor: pointer; padding: 0.2rem 0.3rem;
+  font: inherit; color: inherit; text-decoration: underline; text-underline-offset: 3px;
+}
+body.en-guardiana .puerta-hoy-linea { color: rgba(255,255,255,0.88); }
 /* Opciones del cuaderno antes de descargar */
 .cuaderno-opciones {
   width: 100%; text-align: left; flex-direction: column; gap: 0.7rem;
@@ -2661,7 +2731,7 @@ body.en-guardiana .puertas-hoy-titulo { color: #fff; }
     <div class="cuaderno-opciones" id="cuaderno-opciones" style="display:none">
       <p class="cuaderno-opciones-titulo">Tu cuaderno</p>
       <p class="cuaderno-opciones-texto">Para seguir escribiendo a mano, en A4: una historia con su dibujo, dos propuestas para escribir y hojas para ti. Además puede llevar:</p>
-      <label class="cuaderno-opcion"><input type="checkbox" id="cuaderno-con-reflejo" checked> <span id="cuaderno-reflejo-label">Lo que Alma vio en ti (tu reflejo)</span></label>
+      <label class="cuaderno-opcion"><input type="checkbox" id="cuaderno-con-reflejo" checked> <span id="cuaderno-reflejo-label">Tu reflejo de lo que has escrito</span></label>
       <label class="cuaderno-opcion"><input type="checkbox" id="cuaderno-con-carta" checked> <span>Lo que escribiste cada día</span></label>
       <p class="cuaderno-opciones-nota">Si vas a imprimirlo donde otras personas puedan verlo, quizá prefieras dejar fuera lo que escribiste. El cuaderno se crea aquí mismo y no se guarda en ningún sitio.</p>
       <button class="btn-farewell" id="btn-cuaderno-descargar" onclick="downloadFarewell()">Descargar</button>
@@ -2781,7 +2851,7 @@ body.en-guardiana .puertas-hoy-titulo { color: #fff; }
 <div class="beta-farewell-screen" id="beta-farewell-screen">
   <div class="beta-farewell-card">
     <div class="beta-farewell-symbol">✦</div>
-    <div class="beta-farewell-title">Lo que <em>Alma vio</em><br>en ti hoy</div>
+    <div class="beta-farewell-title">Un reflejo de lo que<br><em>has escrito hoy</em></div>
     <div class="beta-farewell-divider"></div>
 
     <div class="beta-farewell-loading" id="beta-farewell-loading">
@@ -2795,9 +2865,10 @@ body.en-guardiana .puertas-hoy-titulo { color: #fff; }
     <div class="beta-farewell-actions-wrap" id="beta-farewell-actions">
 
       <button class="beta-cta" onclick="startFullJourney()">
-        Quiero seguir con Alma →
+        Quiero seguir escribiendo →
       </button>
-      <p class="beta-cta-note">El recorrido completo va más hondo día a día, con un reflejo final y un cuaderno para escribir a mano.</p>
+      <button type="button" class="beta-terminar" onclick="terminarPorHoy()">Terminar por hoy</button>
+      <p class="beta-cta-note">Si sigues, cada día tienes una pregunta nueva, un reflejo al final y un cuaderno para escribir a mano. Sin prisa y sin obligación.</p>
 
       <!-- Feedback: opcional y plegado, después del botón para seguir.
            Netlify lo captura y manda email -->
@@ -2937,10 +3008,22 @@ body.en-guardiana .puertas-hoy-titulo { color: #fff; }
     <div class="arrival-selector-wrap" id="beta-arrival-selector-wrap" style="display:none">
       <div class="entrada-col">
         <img class="entrada-logo" src="/images/logo-web.png" alt="Alma">
+        <h1 class="entrada-titulo">Un lugar para escribir lo que llevas dentro.</h1>
         <p class="entrada-verso">Aquí no tienes que ganarte un lugar.</p>
         <p class="entrada-verso-suave">Puedes llegar entera, o en pedazos: las dos versiones son bienvenidas por igual.</p>
-        <p class="entrada-como">Eliges cómo llegas, escribes lo que salga y Alma te responde. Unos minutos, sin prisa.</p>
-        <div class="arrival-selector-title">¿Cómo llegas hoy?</div>
+
+        <!-- Escribir primero: no hace falta saber cómo te sientes para empezar -->
+        <div class="entrada-escribir">
+          <label class="entrada-pregunta" for="entrada-text">¿Qué te apetece contar hoy?</label>
+          <p class="entrada-sub">No necesitas saber cómo te sientes para empezar.</p>
+          <textarea class="entrada-text" id="entrada-text" rows="5" maxlength="2000"
+            placeholder="Hoy me apetece escribir sobre…" oninput="entradaInput()"></textarea>
+          <button type="button" class="entrada-enviar" id="entrada-enviar" onclick="entradaEnviar()" disabled>Enviar a Alma</button>
+          <p class="entrada-nota">Lo lee Alma, una inteligencia artificial, para responderte. Al enviar confirmas que eres mayor de edad y aceptas la <a href="privacidad.html">política de privacidad</a>.</p>
+        </div>
+
+        <div class="arrival-selector-title">¿Prefieres que te ayude a empezar?</div>
+        <p class="entrada-como">Elige cómo llegas hoy y Alma te acompaña desde ahí. Es opcional, y mañana puedes elegir otra.</p>
         <div class="arrival-selector-options">
         <button class="arrival-selector-btn puerta-btn" style="--guardiana:#A34A66" onclick="selectBetaArrival(this,'nudos')">
           <span class="puerta-nombre">Con nudos</span><span class="puerta-linea">Sé lo que me pasa, pero no consigo ordenarlo.</span>
@@ -2969,7 +3052,7 @@ body.en-guardiana .puertas-hoy-titulo { color: #fff; }
         <p class="arrival-legal">
           Quien te responde es Alma, una inteligencia artificial. No es terapia. Si necesitas ayuda ahora, llama al <a href="tel:024">024</a>
           o al <a href="tel:717003717">717 003 717</a>, a cualquier hora. Si alguien te da miedo o te hace daño, al <a href="tel:016">016</a>.<br>
-          Al elegir confirmas que eres mayor de edad y aceptas la <a href="privacidad.html">política de privacidad</a>.
+          Al enviar o al elegir una puerta confirmas que eres mayor de edad y aceptas la <a href="privacidad.html">política de privacidad</a>.
         </p>
         <a class="arrival-guia" href="/images/guia-bienvenida.pdf" target="_blank" rel="noopener"
            onclick="if(typeof almaTrack==='function') almaTrack('guia_descargada');">De dónde viene Alma</a>
@@ -3024,7 +3107,6 @@ body.en-guardiana .puertas-hoy-titulo { color: #fff; }
       <!-- Cada día, antes de escribir: «Hoy tengo algo bueno que contar» (o elegir puerta si aún no tiene) -->
       <div class="dia-bueno" id="dia-bueno" style="display:none"></div>
       <div id="question-text">
-        <p class="question-intro">No hace falta que esté bien explicado, solo exprésalo, como salga…</p>
         <p class="question-main">¿Hay algo que llevas dentro y que casi nunca dices en voz alta?</p>
       </div>
       <!-- «Hoy solo quiero soltar», escribir sin respuesta y, por si acaso, «si te falta el aire» -->
@@ -3228,7 +3310,13 @@ async function _conIlustracion(lista) {
 }
 
 async function elegirHistoriaCuaderno(puerta, tramo, dias) {
-  const bancoEntero = (window.CUADERNO.historias[puerta] || []);
+  // Si nunca eligió puerta, Alma elige entre las historias de las cuatro
+  // (las de duelo solo si ella habla de una muerte: lo filtra el servidor;
+  // al azar, nunca salen las que no van al azar)
+  const todas = !huboPuerta();
+  const bancoEntero = todas
+    ? Object.values(window.CUADERNO.historias).flat()
+    : (window.CUADERNO.historias[puerta] || []);
   const clave = 'alma_cuaderno_historia_' + tramo;
   const porId = id => banco.find(h => h.id === id) || null;
   try { const ya = bancoEntero.find(h => h.id === localStorage.getItem(clave)); if (ya) return ya; } catch (e) {}
@@ -3245,7 +3333,7 @@ async function elegirHistoriaCuaderno(puerta, tramo, dias) {
     const t = setTimeout(() => c.abort(), 9000);
     const r = await fetch('/.netlify/functions/cuaderno-historia', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ puerta, vistas: vistas.concat(sinImagen), textos: dias.flatMap(d => d.textos) }),
+      body: JSON.stringify({ puerta, sinPuerta: todas, vistas: vistas.concat(sinImagen), textos: dias.flatMap(d => d.textos) }),
       signal: c.signal,
     });
     clearTimeout(t);
@@ -3422,10 +3510,10 @@ async function generarCuadernoPDF({ puerta, tramo, reflejo, dias, historia, fech
     y -= 26;
   }
 
-  // ── Lo que Alma vio (si ella lo ha marcado) ──
+  // ── Su reflejo (si ella lo ha marcado) ──
   if (reflejo) {
     if (!meLlevo) nueva(110);
-    etiqueta('Lo que Alma vio');
+    etiqueta('Tu reflejo');
     for (const par of _paraPdf(reflejo).replace(/\r/g, '').split(/\n\n+|\n/).filter(x => x.trim())) {
       parrafo(par, serif, 13.5, 13.5 * 1.62, tinta);
       y -= 10;
@@ -3647,7 +3735,7 @@ function abrirOpcionesCuaderno() {
     if (!reflejo) chk.checked = false;
     if (lab) lab.classList.toggle('desactivada', !reflejo);
     const txt = document.getElementById('cuaderno-reflejo-label');
-    if (txt) txt.textContent = reflejo ? 'Lo que Alma vio en ti (tu reflejo)' : 'Tu reflejo (todavía no está listo)';
+    if (txt) txt.textContent = reflejo ? 'Tu reflejo de lo que has escrito' : 'Tu reflejo (todavía no está listo)';
   }
   panel.style.display = 'flex';
   setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
@@ -3776,6 +3864,20 @@ function trackEvent(name, params) {
 
 // ── BANCO DE PREGUNTAS — 10 por estado de ánimo ───────────────────────────
 const QUESTION_BANK = {
+  // ── Sin puerta: preguntas cotidianas que no dan por hecho nada (las mismas
+  //    que PREGUNTAS_LIBRES en lib/entrada.js)
+  libre: [
+    "¿Qué te apetece contar hoy?",
+    "¿Cómo ha sido tu día hasta ahora?",
+    "¿Qué te ha rondado la cabeza estos días?",
+    "¿Ha pasado algo hoy que quieras dejar escrito?",
+    "¿Qué te ha sacado una sonrisa últimamente, aunque sea pequeña?",
+    "¿Cómo te has levantado hoy?",
+    "¿Qué conversación de estos días se te ha quedado?",
+    "¿Qué te gustaría que pasara esta semana?",
+    "¿Hay algo que te apetezca soltar aquí, sin más?",
+    "¿Qué necesitas hoy que no has pedido?",
+  ],
   // ── Las cuatro puertas: un banco por guardiana, escrito con sus reglas
   //    (Bruma nunca busca la causa ni el «desde cuándo»; Cala, preguntas
   //    pequeñas y fáciles; Solaz, una sola cosa abierta; Ítaca, sin empujar).
@@ -3882,6 +3984,13 @@ const QUESTION_BANK = {
 // Banco de cierre: solo para los dos últimos días de un recorrido de 7.
 // Recogen en vez de excavar. Quien hace 3 o 5 días nunca los ve.
 const CLOSING_BANK = {
+  // ── Sin puerta (días 6 y 7 del recorrido de 7)
+  libre: [
+    "Después de estos días, ¿cómo te encuentras hoy?",
+    "De todo lo que has escrito aquí, ¿qué te gustaría llevarte?",
+    "¿Qué te ha sorprendido de lo que has ido contando estos días?",
+    "¿Qué te gustaría recordarte cuando vuelvas a abrir esto?",
+  ],
   // ── Cierre de las cuatro puertas (días 6 y 7 del recorrido de 7)
   nudos: [
     "Lo que trajiste el primer día pesaba de una forma. ¿Pesa igual ahora?",
@@ -3977,7 +4086,8 @@ function buildQuestionSet(mode, totalDays, previousSet) {
   return set;
 }
 
-const QUESTION_INTRO = "No hace falta que esté bien explicado, solo exprésalo, como salga…";
+// Ya lo dice la frase de Alma de debajo: aquí no se repite
+const QUESTION_INTRO = "";
 
 // ── SET ALEATORIO — se genera una vez por sesión y se guarda ──────────────
 // Así la misma usuaria ve las mismas preguntas en sus 3 días
@@ -4017,19 +4127,49 @@ const MODO_BETA_A_BANCO = {
   // Las cuatro puertas tienen su propio banco
   nudos: 'nudos', agotada: 'agotada', sinsaber: 'sinsaber', volver: 'volver',
   // Opciones antiguas (quien ya empezó con ellas)
-  beta_pain: 'pain', beta_search: 'curiosity', beta_self: 'depth', beta_unclear: 'open'
+  beta_pain: 'pain', beta_search: 'curiosity', beta_self: 'depth', beta_unclear: 'open',
+  // Sin puerta: preguntas cotidianas y abiertas, y responde Alma con su voz (sin guardiana)
+  libre: 'libre'
 };
 
 // La puerta por la que entró decide su guardiana durante todo el recorrido.
 // Se guarda al elegir (alma_puerta); si no está (venía de la beta, o se
 // recuperó con la llave), sale del día 1. El servidor traduce las opciones
 // antiguas a la puerta más cercana.
-function puertaDelRecorrido() {
+// Ahora la puerta se elige (o no) cada día. La de un día queda guardada en
+// alma_puerta_dia_N al elegirla o al escribir; si ese día aún no tiene, vale
+// la última que eligió (alma_puerta). «libre» = sin puerta: responde Alma
+// con su voz, sin guardiana.
+function puertaDelRecorrido(dia) {
+  const d = (typeof dia === 'number') ? dia : currentDay;
   try {
+    const delDia = localStorage.getItem('alma_puerta_dia_' + d);
+    if (delDia) return delDia === 'libre' ? null : delDia;
     const p = localStorage.getItem('alma_puerta');
-    if (p) return p;
+    if (p) return p === 'libre' ? null : p;
   } catch(e) {}
-  return loadFromLocal(0)?.arrivalMode || null;
+  const a = loadFromLocal(0)?.arrivalMode || null;
+  return a === 'libre' ? null : a;
+}
+
+// ¿Eligió alguna puerta en algún día del recorrido? (para el cuaderno)
+function huboPuerta() {
+  for (let d = 0; d < 7; d++) { if (puertaDelRecorrido(d)) return true; }
+  return false;
+}
+
+// Lo que se manda al servidor sobre la puerta de hoy (recorrido)
+function camposPuertaDia() {
+  if (esDiaBueno(currentDay)) return { puerta: null, bueno: true };
+  const p = puertaDelRecorrido();
+  return p ? { puerta: p } : { puerta: null, sinPuerta: true };
+}
+
+// Lo mismo en el primer día (beta)
+function camposPuertaBeta() {
+  if (betaMode === 'bueno') return { arrivalMode: betaMode, puerta: null, bueno: true };
+  if (betaMode === 'libre') return { arrivalMode: 'libre', puerta: null, sinPuerta: true, entrada: 'libre' };
+  return { arrivalMode: betaMode, puerta: betaMode, bueno: false, entrada: betaMode };
 }
 
 // El modo de llegada del recorrido es el del primer día guardado (mapeado desde la beta).
@@ -4079,7 +4219,7 @@ function renderQuestion(day) {
   const container = document.getElementById('question-text');
   if (container) {
     container.innerHTML = `
-      <p class="question-intro">${QUESTION_INTRO}</p>
+      ${QUESTION_INTRO ? `<p class="question-intro">${QUESTION_INTRO}</p>` : ''}
       <p class="question-main">${getQuestionForDay(day)}</p>
     `;
   }
@@ -4144,16 +4284,17 @@ const ALMA_OPENERS = {
   open:      "Si la pregunta no te resuena, no importa. Cuéntame lo que sea.",
   depth:     "Es solo una guía; pásala por alto si no va contigo. Cuéntame qué necesitas ordenar o soltar.",
   // Puertas: la nota de puertas.html
-  nudos:    "La pregunta es solo una guía. Lo que importa es soltar, empieza por lo que salga aunque sea desordenado.",
-  sinsaber: "La pregunta es solo una guía. Lo que importa es soltar, empieza por lo que salga aunque sea desordenado.",
-  agotada:  "La pregunta es solo una guía. Lo que importa es soltar, empieza por lo que salga aunque sea desordenado.",
-  volver:   "La pregunta es solo una guía. Lo que importa es soltar, empieza por lo que salga aunque sea desordenado.",
+  nudos:    "La pregunta es solo una sugerencia. Puedes empezar por donde quieras: no hace falta que lo tengas claro.",
+  sinsaber: "La pregunta es solo una sugerencia. Puedes empezar por donde quieras: no hace falta que lo tengas claro.",
+  agotada:  "La pregunta es solo una sugerencia. Puedes empezar por donde quieras: no hace falta que lo tengas claro.",
+  volver:   "La pregunta es solo una sugerencia. Puedes empezar por donde quieras: no hace falta que lo tengas claro.",
   // Beta (mismo emparejamiento: search = curiosity, self = depth, unclear = open)
   beta_pain:    "Es solo una guía. Empieza por lo que salga, aunque sea desordenado.",
   beta_search:  "Es solo una guía. Cuéntame lo que te preocupa o necesitas y lo vamos viendo juntas.",
   beta_self:    "Es solo una guía; pásala por alto si no va contigo. Cuéntame qué necesitas ordenar o soltar.",
   beta_unclear: "Si la pregunta no te resuena, no importa. Cuéntame lo que sea.",
   bueno: "Cuéntalo como te salga, con todos los detalles que quieras.",
+  libre: "Puedes empezar por donde quieras. No hace falta que lo tengas claro.",
 };
 
 function renderOpener(mode) {
@@ -4538,11 +4679,7 @@ function textoDelDia(entry) {
 
 async function saveEntry() {
   if (isBetaMode) { await saveBetaEntry(); return; }
-  // Empezó con un día bueno: antes de soltar, que elija cómo llega hoy
-  if (!puertaReal() && !esDiaBueno(currentDay)) {
-    document.getElementById('dia-bueno')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
+  // Ya no hace falta elegir puerta para escribir: sin puerta responde Alma
   const btns = ['btn-save-d','btn-save-m'].map(id => document.getElementById(id)).filter(Boolean);
   if (btns.some(b => b.disabled)) return;
 
@@ -4553,6 +4690,10 @@ async function saveEntry() {
   if (!text) return;
 
   fijarPreguntaDelDia(currentDay);
+  // La puerta de este día queda fijada al soltarlo (aunque mañana elija otra)
+  if (!esDiaBueno(currentDay)) {
+    try { localStorage.setItem('alma_puerta_dia_' + currentDay, puertaDelRecorrido() || 'libre'); } catch(e) {}
+  }
   const emotions = [];
   saveToLocal(currentDay, text, emotions, undefined, undefined, currentArrivalMode);
   borrarBorrador(`alma_borrador_${currentDay}`); // ya es la entrada del día
@@ -4663,7 +4804,7 @@ async function callAlma({ btns, text, previousEntries, isFirstTurn }) {
         arrivalMode: currentArrivalMode,
         questionSet: getFixedQuestionSet(),
         tramo: totalDays, // para que Alma sepa si este día cierra el tramo o sigue
-        puerta: esDiaBueno(currentDay) ? null : puertaDelRecorrido(), // su guardiana (ninguna el día bueno)
+        ...camposPuertaDia(), // su guardiana (ninguna el día bueno ni si escribe sin puerta)
         bueno: esDiaBueno(currentDay),
         soltar: esDiaSoltar(),                       // «hoy solo quiero soltar»: sin preguntas
         diasSinVenir: diasDesdeUltimaVez(currentDay), // si vuelve tras unos días, nada de «ayer»
@@ -4854,7 +4995,7 @@ function showFinalButtons() {
   fraseWrap.className = 'day-frase-wrap';
   fraseWrap.innerHTML = `
     <div class="day-frase-block">
-      <div class="day-frase-label">Lo que Alma vio hoy en ti</div>
+      <div class="day-frase-label">Un reflejo de lo que has escrito hoy</div>
       <div class="day-frase-loading">Alma está escribiendo...</div>
     </div>
   `;
@@ -4894,7 +5035,7 @@ async function generarFraseDia(fraseWrap) {
     const block = fraseWrap.querySelector('.day-frase-block');
     if (!block) return;
     block.innerHTML = `
-      <div class="day-frase-label">Lo que Alma vio hoy en ti</div>
+      <div class="day-frase-label">Un reflejo de lo que has escrito hoy</div>
       <div class="day-frase-texto">${frase}</div>
     `;
   };
@@ -5493,7 +5634,7 @@ async function enviarLibre() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         modo: 'libre', entry: texto, conversationHistory: anterior,
-        puerta: puertaDelRecorrido(), arrivalMode: currentArrivalMode,
+        puerta: puertaDelRecorrido(), sinPuerta: !puertaDelRecorrido(), arrivalMode: currentArrivalMode,
         anonId: anonId(), reflejo: leerReflejoGuardado(),
       }),
       signal: controller.signal,
@@ -5836,10 +5977,11 @@ function trasRespuestaAlma() {
 }
 
 const MOTIVOS_NO_ENTENDIDO = [
-  ['general',   'Demasiado general'],
-  ['consejo',   'No quería un consejo'],
-  ['supuesto',  'Has supuesto algo que no es'],
-  ['preguntas', 'Prefiero que no me preguntes'],
+  ['otro',      'Iba por otro lado'],
+  ['general',   'Más concreta'],
+  ['supuesto',  'Sin suponer cosas'],
+  ['consejo',   'Sin consejos'],
+  ['preguntas', 'Sin preguntas'],
 ];
 
 function quitarNoEntendido() {
@@ -5860,9 +6002,9 @@ function ofrecerNoEntendido(bloque) {
 function abrirNoEntendido(btn) {
   const caja = btn.closest('.no-entendido');
   if (!caja) return;
-  caja.innerHTML = `<p class="ne-pregunta">¿Qué ha fallado?</p><div class="ne-motivos">` +
+  caja.innerHTML = `<p class="ne-pregunta">¿Cómo prefieres que te responda?</p><div class="ne-motivos">` +
     MOTIVOS_NO_ENTENDIDO.map(([k, t]) => `<button type="button" onclick="reintentarRespuesta('${k}')">${t}</button>`).join('') +
-    `<button type="button" onclick="quitarNoEntendido()">Da igual</button></div>`;
+    `<button type="button" onclick="quitarNoEntendido()">Prefiero dejarlo así</button></div>`;
 }
 
 async function reintentarRespuesta(motivo) {
@@ -5886,7 +6028,7 @@ async function reintentarRespuesta(motivo) {
   if (isBetaMode) {
     cuerpo = {
       day: 1, turn: betaTurn, entry, conversationHistory: hist.slice(0, -1), previousEntries: {},
-      arrivalMode: betaMode, puerta: betaMode === 'bueno' ? null : betaMode, bueno: betaMode === 'bueno',
+      ...camposPuertaBeta(),
       soltar: esDiaSoltar(), plan: 'free', isBeta: true, betaMaxTurns: BETA_MAX_TURNS,
     };
   } else {
@@ -5898,7 +6040,7 @@ async function reintentarRespuesta(motivo) {
     cuerpo = {
       day: currentDay + 1, turn: currentTurn, entry, conversationHistory: hist.slice(0, -1), previousEntries,
       arrivalMode: currentArrivalMode, questionSet: getFixedQuestionSet(), tramo: totalDays,
-      puerta: esDiaBueno(currentDay) ? null : puertaDelRecorrido(), bueno: esDiaBueno(currentDay),
+      bueno: esDiaBueno(currentDay), ...camposPuertaDia(),
       soltar: esDiaSoltar(), diasSinVenir: diasDesdeUltimaVez(currentDay),
       frasesAnteriores: frasesDeAlmaAnteriores(currentDay), plan: 'free',
     };
@@ -6265,7 +6407,7 @@ async function showFarewell() {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        entries, arrivalMode: currentArrivalMode, puerta: puertaDelRecorrido(), plan: 'free', questionSet,
+        entries, arrivalMode: currentArrivalMode, puerta: puertaDelRecorrido(), sinPuerta: !huboPuerta(), plan: 'free', questionSet,
         tramo: totalDays, meLlevo,
         reflejoTotal: (window._farewellContexto && window._farewellContexto.esFinalDefinitivo) || false
       }),
@@ -6651,11 +6793,14 @@ function startJourney() {
 
 const BETA_MAX_TURNS = 4;
 const BETA_QUESTIONS = {
-  // Las cuatro puertas (mismas preguntas que puertas.html y questions.js)
-  nudos:    "¿Qué es eso que te pesa por dentro?",
+  // La primera pregunta de cada entrada: sencilla y abierta, sin dar por hecho
+  // que algo duele (las mismas que lib/entrada.js en el servidor). Las hondas
+  // siguen en los bancos de los días siguientes.
+  libre:    "¿Qué te apetece contar hoy?",
+  nudos:    "¿Qué te ronda hoy por la cabeza?",
   sinsaber: "¿Qué te apetece soltar, aunque no sepas muy bien qué es?",
-  agotada:  "¿Desde cuándo vienes cargando este cansancio?",
-  volver:   "¿Qué parte de ti sientes que has ido perdiendo por el camino?",
+  agotada:  "¿Cómo llegas hoy de fuerzas?",
+  volver:   "¿Qué te apetece contar hoy?",
   bueno:    "¿Qué ha pasado de bueno que quieras contar?",
   // Opciones antiguas: quien ya empezó con ellas
   beta_pain:    "¿Qué es lo que más te pesa hoy?",
@@ -6862,7 +7007,7 @@ function esDiaBueno(day) {
 // aún no ha elegido puerta. (Las opciones antiguas cuentan como elegidas.)
 function puertaReal() {
   const p = puertaDelRecorrido();
-  return !!p && p !== 'bueno';
+  return !!p && p !== 'bueno' && p !== 'libre';
 }
 
 // Pone el enlace del día bueno (o, si aún no tiene puerta, la elección de puerta)
@@ -6877,27 +7022,36 @@ function actualizarDiaBueno(day) {
   aplicarColorGuardiana(bueno ? 'bueno' : (real ? puertaDelRecorrido() : null));
   if (bueno && !empezado) renderOpener('bueno');
 
-  if (empezado || (!real && !bueno && day === 0)) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  if (empezado) { box.style.display = 'none'; box.innerHTML = ''; return; }
 
-  if (!real && !bueno) {
-    // Su primer día fue un día bueno: hoy elige con qué guardiana sigue
-    const opciones = ['nudos', 'sinsaber', 'agotada', 'volver']
-      .map(p => `<button type="button" style="--guardiana:${COLOR_PUERTA[p]}" onclick="elegirPuertaHoy('${p}')">${NOMBRE_PUERTA[p]}</button>`).join('');
-    box.innerHTML = `<p class="puertas-hoy-titulo">¿Cómo llegas hoy?</p><div class="puertas-hoy">${opciones}</div>` +
-      `<button type="button" class="puerta-bueno" onclick="toggleDiaBueno()">Con algo bueno que contar</button>`;
+  if (bueno) {
+    box.innerHTML = `<button type="button" class="puerta-bueno" onclick="toggleDiaBueno()">Volver a mi pregunta de hoy</button>`;
     box.style.display = 'block';
-    const q = document.querySelector('#question-text .question-main');
-    if (q) q.textContent = 'Elige cómo llegas hoy y empezamos.';
-    const rowD = document.getElementById('actions-row-d');
-    if (rowD) rowD.style.display = 'none';
-    setMobileButtons(false);
-    hideOpener();
     return;
   }
-  box.innerHTML = bueno
-    ? `<button type="button" class="puerta-bueno" onclick="toggleDiaBueno()">${real ? 'Volver a mi pregunta de hoy' : 'Elegir cómo llego hoy'}</button>`
-    : `<button type="button" class="puerta-bueno" onclick="toggleDiaBueno()">Hoy tengo algo bueno que contar</button>`;
+
+  // Cada día puede entrar por otra puerta, o por ninguna. Nunca obliga.
+  const p = puertaDelRecorrido();
+  if (cambiandoPuerta) {
+    const opciones = ['nudos', 'sinsaber', 'agotada', 'volver']
+      .map(x => `<button type="button" class="${x === p ? 'actual' : ''}" style="--guardiana:${COLOR_PUERTA[x]}" onclick="elegirPuertaHoy('${x}')">${NOMBRE_PUERTA[x]}</button>`).join('');
+    box.innerHTML = `<p class="puertas-hoy-titulo">¿Cómo llegas hoy?</p><div class="puertas-hoy">${opciones}</div>` +
+      `<div class="puertas-hoy-otras"><button type="button" class="puerta-bueno" onclick="elegirPuertaHoy('libre')">Sin puerta, escribo sin más</button>` +
+      `<button type="button" class="puerta-bueno" onclick="toggleDiaBueno()">Con algo bueno que contar</button></div>`;
+  } else {
+    const linea = real
+      ? `Hoy entras por «${NOMBRE_PUERTA[p] || p}» · <button type="button" onclick="abrirCambioPuerta()">Cambiar</button>`
+      : `Hoy escribes sin puerta · <button type="button" onclick="abrirCambioPuerta()">Elegir una</button>`;
+    box.innerHTML = `<p class="puerta-hoy-linea">${linea}</p>` +
+      `<button type="button" class="puerta-bueno" onclick="toggleDiaBueno()">Hoy tengo algo bueno que contar</button>`;
+  }
   box.style.display = 'block';
+}
+
+var cambiandoPuerta = false;
+function abrirCambioPuerta() {
+  cambiandoPuerta = true;
+  actualizarDiaBueno(currentDay);
 }
 
 function toggleDiaBueno() {
@@ -6907,26 +7061,31 @@ function toggleDiaBueno() {
     if (ahora) localStorage.setItem('alma_bueno_' + currentDay, '1');
     else localStorage.removeItem('alma_bueno_' + currentDay);
   } catch(e) {}
+  cambiandoPuerta = false;
   renderQuestion(currentDay);
-  if (!ahora && puertaReal()) renderOpener(puertaDelRecorrido());
-  if (ahora || puertaReal()) {
-    const rowD = document.getElementById('actions-row-d');
-    if (rowD) rowD.style.display = 'flex';
-    setMobileButtons(false);
-  }
+  actualizarDiaBueno(currentDay);
+  if (!ahora) renderOpener(puertaDelRecorrido() || 'libre');
+  const rowD = document.getElementById('actions-row-d');
+  if (rowD) rowD.style.display = 'flex';
+  setMobileButtons(false);
   trackEvent(ahora ? 'dia_bueno_elegido' : 'dia_bueno_quitado', { dia: currentDay + 1 });
 }
 
-// Empezó con un día bueno y hoy elige su puerta para el resto del recorrido
+// Elige (o cambia) la puerta de hoy. «libre» = hoy sin puerta.
+// La que elige vale para hoy y, si no elige otra, para los días siguientes.
 function elegirPuertaHoy(p) {
+  if (textoDelDia(loadFromLocal(currentDay))) return; // ya empezó: el día queda como está
   const modo = MODO_BETA_A_BANCO[p] || p;
   currentArrivalMode = modo;
   try {
     localStorage.setItem('alma_puerta', p);
+    localStorage.setItem('alma_puerta_dia_' + currentDay, p);
     localStorage.setItem('alma_arrival_mode', modo);
     localStorage.removeItem('alma_bueno_' + currentDay);
   } catch(e) {}
+  cambiandoPuerta = false;
   renderQuestion(currentDay);
+  actualizarDiaBueno(currentDay);
   renderOpener(p);
   const rowD = document.getElementById('actions-row-d');
   if (rowD) rowD.style.display = 'flex';
@@ -6935,9 +7094,45 @@ function elegirPuertaHoy(p) {
 }
 
 
+// ── ESCRIBIR PRIMERO ──────────────────────────────────────
+// En la entrada puede escribir sin elegir puerta. Lo que escribe se copia al
+// cuadro principal (y a su borrador) mientras escribe, así no se pierde si
+// recarga ni si al final prefiere elegir una puerta.
+function entradaInput() {
+  const t = document.getElementById('entrada-text');
+  const ta = document.getElementById('journal-text');
+  const b = document.getElementById('entrada-enviar');
+  if (!t) return;
+  if (b) b.disabled = !t.value.trim();
+  if (ta && !borradorBloqueado()) { ta.value = t.value; onType(); }
+}
+
+function entradaEnviar() {
+  const t = document.getElementById('entrada-text');
+  const text = t ? t.value.trim() : '';
+  if (!text) return;
+  const b = document.getElementById('entrada-enviar');
+  if (b) b.disabled = true;
+  guardarConsentimiento(); // enviar también es aceptar (nadie entra sin el aviso)
+  const ta = document.getElementById('journal-text');
+  if (ta) ta.value = text;
+  selectBetaArrival(null, 'libre');
+  trackEvent('entrada_sin_puerta');
+  // Cuando el espacio claro ya está a la vista, se suelta como siempre
+  setTimeout(() => saveEntry(), 260);
+}
+
 function abrirEntrada() {
   const w = document.getElementById('beta-arrival-selector-wrap');
   if (!w) return;
+  // Si vuelve a la entrada con algo ya escrito, que lo encuentre ahí
+  const t = document.getElementById('entrada-text');
+  const ta = document.getElementById('journal-text');
+  if (t && ta && !borradorBloqueado()) {
+    t.value = ta.value || leerBorrador(claveBorrador()) || '';
+    const b = document.getElementById('entrada-enviar');
+    if (b) b.disabled = !t.value.trim();
+  }
   w.classList.remove('saliendo');
   w.classList.add('entrada-oscura');
   w.style.display = 'block';
@@ -6971,7 +7166,7 @@ function mostrarPuertaElegida(mode) {
 function selectBetaArrival(btn, mode) {
   guardarConsentimiento();
   document.querySelectorAll('#beta-arrival-selector-wrap .arrival-selector-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
+  if (btn) btn.classList.add('selected');
   betaMode = mode;
 
   // Limpiar datos de sesión beta anterior
@@ -7114,9 +7309,7 @@ async function callBeta({ btns, text, isFirstTurn }) {
         entry: text,
         conversationHistory: betaHistory.slice(0, -1),
         previousEntries: {},
-        arrivalMode: betaMode,
-        puerta: betaMode === 'bueno' ? null : betaMode, // su guardiana (ninguna el día bueno)
-        bueno: betaMode === 'bueno',
+        ...camposPuertaBeta(), // su guardiana (ninguna el día bueno ni sin puerta)
         soltar: esDiaSoltar(),
         plan: 'free',
         isBeta: true,
@@ -7246,9 +7439,7 @@ async function showBetaFarewell() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         betaEntries: betaHistory,
-        arrivalMode: betaMode,
-        puerta: betaMode === 'bueno' ? null : betaMode, // su guardiana (ninguna el día bueno)
-        bueno: betaMode === 'bueno',
+        ...camposPuertaBeta(), // su guardiana (ninguna el día bueno ni sin puerta)
         plan: 'free',
       }),
       signal: controller.signal,
@@ -7302,6 +7493,18 @@ function reflejoBetaNoDisponible(almaEl) {
 }
 
 // Botón CTA — ir a los 3 días completos
+// «Terminar por hoy»: cierra sin empujar a seguir. Su día se queda guardado
+// (y si vuelve, encuentra otra vez las dos opciones).
+function terminarPorHoy() {
+  const actionsWrap = document.getElementById('beta-farewell-actions');
+  if (actionsWrap) actionsWrap.style.display = 'none';
+  const msg = document.getElementById('beta-transition-msg');
+  const txt = msg?.querySelector('.beta-transition-text');
+  if (txt) txt.innerHTML = 'Lo que has escrito se queda aquí catorce días.<br><br>Puedes volver cuando quieras. Y si no vuelves, también está bien.';
+  if (msg) msg.style.display = 'block';
+  trackEvent('beta_terminar_por_hoy', { mode: betaMode });
+}
+
 function startFullJourney() {
   // 1. Migrar la sesión beta a alma_0 con fecha de HOY:
   // el día 1 se ha hecho hoy, así que isSameCalendarDay devuelve true
@@ -7324,6 +7527,12 @@ function startFullJourney() {
       localStorage.setItem('alma_arrival_mode', MODO_BETA_A_BANCO[betaData.arrivalMode] || betaData.arrivalMode || 'pain');
       // La pregunta que de verdad vio el día 1 (para el texto descargable y el reflejo)
       if (BETA_QUESTIONS[betaData.arrivalMode]) localStorage.setItem('alma_q_0', BETA_QUESTIONS[betaData.arrivalMode]);
+      // La puerta del día 1 (o «sin puerta»): mañana sigue por la misma salvo que elija otra
+      const p0 = betaData.arrivalMode;
+      if (p0 === 'libre' || COLOR_PUERTA[p0]) {
+        localStorage.setItem('alma_puerta_dia_0', p0);
+        if (!localStorage.getItem('alma_puerta')) localStorage.setItem('alma_puerta', p0);
+      }
     }
     localStorage.removeItem('alma_beta');
     localStorage.removeItem('alma_beta_farewell');
@@ -7463,9 +7672,8 @@ function startFullJourney() {
 <!-- PANTALLA PALABRA — transición cinematográfica -->
 <div class="palabra-screen" id="palabra-screen">
   <img class="palabra-logo" src="/images/logo-web.png" alt="Alma">
-  <div class="palabra-intro" id="palabra-intro">Si tuviera que resumir este momento<br>en una sola palabra...</div>
+  <div class="palabra-intro" id="palabra-intro">Una palabra que podría<br>acompañar este momento…</div>
   <div class="palabra-contenido" id="palabra-contenido"></div>
-  <div class="palabra-sub">Quizá merezca la pena detenerse<br>un poco más ahí.</div>
   <button class="palabra-btn" onclick="continuarAlReflejo()">Continuar</button>
 </div>
 
@@ -7730,31 +7938,47 @@ async function mostrarPalabraYReflejo(farewellFn, historial) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         conversationHistory: historial,
-        puerta: isBetaMode ? betaMode : (esDiaBueno(currentDay) ? 'bueno' : puertaDelRecorrido()), // su guardiana
+        puerta: isBetaMode ? (betaMode === 'libre' ? null : betaMode) : (esDiaBueno(currentDay) ? 'bueno' : puertaDelRecorrido()), // su guardiana
       }),
     });
     const data = await res.json();
     renderPalabra(data);
   } catch (e) {
-    renderPalabra({ formato: 'palabra', contenido: 'SILENCIO' });
+    renderPalabra({ formato: 'palabra', contenido: 'PAUSA' });
   }
 }
 
 function renderPalabra(data) {
   const contenedor = document.getElementById('palabra-contenido');
   const intro = document.getElementById('palabra-intro');
+  // Siempre una palabra que acompaña (el formato de patrón se retiró)
+  intro.innerHTML = 'Una palabra que podría<br>acompañar este momento…';
+  const palabra = String((data && data.contenido) || 'PAUSA').replace(/[<>]/g, '').trim();
+  contenedor.innerHTML = '';
+  const el = document.createElement('div');
+  el.className = palabra.split(/\s+/).length > 2 ? 'palabra-emocion' : 'palabra-word';
+  el.textContent = palabra;
+  contenedor.appendChild(el);
+  ajustarPalabra();
+}
 
-  if (data.formato === 'palabra') {
-    intro.innerHTML = 'Si tuviera que resumir este momento<br>en una sola palabra...';
-    contenedor.innerHTML = `<div class="palabra-word">${data.contenido}</div>`;
-  } else if (data.formato === 'emocion') {
-    intro.innerHTML = 'Hoy volviste varias veces a...';
-    contenedor.innerHTML = `<div class="palabra-emocion">${data.contenido}</div>`;
-  } else if (data.formato === 'contradiccion') {
-    intro.innerHTML = 'Hubo algo que apareció hoy y no terminó de resolverse.';
-    contenedor.innerHTML = `<div class="palabra-contradiccion">${data.contenido}</div>`;
+// Que la palabra quepa siempre: «CANSANCIO» o «PREOCUPACIÓN» se cortaban en
+// móviles pequeños. Se mide y se reduce el tamaño (y el espaciado) hasta que entra.
+function ajustarPalabra() {
+  const el = document.querySelector('#palabra-contenido .palabra-word');
+  if (!el) return;
+  el.style.fontSize = ''; el.style.letterSpacing = '';
+  const caja = document.getElementById('palabra-contenido');
+  const ancho = Math.min(caja ? caja.clientWidth || window.innerWidth : window.innerWidth, window.innerWidth * 0.9);
+  if (el.textContent.length > 7) el.style.letterSpacing = '0.08em';
+  let px = parseFloat(getComputedStyle(el).fontSize) || 56;
+  let vueltas = 0;
+  while (el.scrollWidth > ancho && px > 22 && vueltas < 40) {
+    px -= 2; vueltas++;
+    el.style.fontSize = px + 'px';
   }
 }
+window.addEventListener('resize', () => { if (document.getElementById('palabra-screen')?.classList.contains('visible')) ajustarPalabra(); });
 
 function continuarAlReflejo() {
   const screen = document.getElementById('palabra-screen');
