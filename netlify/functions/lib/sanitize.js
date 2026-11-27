@@ -127,7 +127,11 @@ function recortarPreguntas(text) {
     const q = m[0];
     const corte = opcionEn(q);
     if (corte !== -1 && corte >= MIN_PREGUNTA) {
-      const nueva = q.slice(0, corte).replace(/[\s,;:]+$/, "") + "?";
+      let base = q.slice(0, corte);
+      // «¿Qué te pesa más ahora: la decisión en sí?» → «¿Qué te pesa más ahora?»
+      const dosPuntos = base.indexOf(":");
+      if (dosPuntos >= MIN_PREGUNTA) base = base.slice(0, dosPuntos);
+      const nueva = base.replace(/[\s,;:]+$/, "") + "?";
       t = t.slice(0, m.index) + nueva + t.slice(m.index + q.length);
     }
   }
@@ -262,12 +266,36 @@ function sanitizeEsoCansa(text) {
   if (!text) return text;
   return text
     .replace(/,?\s+y eso cansa\b/gi, "")
+    .replace(/,\s+que (?:cansa|agota|pesa)\b[^.!?\n]*/gi, "")
     .replace(/(^|[.!?…]\s+)Eso cansa(?: mucho)?\.\s*/g, "$1")
     .replace(/[ \t]{2,}/g, " ").trim();
 }
 
+// ── RED DE SEGURIDAD DEL 016 ──────────────────────────────────────────────
+// Si Alma da el 016 pero se le olvida alguna de las cosas imprescindibles,
+// se AÑADE (nunca se quita nada de una respuesta de seguridad).
+function completarProtocolo016(text) {
+  if (!text || !/\b016\b/.test(text)) return text;
+  const parrafos = text.trim().split(/\n\s*\n/);
+  let i016 = parrafos.findIndex(p => /\b016\b/.test(p));
+  if (!/\bborr/i.test(text)) {
+    parrafos[i016] = parrafos[i016].replace(/\s*$/, "") + " No sale en la factura, pero conviene borrar la llamada del historial del móvil.";
+  }
+  if (!/600\s?000\s?016/.test(text)) {
+    parrafos[i016] = parrafos[i016].replace(/\s*$/, "") + " También puedes escribirles por WhatsApp al 600 000 016, que puede ser más seguro si alguien te mira el teléfono.";
+  }
+  if (!/\b112\b/.test(text)) {
+    parrafos[i016] = parrafos[i016].replace(/\s*$/, "") + " Y si en algún momento hay peligro, llama al 112.";
+  }
+  if (!/\bculpa\b/i.test(text)) {
+    // va justo antes del párrafo del 016 (o después, si la respuesta empieza por él)
+    parrafos.splice(i016 === 0 ? 1 : i016, 0, "Nadie debería vivir con miedo en su propia casa, y no es culpa tuya.");
+  }
+  return parrafos.join("\n\n");
+}
+
 function limpiarRespuesta(text, opciones = {}) {
-  return recortarPreguntas(sanitizeEsoCansa(quitarPreguntasDeDatos(sanitizeEvaluacion(sanitizeManual(sanitizeEspana(sanitizeTrailingQuestion(sanitizeMuletillas(sanitizeDashes(sanitizeFirma(text)))))), opciones.bueno === true))));
+  return completarProtocolo016(recortarPreguntas(sanitizeEsoCansa(quitarPreguntasDeDatos(sanitizeEvaluacion(sanitizeManual(sanitizeEspana(sanitizeTrailingQuestion(sanitizeMuletillas(sanitizeDashes(sanitizeFirma(text)))))), opciones.bueno === true)))));
 }
 
 // Reflejo: guiones y muletillas (sin tocar sus preguntas, que no las lleva).
