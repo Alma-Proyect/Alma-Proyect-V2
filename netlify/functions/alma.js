@@ -11,7 +11,7 @@ const { RECORDATORIO_FINAL } = require("./lib/prompts");
 const { consultarLibre, sumarLibre, LIMITE_LIBRE_DIA } = require("./lib/limite");
 const { PREGUNTA_BUENO, CAPA_BUENO, esDiaBueno } = require("./lib/bueno");
 const { PREGUNTAS_ENTRADA, preguntaLibreDelDia } = require("./lib/entrada");
-const { CAPA_SOLTAR, capaAusencia, quitarPreguntas, limpiarFrasesAnteriores, capaNoRepetir, limpiarReintento, capaReintento } = require("./lib/capas");
+const { CAPA_SOLTAR, capaAusencia, quitarPreguntas, limpiarFrasesAnteriores, capaNoRepetir, limpiarReintento, capaReintento, quitarRepetidasDelReintento } = require("./lib/capas");
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_MENSAJES_LIBRES_EN_HILO = 10; // pares ella/Alma que se le recuerdan
@@ -268,6 +268,7 @@ exports.handler = async function (event) {
 
     let response = limpiarRespuesta(cleanIfTruncated(result.text, result.truncated), { bueno });
     if (soltar) response = quitarPreguntas(response);
+    if (reintento) response = quitarRepetidasDelReintento(response, reintento.anterior);
     if (tienePreguntaConOpciones(response)) {
       // Solo el aviso, nunca el texto: lo que escribe ella es privado
       console.warn(`Pregunta con opciones (puerta: ${puerta || "ninguna"}, día ${day}, turno ${currentTurn})`);

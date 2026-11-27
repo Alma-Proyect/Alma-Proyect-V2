@@ -73,10 +73,33 @@ function limpiarReintento(r) {
 function capaReintento(r) {
   return `TU RESPUESTA ANTERIOR NO LE HA SERVIDO:
 ${r.anterior ? `Le respondiste esto: «${r.anterior}»\n` : ""}Ella ha dicho que no la has entendido: ${MOTIVOS_REINTENTO[r.motivo]}.
-- Vuelve a responder a lo que escribió, de otra forma. No repitas ideas, imágenes ni frases de esa respuesta.
+- Vuelve a responder a lo que escribió, de otra forma. No repitas ideas, imágenes ni frases de esa respuesta, y no empieces igual: si la anterior empezaba con «Vaya…», «Qué…» o con la misma idea, esta empieza por otro sitio.
 - No te disculpes ni te expliques. Como mucho, una frase muy corta que reconozca que no lo habías pillado.
 ${r.motivo === "supuesto" ? "- No vuelvas a suponer nada: quédate con lo que ella ha dicho, con sus palabras.\n" : ""}${r.motivo === "general" ? "- Agárrate a algo concreto y suyo de lo que ha escrito, algo que solo valga para ella.\n" : ""}${r.motivo === "consejo" ? "- Nada de consejos, sugerencias ni «quizá podrías». Solo recibir lo que ha contado.\n" : ""}${r.motivo === "otro" ? "- Vuelve a leer lo que escribió como si fuera la primera vez y responde a eso, sin la lectura de antes. Si no está claro de qué quiere hablar, síguela con sencillez.\n" : ""}- No defiendas ni retomes tu lectura anterior, ni ahora ni en el resto de la conversación.
 - Más corta que la anterior.`;
 }
 
-module.exports = { CAPA_SOLTAR, capaAusencia, quitarPreguntas, limpiarFrasesAnteriores, capaNoRepetir, limpiarReintento, capaReintento };
+// Red de seguridad del reintento: si aun así repite frases de la respuesta
+// anterior (casi las mismas palabras), se quitan. Nunca deja la respuesta vacía.
+function palabrasDe(t) {
+  return (t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").match(/[a-zñ]{3,}/g) || []);
+}
+function quitarRepetidasDelReintento(nueva, anterior) {
+  if (!anterior || !nueva) return nueva;
+  const frasesAnt = anterior.split(/(?<=[.!?…])\s+/).map(palabrasDe).filter(w => w.length >= 4);
+  const parecida = (w) => frasesAnt.some(a => {
+    const sa = new Set(a);
+    const comunes = w.filter(x => sa.has(x)).length;
+    return comunes / Math.max(w.length, 1) >= 0.6;
+  });
+  const parrafos = nueva.split(/\n\s*\n/).map(par =>
+    par.split(/(?<=[.!?…])\s+/).filter(fr => {
+      const w = palabrasDe(fr);
+      return w.length < 4 || !parecida(w);
+    }).join(" ")
+  ).filter(par => par.trim());
+  const limpia = parrafos.join("\n\n").trim();
+  return limpia.length >= 20 ? limpia : nueva;
+}
+
+module.exports = { CAPA_SOLTAR, capaAusencia, quitarPreguntas, limpiarFrasesAnteriores, capaNoRepetir, limpiarReintento, capaReintento, quitarRepetidasDelReintento };
