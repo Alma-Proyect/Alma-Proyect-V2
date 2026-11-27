@@ -78,7 +78,11 @@ function sanitizeEspana(text) {
 //     («¿Cómo estás, con quién hablas?»), se corta en la primera opción.
 // Si un recorte dejaría la pregunta demasiado corta, se deja como estaba.
 
-const PALABRA_OPCION = "(?:es|era|son|fue|más|solo|sólo|hay|si|lo|la|el|está|estás|te|eres|sientes|tienes|cuando|algo|quizá|quizás|tal|prefieres|crees|notas|parece|pasa|viene|lo)";
+// Ampliada el 25 nov: «…el decidir en sí o sentir que…», «…de hoy o uno que viene de lejos»
+const PALABRA_OPCION = "(?:es|era|son|fue|más|solo|sólo|hay|si|lo|la|el|está|estás|te|eres|sientes|tienes|cuando|algo|quizá|quizás|tal|prefieres|crees|notas|parece|pasa|viene|lo|uno|una|otro|otra|sentir|sentirte|pensar|porque|simplemente|ya)";
+// La pregunta directa de seguridad («¿estás pensando en quitarte la vida o en
+// hacerte daño?») nunca se toca, aunque lleve una «o».
+const RE_PREGUNTA_SEGURIDAD = /\b(vida|daño|morir|matarte|suicid|viva|peligro|miedo de él|miedo de ella)/i;
 const RE_OPCION_COMA = /,\s+o\s+/i;
 const RE_OPCION = new RegExp("\\s+o\\s+" + PALABRA_OPCION + "\\b", "i");
 const RE_SEGUNDA_PREGUNTA = /,\s+(?:y\s+)?(?:qué|cómo|cuándo|dónde|quién|quiénes|cuál|cuáles|cuánto|cuánta|por qué|con quién|para qué|de qué)\s/i;
@@ -119,7 +123,7 @@ function recortarPreguntas(text) {
 
   // 2. Sin opciones ni pregunta encadenada
   const m = t.match(/¿[^¿?]*\?/);
-  if (m) {
+  if (m && !RE_PREGUNTA_SEGURIDAD.test(m[0])) {
     const q = m[0];
     const corte = opcionEn(q);
     if (corte !== -1 && corte >= MIN_PREGUNTA) {
@@ -253,8 +257,17 @@ function quitarPreguntasDeDatos(text) {
 // Respuesta de conversación: todas las redes, en el mismo orden que el original.
 // Las preguntas de datos se quitan antes de recortar a una sola pregunta: así,
 // si la primera era de datos, se queda la siguiente.
+// «…y eso cansa»: Alma añadía cansancio que ella no había nombrado
+function sanitizeEsoCansa(text) {
+  if (!text) return text;
+  return text
+    .replace(/,?\s+y eso cansa\b/gi, "")
+    .replace(/(^|[.!?…]\s+)Eso cansa(?: mucho)?\.\s*/g, "$1")
+    .replace(/[ \t]{2,}/g, " ").trim();
+}
+
 function limpiarRespuesta(text, opciones = {}) {
-  return recortarPreguntas(quitarPreguntasDeDatos(sanitizeEvaluacion(sanitizeManual(sanitizeEspana(sanitizeTrailingQuestion(sanitizeMuletillas(sanitizeDashes(sanitizeFirma(text)))))), opciones.bueno === true)));
+  return recortarPreguntas(sanitizeEsoCansa(quitarPreguntasDeDatos(sanitizeEvaluacion(sanitizeManual(sanitizeEspana(sanitizeTrailingQuestion(sanitizeMuletillas(sanitizeDashes(sanitizeFirma(text)))))), opciones.bueno === true))));
 }
 
 // Reflejo: guiones y muletillas (sin tocar sus preguntas, que no las lleva).
