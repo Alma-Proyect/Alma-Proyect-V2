@@ -1243,6 +1243,19 @@ body.entrada-abierta { overflow: hidden; }
   font-size: 0.76rem; line-height: 1.55; color: rgba(245,237,216,0.75); margin-top: 0.7rem;
 }
 .entrada-nota a { color: rgba(245,237,216,0.95); }
+.entrada-atajo { text-align: center; margin: -0.3rem 0 0.8rem; }
+.entrada-atajo button {
+  background: none; border: none; padding: 0.3rem 0.4rem; cursor: pointer;
+  font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem;
+  color: #F2D488; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(242,212,136,0.5);
+}
+.entrada-atajo button:focus-visible { outline: 2px solid #FFF3D6; outline-offset: 2px; border-radius: 4px; }
+.arrival-selector-options.puertas-aviso .puerta-btn { animation: puertasAviso 1.4s ease; }
+@keyframes puertasAviso { 0%,100% { box-shadow: none; } 40% { box-shadow: 0 0 0 2px rgba(242,212,136,0.75), 0 0 22px rgba(242,212,136,0.35); } }
+@media (max-width: 600px) {
+  .entrada-escribir { margin-top: 1rem; }
+  .entrada-text { min-height: 6rem; height: 7rem; }
+}
 .entrada-oscura .entrada-titulo { opacity: 0; animation: entradaAparece 1s ease 0.2s forwards; }
 @media (prefers-reduced-motion: reduce) { .entrada-oscura .entrada-titulo { animation: none; opacity: 1; } }
 #beta-arrival-selector-wrap:not(.entrada-oscura) .entrada-titulo,
@@ -1719,6 +1732,7 @@ body.libre-abierta { overflow: hidden; }
   transition: opacity 0.4s ease, transform 0.4s ease;
   pointer-events: none;
 }
+.question-card-fuera { display: none; }
 .question-card-visible {
   opacity: 1; transform: translateY(0);
   pointer-events: all;
@@ -2987,7 +3001,7 @@ body.en-guardiana .puerta-hoy-linea { color: rgba(255,255,255,0.88); }
     <div class="day-header">
       <div class="day-header-row">
         <div>
-          <div class="day-pill" id="day-pill">Día 1 de 3</div>
+          <div class="day-pill" id="day-pill">Día 1</div>
           <div class="day-title-text" id="day-title">Para <em>llegar aquí</em></div>
         </div>
         <!-- Ring solo desktop -->
@@ -3016,13 +3030,14 @@ body.en-guardiana .puerta-hoy-linea { color: rgba(255,255,255,0.88); }
         <div class="entrada-escribir">
           <label class="entrada-pregunta" for="entrada-text">¿Qué te apetece contar hoy?</label>
           <p class="entrada-sub">No necesitas saber cómo te sientes para empezar.</p>
+          <p class="entrada-atajo"><button type="button" onclick="irAPuertas()">O elige por qué puerta entras hoy ↓</button></p>
           <textarea class="entrada-text" id="entrada-text" rows="5" maxlength="2000"
             placeholder="Hoy me apetece escribir sobre…" oninput="entradaInput()"></textarea>
           <button type="button" class="entrada-enviar" id="entrada-enviar" onclick="entradaEnviar()" disabled>Enviar a Alma</button>
           <p class="entrada-nota">Lo lee Alma, una inteligencia artificial, para responderte. Al enviar confirmas que eres mayor de edad y aceptas la <a href="privacidad.html">política de privacidad</a>.</p>
         </div>
 
-        <div class="arrival-selector-title">¿Prefieres que te ayude a empezar?</div>
+        <div class="arrival-selector-title" id="entrada-puertas">¿Prefieres que te ayude a empezar?</div>
         <p class="entrada-como">Elige cómo llegas hoy y Alma te acompaña desde ahí. Es opcional, y mañana puedes elegir otra.</p>
         <div class="arrival-selector-options">
         <button class="arrival-selector-btn puerta-btn" style="--guardiana:#A34A66" onclick="selectBetaArrival(this,'nudos')">
@@ -4497,12 +4512,12 @@ function renderNav() {
   if (ringFill) ringFill.style.strokeDashoffset = 138.2 - (pct / 100) * 138.2;
   // Sin porcentajes: el día en el que está, no una tarea por completar
   const diaActual = Math.max(1, Math.min(totalDays, (typeof currentDay === 'number' ? currentDay + 1 : done)));
-  if (ringPct)  ringPct.textContent = diaActual + '/' + totalDays;
+  if (ringPct)  ringPct.textContent = String(diaActual);
 
   const barFill = document.getElementById('progress-bar-fill');
   const barPct  = document.getElementById('progress-bar-pct');
   if (barFill) barFill.style.width = pct + '%';
-  if (barPct)  barPct.textContent  = 'Día ' + diaActual + ' de ' + totalDays;
+  if (barPct)  barPct.textContent  = 'Día ' + diaActual;
 
   const msgs = [
     '"Cada vez que escribes, te escuchas un poco más."',
@@ -4537,7 +4552,7 @@ function jumpToDay(index) {
 
   const pill  = document.getElementById('day-pill');
   const title = document.getElementById('day-title');
-  if (pill)  pill.textContent = `Día ${index + 1} de ${totalDays}`;
+  if (pill)  pill.textContent = `Día ${index + 1}`;
   if (title) title.innerHTML  = meta[index].title;
   renderQuestion(index);
 
@@ -6325,7 +6340,7 @@ function avanzarDeDia() {
   const meta = TITULOS_DIA;
   const pill = document.getElementById('day-pill');
   const title = document.getElementById('day-title');
-  if (pill)  pill.textContent = `Día ${currentDay + 1} de ${totalDays}`;
+  if (pill)  pill.textContent = `Día ${currentDay + 1}`;
   if (title) title.innerHTML  = (meta[currentDay] || meta[meta.length - 1]).title;
 
   ['btn-save-d','btn-save-m'].forEach(id => {
@@ -6503,7 +6518,7 @@ function selectArrival(btn, mode) {
     setTimeout(() => {
       renderQuestion(currentDay);
       renderOpener(mode);
-      qCard.classList.add('question-card-visible');
+      (qCard.classList.add('question-card-visible'), qCard.classList.remove('question-card-fuera'));
       // Mostrar botones de guardar
       const rowD = document.getElementById('actions-row-d');
       if (rowD) rowD.style.display = 'flex';
@@ -6610,7 +6625,7 @@ function init() {
       const qCard = document.getElementById('question-card');
       if (qCard) {
         qCard.classList.remove('question-card-hidden');
-        qCard.classList.add('question-card-visible');
+        (qCard.classList.add('question-card-visible'), qCard.classList.remove('question-card-fuera'));
       }
     } else if (hasActiveDays) {
       // Tiene días de 3 días en curso — ir directo a la app, ocultar selector de llegada
@@ -6619,7 +6634,7 @@ function init() {
       const qCard = document.getElementById('question-card');
       if (qCard) {
         qCard.classList.remove('question-card-hidden');
-        qCard.classList.add('question-card-visible');
+        (qCard.classList.add('question-card-visible'), qCard.classList.remove('question-card-fuera'));
       }
       const sidebar = document.querySelector('.sidebar');
       if (sidebar) { sidebar.classList.remove('sidebar-hidden'); sidebar.classList.add('sidebar-visible'); }
@@ -6667,7 +6682,7 @@ function init() {
   // Actualizar pill y título al día activo real (usa la lista global de 7).
   const pill  = document.getElementById('day-pill');
   const title = document.getElementById('day-title');
-  if (pill)  pill.textContent = `Día ${currentDay + 1} de ${totalDays}`;
+  if (pill)  pill.textContent = `Día ${currentDay + 1}`;
   if (title) title.innerHTML  = (TITULOS_DIA[currentDay] || TITULOS_DIA[TITULOS_DIA.length - 1]).title;
 
   renderQuestion(currentDay);
@@ -7107,6 +7122,19 @@ function entradaInput() {
   if (ta && !borradorBloqueado()) { ta.value = t.value; onType(); }
 }
 
+// En el móvil las puertas quedan debajo del cuadro: este enlace lleva a ellas
+function irAPuertas() {
+  const t = document.getElementById('entrada-puertas');
+  if (!t) return;
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  const ops = t.parentElement && t.parentElement.querySelector('.arrival-selector-options');
+  if (ops && !reduce) {
+    ops.classList.remove('puertas-aviso'); void ops.offsetWidth; ops.classList.add('puertas-aviso');
+    setTimeout(() => ops.classList.remove('puertas-aviso'), 1600);
+  }
+}
+
 function entradaEnviar() {
   const t = document.getElementById('entrada-text');
   const text = t ? t.value.trim() : '';
@@ -7201,7 +7229,7 @@ function selectBetaArrival(btn, mode) {
     qCard.classList.remove('question-card-visible');
     setTimeout(() => {
       renderOpener(mode);
-      qCard.classList.add('question-card-visible');
+      (qCard.classList.add('question-card-visible'), qCard.classList.remove('question-card-fuera'));
       const rowD = document.getElementById('actions-row-d');
       if (rowD) rowD.style.display = 'flex';
       setMobileButtons(false);
@@ -7227,7 +7255,7 @@ function startBeta() {
     betaHistory = [];
     renderOpener(betaMode);
     const qCard = document.getElementById('question-card');
-    if (qCard) qCard.classList.add('question-card-visible');
+    if (qCard) (qCard.classList.add('question-card-visible'), qCard.classList.remove('question-card-fuera'));
   }
 }
 
@@ -7598,7 +7626,7 @@ function startFullJourney() {
       // Ocultar question-card — no puede escribir hasta mañana
       const qCard = document.getElementById('question-card');
       if (qCard) {
-        qCard.classList.add('question-card-hidden');
+        qCard.classList.add('question-card-hidden', 'question-card-fuera');
         qCard.classList.remove('question-card-visible');
       }
 
@@ -7607,7 +7635,7 @@ function startFullJourney() {
 
       // Actualizar pill y título al día 2
       const pill = document.getElementById('day-pill');
-      if (pill) { pill.textContent = `Día 2 de 3`; pill.style.display = ''; }
+      if (pill) { pill.textContent = `Día 2`; pill.style.display = ''; }
       const titleEl = document.getElementById('day-title');
       if (titleEl) { titleEl.innerHTML = 'Para <em>mirarse</em>'; titleEl.style.display = ''; }
 
